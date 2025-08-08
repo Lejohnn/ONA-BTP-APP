@@ -1,0 +1,149 @@
+.header-title {
+  font-family: 'Lexend', 'Inter', Arial, sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #222f3e;
+  text-align: center;
+}
+.taches-bg {
+  --background: #fff;
+}
+.taches-container {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 24px 12px 32px 12px;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 2px 12px rgba(44,62,80,0.07);
+}
+.tache-block {
+  background: #f5f2f0;
+  border-radius: 14px;
+  box-shadow: 0 1px 4px rgba(44,62,80,0.04);
+  padding: 12px 12px 12px 18px;
+  margin-bottom: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.tache-main-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+.tache-info-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.tache-header-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 2px;
+}
+.tache-statut {
+  font-size: 0.98rem;
+  font-weight: 700;
+  border-radius: 12px;
+  padding: 4px 14px;
+  background: #e1e1e1;
+  color: #8c755e;
+  text-transform: capitalize;
+}
+.tache-statut.pending {
+  background: #f9ca24;
+  color: #fff;
+}
+.tache-statut.in-progress {
+  background: #ED8205;
+  color: #fff;
+}
+.tache-statut.done {
+  background: #27ae60;
+  color: #fff;
+}
+.tache-nom {
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: #222f3e;
+}
+.tache-dates-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 2px;
+}
+.tache-dates {
+  font-size: 0.97rem;
+  color: #8c755e;
+}
+.tache-detail-btn {
+  font-size: 0.92rem;
+  height: 28px;
+  min-width: 70px;
+  padding: 0 14px;
+  --background: #FCC15D;
+  --color: #222f3e;
+  --border-radius: 10px;
+  --box-shadow: 0 2px 8px rgba(34,47,62,0.10);
+  margin-left: 8px;
+  font-weight: 700;
+  border: none !important;
+  box-shadow: none !important;
+}
+.tache-detail-btn:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+.add-tache-btn {
+  background: #EB8012;
+  color: #fff;
+  font-size: 2.1rem;
+  border: none;
+  border-radius: 50%;
+  width: 54px;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  right: 24px;
+  bottom: 32px;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(44,62,80,0.13);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.add-tache-btn:hover {
+  background: #fd5200;
+}
+.tache-progress {
+  margin-top: 6px;
+  height: 10px;
+  border-radius: 8px;
+}
+.tache-img {
+  width: 92px;
+  height: 92px;
+  object-fit: cover;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(44,62,80,0.07);
+  background: #fff;
+}
+ion-fab-button[color=warning] {
+  --background: #ED8205;
+  --color: #fff;
+  font-size: 1.5rem;
+}
+@media (max-width: 600px) {
+  .taches-container {
+    padding: 12px 2px 24px 2px;
+  }
+  .tache-img {
+    width: 68px;
+    height: 68px;
+  }
+} 

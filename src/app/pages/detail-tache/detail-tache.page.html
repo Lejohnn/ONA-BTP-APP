@@ -1,0 +1,101 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/liste-taches"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="header-title">Task Details</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" [scrollY]="true">
+  <div class="detail-tache-container">
+    <!-- Info principale -->
+    <div class="detail-tache-header">
+      <h1 class="detail-tache-nom">{{ tache.nom }}</h1>
+      <p class="detail-tache-description">{{ tache.description }}</p>
+    </div>
+
+    <!-- Dates et progression -->
+    <div class="detail-tache-dates-block">
+      <div class="detail-tache-dates">
+        <div>Start: {{ tache.dateDebut }}</div>
+        <div>End: {{ tache.dateFin }}</div>
+      </div>
+      <div class="detail-tache-progress-block">
+        <div class="progress-header">
+          <span class="progress-label">Progress</span>
+          <span class="progress-value">{{ (tache.progression * 100) | number:'1.0-0' }}%</span>
+        </div>
+        <ion-progress-bar [value]="tache.progression" class="detail-tache-progress"></ion-progress-bar>
+      </div>
+    </div>
+
+    <!-- Statut et météo -->
+    <div class="detail-tache-status-block">
+      <div class="status-item">
+        <div class="status-label">Status</div>
+        <div class="detail-tache-statut" [ngClass]="tache.statut.toLowerCase().replace(' ', '-')">
+          {{ tache.statut }}
+        </div>
+      </div>
+      <div class="status-item">
+        <div class="status-label">Weather Sensitivity</div>
+        <div class="meteo-sensibilite" [ngClass]="tache.sensibiliteMeteo.toLowerCase()">
+          {{ tache.sensibiliteMeteo }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Photos -->
+    <div class="detail-tache-photos">
+      <h2 class="section-title">Progress Photos</h2>
+      <div class="photos-grid">
+        <img *ngFor="let photo of tache.photos" [src]="photo" class="progress-photo" alt="Progress photo" />
+      </div>
+      <button class="add-photo-btn" (click)="ajouterPhoto()">
+        <img src="assets/images/taches/takePhoto.png" alt="Add photo" />
+        Add/Edit Photo
+      </button>
+    </div>
+
+    <!-- Ressources -->
+    <div class="detail-tache-ressources">
+      <!-- Ressources Humaines -->
+      <div class="ressources-section">
+        <div class="ressources-header">
+          <h2 class="section-title">Human Resources</h2>
+          <button class="edit-btn" (click)="editerRessourcesHumaines()">Edit</button>
+        </div>
+        <div class="ressources-list">
+          <div *ngFor="let res of tache.ressourcesHumaines" class="ressource-item">
+            <span class="ressource-nom">{{ res.nom }}</span>
+            <span class="ressource-quantite">{{ res.quantite }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ressources Matérielles -->
+      <div class="ressources-section">
+        <div class="ressources-header">
+          <h2 class="section-title">Material Resources</h2>
+          <button class="edit-btn" (click)="editerRessourcesMaterielles()">Edit</button>
+        </div>
+        <div class="ressources-list">
+          <div *ngFor="let res of tache.ressourcesMaterielles" class="ressource-item">
+            <span class="ressource-nom">{{ res.nom }}</span>
+            <span class="ressource-quantite">{{ res.quantite }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="detail-tache-actions">
+      <h2 class="section-title">Actions</h2>
+      <div class="actions-buttons">
+        <button class="action-btn update" (click)="updateTask()">Update Task</button>
+        <button class="action-btn return" (click)="returnTask()">Return Task</button>
+      </div>
+    </div>
+  </div>
+</ion-content> 

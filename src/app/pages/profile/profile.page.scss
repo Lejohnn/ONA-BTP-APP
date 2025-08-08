@@ -1,0 +1,245 @@
+.profile-bg {
+  --background: #fff;
+}
+
+.profile-container {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 32px 16px 24px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.profile-avatar-block {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.profile-avatar {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 2px 12px rgba(44,62,80,0.10);
+  background: #f5f2f0;
+  border: 4px solid #ED8205;
+}
+
+.profile-name {
+  font-family: 'Lexend', 'Inter', Arial, sans-serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #222f3e;
+  margin-bottom: 4px;
+  text-align: center;
+}
+
+.profile-email {
+  color: var(--ion-color-medium);
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.edit-profile-btn {
+  background: #ED8205;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  border: none;
+  border-radius: 18px;
+  padding: 8px 28px;
+  margin-bottom: 24px;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(44,62,80,0.07);
+  transition: background 0.2s;
+}
+.edit-profile-btn:hover {
+  background: #fd5200;
+}
+
+.profile-info-list {
+  width: 100%;
+  background: #f5f2f0;
+  border-radius: 18px;
+  box-shadow: 0 1px 4px rgba(44,62,80,0.04);
+  padding: 18px 18px 10px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.profile-info-item {
+  border-bottom: 1px solid var(--ion-color-light);
+  padding: 1rem 0;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.profile-info-label {
+  font-weight: 600;
+  color: var(--ion-color-dark);
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.profile-info-value {
+  color: var(--ion-color-medium);
+  font-size: 0.9rem;
+} 
+
+/* Styles pour l'affichage de l'adresse */
+.profile-info-value div {
+  margin-bottom: 2px;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.profile-info-value div:not(:last-child) {
+  color: var(--ion-color-medium);
+  font-size: 0.9em;
+}
+
+// ===== ÉTATS DE CHARGEMENT ET D'ERREUR =====
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 2rem;
+  text-align: center;
+  
+  ion-spinner {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 1rem;
+  }
+  
+  p {
+    color: var(--ion-color-medium);
+    margin: 0;
+  }
+}
+
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 2rem;
+  text-align: center;
+  
+  .error-icon {
+    font-size: 64px;
+    color: var(--ion-color-danger);
+    margin-bottom: 1rem;
+  }
+  
+  h3 {
+    color: var(--ion-color-danger);
+    margin: 0 0 0.5rem 0;
+    font-weight: 600;
+  }
+  
+  p {
+    color: var(--ion-color-medium);
+    margin: 0 0 1.5rem 0;
+    line-height: 1.4;
+  }
+}
+
+.empty-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 2rem;
+  text-align: center;
+  
+  .empty-icon {
+    font-size: 64px;
+    color: var(--ion-color-medium);
+    margin-bottom: 1rem;
+  }
+  
+  h3 {
+    color: var(--ion-color-dark);
+    margin: 0 0 0.5rem 0;
+    font-weight: 600;
+  }
+  
+  p {
+    color: var(--ion-color-medium);
+    margin: 0 0 1.5rem 0;
+    line-height: 1.4;
+  }
+}
+
+// ===== AMÉLIORATIONS DU PROFIL ===== 
+
+/* Styles pour le bouton de déconnexion */
+.logout-container {
+  padding: 20px;
+  margin-top: 20px;
+  text-align: center;
+}
+
+.logout-btn {
+  --border-color: var(--ion-color-danger);
+  --color: var(--ion-color-danger);
+  --border-width: 2px;
+  --border-radius: 8px;
+  font-weight: 500;
+  min-height: 48px;
+  width: 100%;
+  max-width: 300px;
+  transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+  --background: var(--ion-color-danger);
+  --color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(235, 68, 90, 0.3);
+}
+
+.logout-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(235, 68, 90, 0.2);
+}
+
+.logout-btn ion-icon {
+  margin-right: 8px;
+  font-size: 18px;
+}
+
+.logout-btn ion-spinner {
+  margin-right: 8px;
+}
+
+/* Animation pour le bouton désactivé */
+.logout-btn:disabled {
+  opacity: 0.6;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Styles pour l'alerte de confirmation */
+.alert-button-cancel {
+  color: var(--ion-color-medium);
+}
+
+.alert-button-confirm {
+  color: var(--ion-color-danger);
+  font-weight: 600;
+} 

@@ -1,0 +1,28 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Tâches</ion-title>
+    <ion-buttons slot="end">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <ion-list>
+    <ion-item *ngFor="let tache of [
+      { nom: 'Préparer le terrain', statut: 'En cours' },
+      { nom: 'Coulage béton', statut: 'À faire' },
+      { nom: 'Pose échafaudage', statut: 'Terminé' }
+    ]">
+      <ion-label>
+        <h2>{{ tache.nom }}</h2>
+        <p>{{ tache.statut }}</p>
+      </ion-label>
+      <ion-icon name="checkmark-done-outline" *ngIf="tache.statut === 'Terminé'" color="success" slot="end"></ion-icon>
+      <ion-icon name="time-outline" *ngIf="tache.statut === 'En cours'" color="warning" slot="end"></ion-icon>
+      <ion-icon name="ellipse-outline" *ngIf="tache.statut === 'À faire'" color="medium" slot="end"></ion-icon>
+    </ion-item>
+  </ion-list>
+</ion-content> 

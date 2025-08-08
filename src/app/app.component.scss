@@ -1,0 +1,66 @@
+.main-content {
+  height: 100%;
+}
+
+// Personnalisation du menu latéral
+ion-menu {
+  --background: #fff;
+  
+  ion-header {
+    ion-toolbar {
+      --background: linear-gradient(135deg, #fd5200 0%, #e64a00 100%);
+      --color: #fff;
+      
+      ion-title {
+        color: #fff;
+        font-weight: 600;
+        font-size: 1.2rem;
+      }
+    }
+  }
+  
+  ion-content {
+    ion-list {
+      padding: 16px 0;
+      
+      ion-item {
+        --background: transparent;
+        --color: #222f3e;
+        --border-color: #f0f0f0;
+        margin: 4px 16px;
+        border-radius: 8px;
+        --padding-start: 16px;
+        --padding-end: 16px;
+        --min-height: 56px;
+        
+        &:hover {
+          --background: rgba(253, 82, 0, 0.05);
+        }
+        
+        &:active {
+          --background: rgba(253, 82, 0, 0.1);
+        }
+        
+        ion-icon {
+          color: #8395a7;
+          font-size: 1.2rem;
+          margin-right: 16px;
+        }
+        
+        ion-label {
+          font-weight: 500;
+          font-size: 1rem;
+        }
+      }
+    }
+  }
+}
+
+// Animation pour le menu
+ion-menu-button {
+  --color: #fff;
+  
+  &:hover {
+    --color: rgba(255, 255, 255, 0.8);
+  }
+}

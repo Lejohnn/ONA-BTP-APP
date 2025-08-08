@@ -1,0 +1,57 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/liste-taches"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="header-title">Update Task</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" [scrollY]="true">
+  <form [formGroup]="tacheForm" class="modifier-tache-form">
+    <ion-label class="section-label">Data</ion-label>
+
+    <div class="row-align">
+      <ion-label class="label">Statut</ion-label>
+      <ion-select class="select-status" formControlName="statut" interface="popover" (ionChange)="onStatusChange($event)">
+        <ion-select-option *ngFor="let s of statusList" [value]="s">{{ s }}</ion-select-option>
+      </ion-select>
+    </div>
+
+    <div class="row-align">
+      <ion-label class="label">Progress</ion-label>
+      <ion-label class="progress-value">{{ progress }}%</ion-label>
+    </div>
+    <ion-range min="0" max="100" step="1" [value]="progress" (ionChange)="onProgressChange($event)"></ion-range>
+
+    <ion-label class="label">Comment</ion-label>
+    <ion-textarea class="input-large" formControlName="comment" placeholder="Describe the task..."></ion-textarea>
+
+    <ion-label class="section-label">Photo</ion-label>
+    <div class="photo-section">
+      <img src="assets/images/taches/updatePhoto.png" class="photo-img-large" alt="Update photo" />
+    </div>
+    <ion-label class="label-bold">Update Photo</ion-label>
+    <ion-label class="label-required">Required</ion-label>
+
+    <ion-label class="section-label">Resources</ion-label>
+    <div class="resource-row">
+      <img src="assets/icon/humanresource.png" class="resource-icon-img" alt="Human Resource" />
+      <div class="resource-info">
+        <div class="resource-title">Humain</div>
+        <div class="resource-details">Laborers - 3 - 2d</div>
+      </div>
+      <ion-button fill="solid" class="modify-btn" (click)="modifyHumanResource()">Modify</ion-button>
+    </div>
+    <div class="resource-row">
+      <img src="assets/icon/materialresource.png" class="resource-icon-img" alt="Material Resource" />
+      <div class="resource-info">
+        <div class="resource-title">Material</div>
+        <div class="resource-details">Materials - 2 - 1d</div>
+      </div>
+      <ion-button fill="solid" class="modify-btn" (click)="modifyMaterialResource()">Modify</ion-button>
+    </div>
+
+    <ion-button expand="block" fill="solid" class="update-btn" (click)="updateTask()">Update</ion-button>
+  </form>
+</ion-content> 

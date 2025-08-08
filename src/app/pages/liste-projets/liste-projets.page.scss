@@ -1,0 +1,429 @@
+.login-title {
+  font-family: 'Inter', sans-serif;
+  font-weight: 900;
+  font-size: 1.5rem;
+  color: #222f3e;
+  margin-bottom: 24px;
+  letter-spacing: 1px;
+  text-align: center;
+}// Fond général avec dégradé chantier
+
+.projects-bg {
+  --background: #fff;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+// ===== INDICATEUR HORS LIGNE =====
+.offline-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #ffd93d 0%, #fd5200);
+  color: white;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  
+  ion-icon {
+    margin-right: 8px;
+    font-size: 1.1rem;
+  }
+}
+
+// ===== ÉTATS DE CHARGEMENT ET ERREUR =====
+.loading-state, .error-state, .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+  
+  ion-spinner {
+    margin-bottom: 16px;
+    --color: var(--ion-color-primary);
+  }
+  
+  p {
+    color: var(--ion-color-medium);
+    margin: 8px 0;
+  }
+  
+  ion-button {
+    margin-top: 16px;
+  }
+}
+
+.error-state {
+  .error-icon {
+    font-size: 3rem;
+    color: var(--ion-color-danger);
+    margin-bottom: 16px;
+  }
+}
+
+.empty-state {
+  .empty-icon {
+    font-size: 4rem;
+    color: var(--ion-color-medium);
+    margin-bottom: 16px;
+  }
+  
+  h3 {
+    color: var(--ion-color-dark);
+    margin-bottom: 8px;
+  }
+}
+
+// ===== CONTENEUR PRINCIPAL =====
+.projects-container {
+  padding: 16px;
+}
+
+.projects-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 0 8px;
+}
+
+.projects-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--ion-color-dark);
+  margin: 0;
+}
+
+.add-project-text-btn {
+  --color: var(--ion-color-primary);
+  font-weight: 500;
+}
+
+// ===== LISTE DES PROJETS =====
+.project-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.project-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// ===== SECTION IMAGE =====
+.project-image-container {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+  
+  .project-img-full {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+  
+  &:hover .project-img-full {
+    transform: scale(1.05);
+  }
+}
+
+.project-overlay {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  
+  .project-status {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+// ===== CLASSES DE STATUT =====
+.status-in-progress {
+  background: linear-gradient(135deg, #ffd93d 0%, #fd5200);
+}
+
+.status-done {
+  background: linear-gradient(135deg, #4caf50, #45a049);
+}
+
+.status-cancelled {
+  background: linear-gradient(135deg, #f44336, #d32f2f);
+}
+
+.status-pending {
+  background: linear-gradient(135deg, #2196f3, #1976d2);
+}
+
+.status-default {
+  background: linear-gradient(135deg, #9e9e9e, #757575);
+}
+
+// ===== INFORMATIONS DU PROJET =====
+.project-info {
+  padding: 16px;
+}
+
+.project-name {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--ion-color-dark);
+  margin: 0 0 8px 0;
+  line-height: 1.3;
+}
+
+.project-client {
+  color: var(--ion-color-medium);
+  font-size: 0.9rem;
+  margin: 0 0 12px 0;
+}
+
+.project-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.project-location {
+  display: flex;
+  align-items: center;
+  color: var(--ion-color-medium);
+  font-size: 0.9rem;
+  
+  ion-icon {
+    margin-right: 4px;
+    font-size: 1rem;
+  }
+}
+
+.project-type {
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+// ===== CLASSES DE TYPE =====
+.type-construction {
+  background: rgba(255, 217, 61, 0.2);
+  color: #fd5200;
+}
+
+.type-renovation {
+  background: rgba(33, 150, 243, 0.2);
+  color: #1976d2;
+}
+
+.type-maintenance {
+  background: rgba(76, 175, 80, 0.2);
+  color: #45a049;
+}
+
+.type-default {
+  background: rgba(158, 158, 158, 0.2);
+  color: #757575;
+}
+
+// ===== SECTION PROGRESSION =====
+.project-progress-section {
+  margin-bottom: 16px;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  
+  .progress-label {
+    font-size: 0.9rem;
+    color: var(--ion-color-medium);
+  }
+  
+  .progress-percentage {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--ion-color-dark);
+  }
+}
+
+.project-progress {
+  height: 8px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+  
+  .progress-bar {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+  }
+}
+
+// ===== CLASSES DE PROGRESSION =====
+.progress-construction {
+  .progress-bar {
+    background: linear-gradient(90deg, #ffd93d 0%, #fd5200 100%);
+  }
+}
+
+.progress-renovation {
+  .progress-bar {
+    background: linear-gradient(90deg, #2196f3 0%, #1976d2 100%);
+  }
+}
+
+.progress-maintenance {
+  .progress-bar {
+    background: linear-gradient(90deg, #4caf50 0%, #45a049 100%);
+  }
+}
+
+.progress-default {
+  .progress-bar {
+    background: linear-gradient(90deg, #9e9e9e 0%, #757575 100%);
+  }
+}
+
+// ===== DATES DU PROJET =====
+.project-dates {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.date-item {
+  display: flex;
+  align-items: center;
+  font-size: 0.85rem;
+  color: var(--ion-color-medium);
+  
+  ion-icon {
+    margin-right: 8px;
+    font-size: 1rem;
+  }
+}
+
+// ===== ACTIONS DU PROJET =====
+.project-actions {
+  padding: 0 16px 16px 16px;
+  display: flex;
+  justify-content: flex-end;
+  
+  ion-button {
+    --color: var(--ion-color-primary);
+    font-weight: 500;
+  }
+}
+
+// ===== RESPONSIVE DESIGN =====
+@media (max-width: 480px) {
+  .projects-container {
+    padding: 12px;
+  }
+  
+  .projects-title {
+    font-size: 1.3rem;
+  }
+  
+  .project-image-container {
+    height: 160px;
+  }
+  
+  .project-name {
+    font-size: 1.1rem;
+  }
+  
+  .project-info {
+    padding: 12px;
+  }
+  
+  .project-actions {
+    padding: 0 12px 12px 12px;
+  }
+}
+
+@media (max-width: 360px) {
+  .projects-container {
+    padding: 8px;
+  }
+  
+  .project-image-container {
+    height: 140px;
+  }
+  
+  .project-info {
+    padding: 10px;
+  }
+  
+  .project-name {
+    font-size: 1rem;
+  }
+  
+  .project-details {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+// ===== SUPPORT POUR NOTCH =====
+@supports (padding: max(0px)) {
+  .projects-container {
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+  }
+}
+
+// ===== ACCESSIBILITÉ =====
+.project-card:focus {
+  outline: 2px solid var(--ion-color-primary);
+  outline-offset: 2px;
+}
+
+.add-project-text-btn:focus {
+  outline: 2px solid var(--ion-color-primary);
+  outline-offset: 2px;
+}
+
+// ===== ANIMATIONS =====
+.project-card {
+  animation: fadeInUp 0.3s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+} 

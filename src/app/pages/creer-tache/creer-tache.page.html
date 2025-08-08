@@ -1,0 +1,72 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/liste-taches"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="header-title">Create Task</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" [scrollY]="true">
+  <form [formGroup]="tacheForm" class="creer-tache-form">
+    <ion-input class="input-large" formControlName="name" placeholder="Task Name"></ion-input>
+    <ion-textarea class="input-large" formControlName="description" placeholder="Describe the task..."></ion-textarea>
+
+    <!-- <div class="dates-inline-row">
+      <ion-input
+        class="date-inline-input"
+        formControlName="startDate"
+        placeholder="Start Date"
+        type="text">
+      </ion-input>
+      <ion-input
+        class="date-inline-input"
+        formControlName="endDate"
+        placeholder="End Date"
+        type="text">
+      </ion-input>
+    </div> -->
+
+    <div class="progress-row">
+      <ion-label>Expected Progress</ion-label>
+      <ion-label class="progress-value">{{ expectedProgress }}%</ion-label>
+    </div>
+    <ion-range min="0" max="100" step="1" [value]="expectedProgress" (ionChange)="onProgressChange($event)"></ion-range>
+    <!-- <ion-progress-bar [value]="expectedProgress/100" class="detail-tache-progress"></ion-progress-bar> -->
+
+    <div class="weather-row">
+      <ion-label>Weather Sensitive</ion-label>
+      <ion-toggle slot="end" [checked]="weatherSensitive" (ionChange)="onToggleWeatherSensitive($event)"></ion-toggle>
+    </div>
+
+    <div class="photo-section">
+      <img src="assets/images/taches/takePhoto.png" class="photo-img-large" alt="Take photo" />
+    </div>
+    <div class="photo-buttons-row">
+      <ion-button expand="block" fill="solid" class="photo-btn" (click)="takePhoto()">Take Photo</ion-button>
+      <ion-button expand="block" fill="solid" class="photo-btn" (click)="importPhoto()">Import Photo</ion-button>
+    </div>
+
+    <ion-label class="section-label">Resources</ion-label>
+    <div class="resource-row">
+      <img src="assets/icon/humanresource.png" class="resource-icon-img" alt="Human Resource" />
+      <div class="resource-info">
+        <div class="resource-title">Masons</div>
+        <div class="resource-details">2 • 3d</div>
+      </div>
+      <ion-icon name="chevron-forward-outline" class="resource-arrow"></ion-icon>
+    </div>
+    <ion-button expand="block" fill="solid" class="add-resource-btn" (click)="addHumanResource()">Add Human Resources</ion-button>
+    <div class="resource-row">
+      <img src="assets/icon/materialresource.png" class="resource-icon-img" alt="Material Resource" />
+      <div class="resource-info">
+        <div class="resource-title">Materials</div>
+        <div class="resource-details">5 • 2d</div>
+      </div>
+      <ion-icon name="chevron-forward-outline" class="resource-arrow"></ion-icon>
+    </div>
+    <ion-button expand="block" fill="solid" class="add-resource-btn" (click)="addMaterialResource()">Add Material Resources</ion-button>
+
+    <ion-button expand="block" fill="solid" class="create-btn" (click)="onCreate()">Create</ion-button>
+  </form>
+</ion-content> 

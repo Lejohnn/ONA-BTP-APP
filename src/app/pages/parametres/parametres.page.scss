@@ -1,0 +1,207 @@
+// Variables pour le thème de couleurs
+$primary-orange: #fd5200;
+$secondary-orange: #e64a00;
+$accent-blue: #8395a7;
+$dark-blue: #222f3e;
+$white: #fff;
+
+// Contenu principal
+.custom-content {
+  --background: #f8f9fa;
+  padding: 16px;
+}
+
+// Container principal
+.settings-container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+// Header des paramètres
+.settings-header {
+  text-align: center;
+  margin-bottom: 32px;
+  padding: 24px 0;
+  
+  .settings-title {
+    color: $dark-blue;
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    background: linear-gradient(135deg, $primary-orange 0%, $secondary-orange 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .settings-subtitle {
+    color: $accent-blue;
+    font-size: 1rem;
+    margin: 0;
+    font-weight: 400;
+  }
+}
+
+// Section des paramètres
+.settings-section {
+  margin-bottom: 32px;
+  
+  .settings-list {
+    background: $white;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(34, 47, 62, 0.08);
+    margin: 0;
+    padding: 8px;
+    
+    .setting-item {
+      --background: transparent;
+      --border-color: #f0f0f0;
+      border-radius: 12px;
+      margin: 4px 0;
+      --padding-start: 16px;
+      --padding-end: 16px;
+      --min-height: 72px;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        --background: rgba(253, 82, 0, 0.05);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(253, 82, 0, 0.1);
+      }
+      
+      &:active {
+        --background: rgba(253, 82, 0, 0.1);
+        transform: translateY(0);
+      }
+      
+      .setting-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 16px;
+        
+        &.profile-icon {
+          background: linear-gradient(135deg, $primary-orange 0%, $secondary-orange 100%);
+          color: $white;
+        }
+        
+        &.notification-icon {
+          background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+          color: $white;
+        }
+        
+        &.theme-icon {
+          background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%);
+          color: $white;
+        }
+        
+        &.security-icon {
+          background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+          color: $white;
+        }
+        
+        &.help-icon {
+          background: linear-gradient(135deg, $accent-blue 0%, $dark-blue 100%);
+          color: $white;
+        }
+        
+        ion-icon {
+          font-size: 1.3rem;
+        }
+      }
+      
+      .setting-label {
+        flex: 1;
+        
+        .setting-title {
+          color: $dark-blue;
+          font-weight: 600;
+          font-size: 1.1rem;
+          margin: 0 0 4px 0;
+        }
+        
+        .setting-description {
+          color: $accent-blue;
+          font-size: 0.9rem;
+          margin: 0;
+          font-weight: 400;
+        }
+      }
+      
+      .chevron-icon {
+        color: $accent-blue;
+        font-size: 1.2rem;
+        margin-left: 8px;
+      }
+    }
+  }
+}
+
+// Section de déconnexion
+.logout-section {
+  margin-bottom: 32px;
+  
+  .logout-button {
+    --background: transparent;
+    --color: #f44336;
+    --border-color: #f44336;
+    --border-radius: 12px;
+    --border-width: 2px;
+    font-weight: 600;
+    height: 48px;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      --background: rgba(244, 67, 54, 0.05);
+      --border-color: #d32f2f;
+      --color: #d32f2f;
+    }
+    
+    &:active {
+      --background: rgba(244, 67, 54, 0.1);
+    }
+    
+    ion-icon {
+      margin-right: 8px;
+    }
+  }
+}
+
+// Informations de l'application
+.app-info {
+  text-align: center;
+  padding: 24px 0;
+  
+  .app-version {
+    color: $dark-blue;
+    font-weight: 600;
+    font-size: 1rem;
+    margin: 0 0 8px 0;
+  }
+  
+  .app-copyright {
+    color: $accent-blue;
+    font-size: 0.85rem;
+    margin: 0;
+    font-weight: 400;
+  }
+}
+
+// Responsive design
+@media (max-width: 480px) {
+  .settings-title {
+    font-size: 1.8rem !important;
+  }
+  
+  .setting-item {
+    --min-height: 64px !important;
+  }
+  
+  .setting-icon {
+    width: 40px !important;
+    height: 40px !important;
+  }
+} 

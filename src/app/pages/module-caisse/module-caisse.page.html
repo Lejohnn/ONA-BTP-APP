@@ -1,0 +1,113 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Module Caisse</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="refreshPage()" fill="clear">
+        <ion-icon name="refresh-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="caisse-content">
+  <div class="caisse-container">
+    <!-- Header avec icône -->
+    <div class="caisse-header">
+      <div class="caisse-icon">
+        <ion-icon name="wallet-outline"></ion-icon>
+      </div>
+      <h1 class="caisse-title">Module Caisse</h1>
+      <p class="caisse-subtitle">Gestion financière des projets</p>
+    </div>
+
+    <!-- Carte de statut -->
+    <ion-card class="status-card">
+      <ion-card-content>
+        <div class="status-content">
+          <div class="status-icon">
+            <ion-icon name="construct-outline"></ion-icon>
+          </div>
+          <div class="status-text">
+            <h3>En cours de développement</h3>
+            <p>Ce module sera bientôt disponible</p>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Fonctionnalités à venir -->
+    <div class="features-section">
+      <h2 class="section-title">Fonctionnalités prévues</h2>
+      
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <ion-icon name="wallet-outline"></ion-icon>
+          </div>
+          <h4>Gestion de caisse</h4>
+          <p>Entrées et sorties par projet</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">
+            <ion-icon name="document-text-outline"></ion-icon>
+          </div>
+          <h4>Suivi financier</h4>
+          <p>Transactions détaillées</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">
+            <ion-icon name="analytics-outline"></ion-icon>
+          </div>
+          <h4>Rapports</h4>
+          <p>Analyses et statistiques</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">
+            <ion-icon name="calendar-outline"></ion-icon>
+          </div>
+          <h4>Historique</h4>
+          <p>Suivi temporel</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Barre de progression -->
+    <div class="progress-section">
+      <div class="progress-header">
+        <h3>Progression du développement</h3>
+        <span class="progress-percentage">25%</span>
+      </div>
+      <ion-progress-bar 
+        value="0.25" 
+        color="warning"
+        class="progress-bar">
+      </ion-progress-bar>
+    </div>
+
+    <!-- Message d'encouragement -->
+    <div class="encouragement-section">
+      <ion-icon name="heart-outline" class="heart-icon"></ion-icon>
+      <p>Merci pour votre patience !</p>
+      <small>L'équipe travaille activement sur ce module</small>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions-section">
+      <ion-button 
+        expand="block" 
+        fill="solid" 
+        color="warning"
+        (click)="refreshPage()"
+        class="refresh-btn">
+        <ion-icon name="refresh-outline" slot="start"></ion-icon>
+        Actualiser
+      </ion-button>
+    </div>
+  </div>
+</ion-content> 

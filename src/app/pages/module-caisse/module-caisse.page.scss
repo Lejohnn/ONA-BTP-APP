@@ -1,0 +1,293 @@
+/* Page Module Caisse - Conforme au thème de l'application */
+.caisse-content {
+  --background: #f8f9fa;
+  min-height: 100vh;
+}
+
+.caisse-container {
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Header avec icône */
+.caisse-header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 20px 0;
+}
+
+.caisse-icon {
+  margin-bottom: 15px;
+  
+  ion-icon {
+    font-size: 60px;
+    color: #ED8205;
+    background: linear-gradient(135deg, #ED8205 0%, #ff9500 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+.caisse-title {
+  font-family: 'Lexend', 'Inter', Arial, sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: #222f3e;
+  margin: 0 0 8px 0;
+}
+
+.caisse-subtitle {
+  font-size: 16px;
+  color: var(--ion-color-medium);
+  margin: 0;
+  font-weight: 400;
+}
+
+/* Carte de statut */
+.status-card {
+  margin-bottom: 30px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: none;
+  background: white;
+}
+
+.status-content {
+  display: flex;
+  align-items: center;
+  padding: 20px;
+}
+
+.status-icon {
+  margin-right: 20px;
+  
+  ion-icon {
+    font-size: 40px;
+    color: #ED8205;
+  }
+}
+
+.status-text {
+  flex: 1;
+  
+  h3 {
+    font-family: 'Lexend', 'Inter', Arial, sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: #222f3e;
+    margin: 0 0 5px 0;
+  }
+  
+  p {
+    font-size: 14px;
+    color: var(--ion-color-medium);
+    margin: 0;
+  }
+}
+
+/* Section fonctionnalités */
+.features-section {
+  margin-bottom: 30px;
+}
+
+.section-title {
+  font-family: 'Lexend', 'Inter', Arial, sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: #222f3e;
+  margin: 0 0 20px 0;
+  text-align: center;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 15px;
+}
+
+.feature-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px 15px;
+  text-align: center;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(237, 130, 5, 0.1);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(237, 130, 5, 0.15);
+  }
+}
+
+.feature-card .feature-icon {
+  margin-bottom: 12px;
+  
+  ion-icon {
+    font-size: 32px;
+    color: #ED8205;
+  }
+}
+
+.feature-card h4 {
+  font-family: 'Lexend', 'Inter', Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #222f3e;
+  margin: 0 0 8px 0;
+}
+
+.feature-card p {
+  font-size: 12px;
+  color: var(--ion-color-medium);
+  margin: 0;
+  line-height: 1.3;
+}
+
+/* Section progression */
+.progress-section {
+  margin-bottom: 30px;
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  
+  h3 {
+    font-family: 'Lexend', 'Inter', Arial, sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: #222f3e;
+    margin: 0;
+  }
+  
+  .progress-percentage {
+    font-size: 18px;
+    font-weight: 700;
+    color: #ED8205;
+  }
+}
+
+.progress-bar {
+  height: 8px;
+  border-radius: 4px;
+}
+
+/* Section encouragement */
+.encouragement-section {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(237, 130, 5, 0.05) 0%, rgba(255, 149, 0, 0.05) 100%);
+  border-radius: 16px;
+  border: 1px solid rgba(237, 130, 5, 0.1);
+}
+
+.encouragement-section .heart-icon {
+  font-size: 28px;
+  color: #ED8205;
+  margin-bottom: 10px;
+  animation: heartbeat 1.5s infinite;
+}
+
+.encouragement-section p {
+  font-size: 16px;
+  font-weight: 500;
+  color: #222f3e;
+  margin: 0 0 5px 0;
+}
+
+.encouragement-section small {
+  font-size: 12px;
+  color: var(--ion-color-medium);
+  margin: 0;
+}
+
+@keyframes heartbeat {
+  0% {
+    transform: scale(1);
+  }
+  14% {
+    transform: scale(1.3);
+  }
+  28% {
+    transform: scale(1);
+  }
+  42% {
+    transform: scale(1.3);
+  }
+  70% {
+    transform: scale(1);
+  }
+}
+
+/* Section actions */
+.actions-section {
+  text-align: center;
+}
+
+.refresh-btn {
+  --background: #ED8205;
+  --color: white;
+  --border-radius: 12px;
+  --border-width: 0;
+  font-weight: 600;
+  min-height: 48px;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    --background: #fd5200;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(237, 130, 5, 0.3);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .caisse-container {
+    padding: 15px;
+  }
+  
+  .caisse-title {
+    font-size: 24px;
+  }
+  
+  .features-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  
+  .feature-card {
+    padding: 15px 10px;
+  }
+  
+  .feature-card .feature-icon ion-icon {
+    font-size: 28px;
+  }
+  
+  .feature-card h4 {
+    font-size: 13px;
+  }
+  
+  .feature-card p {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 360px) {
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+} 

@@ -1,0 +1,146 @@
+.modifier-tache-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 24px 12px 32px 12px;
+  box-sizing: border-box;
+}
+
+.section-label {
+  margin-top: 18px;
+  font-weight: 500;
+  font-size: 1.1rem;
+  color: #8A7561;
+}
+.label {
+  font-weight: 500;
+  color: #222;
+  margin-bottom: 4px;
+}
+.label-bold {
+  font-weight: 600;
+  color: #222;
+  margin-top: 12px;
+}
+.label-required {
+  color: #EB8012;
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+}
+.row-align {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.select-status {
+  min-width: 120px;
+  background: #F5F2F2;
+  border-radius: 8px;
+  --background: #F5F2F2;
+  --placeholder-color: #8c8c8c;
+  --color: #222;
+}
+.progress-value {
+  font-weight: bold;
+  color: #222;
+}
+ion-range {
+  // --bar-background: #FD5200;
+  --bar-height: 8px;
+  // --knob-background: #FD5200;
+  --knob-size: 24px;
+  margin-bottom: 0;
+}
+.input-large {
+  width: 100%;
+  font-size: 1.1rem;
+  background: #F5F2F2;
+  border-radius: 8px;
+  padding: 12px 14px;
+  border: 1px solid #e9ecef;
+  color: #222;
+  transition: background 0.2s, border 0.2s;
+}
+.input-large:focus,
+.input-large:active {
+  background: #E87D12;
+  border-color: #E87D12;
+  color: #fff;
+}
+.photo-section {
+  display: flex;
+  justify-content: center;
+  margin: 12px 0 0 0;
+}
+.photo-img-large {
+  width: 100%;
+  max-width: 420px;
+  height: 320px;
+  border-radius: 16px;
+  object-fit: cover;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+.resource-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #F5F2F2;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 6px;
+}
+.resource-icon-img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+.resource-info {
+  flex: 1;
+}
+.resource-title {
+  font-weight: 600;
+  font-size: 1rem;
+}
+.resource-details {
+  font-size: 0.95rem;
+  color: #8c8c8c;
+}
+.modify-btn {
+  min-width: 80px;
+  --background: #F5F2F0;
+  --color: #222;
+  --border-radius: 8px;
+  --box-shadow: none;
+  font-weight: 600;
+  transition: background 0.2s;
+  --background-hover: #EB8012;
+  --background-activated: #EB8012;
+  --background-focused: #EB8012;
+  --ripple-color: #EB8012;
+}
+.modify-btn:focus, .modify-btn:active {
+  --background: #EB8012;
+  --color: #fff;
+}
+.update-btn {
+  margin-top: 24px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  --background: #EBD9C4;
+  --color: #222;
+  --border-radius: 8px;
+  --box-shadow: none;
+}
+.update-btn:focus, .update-btn:active {
+  --background: #EB8012;
+  --color: #fff;
+}
+@media (max-width: 500px) {
+  .photo-img-large {
+    width: 100%;
+    height: 180px;
+  }
+} 

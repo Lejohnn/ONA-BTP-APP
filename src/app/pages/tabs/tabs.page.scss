@@ -1,0 +1,125 @@
+/* Styles pour les onglets */
+ion-tab-bar {
+  --background: #ffffff;
+  --border: 1px solid #e0e0e0;
+  --color: #666666;
+  --color-selected: #fd5200;
+  --color-activated: #fd5200;
+  height: 60px;
+  padding-bottom: env(safe-area-inset-bottom);
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+}
+
+ion-tab-button {
+  --color: #666666;
+  --color-selected: #fd5200;
+  --color-activated: #fd5200;
+  font-size: 12px;
+  font-weight: 500;
+  min-height: 60px;
+  flex: 1;
+  max-width: none;
+  width: 100%;
+  transition: all 0.2s ease;
+  position: relative;
+  
+  /* Alignement vertical des icônes et labels */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Styles spécifiques pour les icônes */
+ion-tab-button ion-icon {
+  font-size: 20px;
+  margin-bottom: 4px;
+  display: block;
+  width: 20px;
+  height: 20px;
+  margin: 0 auto 4px auto;
+}
+
+/* Styles pour les SVG dans les onglets */
+ion-tab-button svg {
+  width: 20px;
+  height: 20px;
+  margin-bottom: 4px;
+  display: block;
+  margin: 0 auto 4px auto;
+}
+
+/* Styles pour les labels */
+ion-tab-button ion-label {
+  font-size: 11px;
+  font-weight: 500;
+  margin-top: 2px;
+  display: block;
+  text-align: center;
+}
+
+/* Animation pour les tabs */
+ion-tab-button {
+  transition: all 0.2s ease;
+}
+
+ion-tab-button:hover {
+  --color: #fd5200;
+}
+
+/* État sélectionné */
+ion-tab-button.tab-selected {
+  transform: scale(1.05);
+}
+
+ion-tab-button.tab-selected ion-icon,
+ion-tab-button.tab-selected svg {
+  transform: scale(1.1);
+}
+
+/* Responsive design pour les tabs */
+@media (max-width: 480px) {
+  ion-tab-bar {
+    height: 55px;
+  }
+  
+  ion-tab-button {
+    min-height: 55px;
+    font-size: 11px;
+  }
+  
+  ion-tab-button ion-icon,
+  ion-tab-button svg {
+    font-size: 18px;
+    margin-bottom: 3px;
+    width: 18px;
+    height: 18px;
+  }
+  
+  ion-tab-button ion-label {
+    font-size: 10px;
+    margin-top: 1px;
+  }
+}
+
+/* Support pour les appareils avec notch */
+@supports (padding: max(0px)) {
+  ion-tab-bar {
+    padding-bottom: max(env(safe-area-inset-bottom), 8px);
+  }
+}
+
+/* Amélioration de l'accessibilité */
+ion-tab-button:focus {
+  outline: 2px solid #fd5200;
+  outline-offset: 2px;
+}
+
+/* Force la distribution égale des tabs */
+ion-tab-button {
+  flex: 1 1 0;
+  min-width: 0;
+}

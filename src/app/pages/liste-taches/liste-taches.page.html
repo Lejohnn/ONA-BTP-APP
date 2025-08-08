@@ -1,0 +1,31 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="header-title">Tasks | Project Alpha</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="taches-bg">
+  <div class="taches-container">
+    <div *ngFor="let tache of taches; let i = index" class="tache-block">
+      <div class="tache-main-row">
+        <div class="tache-info-col">
+          <div class="tache-header-row">
+            <span class="tache-statut" [ngClass]="tache.statut.toLowerCase().replace(' ', '-')">{{ tache.statut }}</span>
+            <span class="tache-nom">{{ tache.nom }}</span>
+          </div>
+          <div class="tache-dates-row">
+            <span class="tache-dates">Start: {{ tache.dateDebut }} &nbsp; End: {{ tache.dateFin }}</span>
+            <ion-button size="small" fill="outline" class="tache-detail-btn" (click)="voirDetailTache(tache.id)">See Details</ion-button>
+          </div>
+          <ion-progress-bar *ngIf="tache.statut === 'Pending'" [value]="0.2" class="tache-progress"></ion-progress-bar>
+        </div>
+        <img [src]="'assets/images/taches/' + ((i % 4) + 1) + '.png'" class="tache-img" alt="Tache image" />
+      </div>
+    </div>
+  </div>
+  <button class="add-tache-btn" (click)="ajouterTache()">+</button>
+</ion-content> 

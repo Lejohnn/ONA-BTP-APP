@@ -35,3 +35,154 @@
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import '@ionic/angular/css/palettes/dark.system.css';
+
+/* Styles personnalisés pour les toasts */
+ion-toast {
+  --background: var(--ion-color-primary);
+  --color: var(--ion-color-primary-contrast);
+  --border-radius: 8px;
+  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --min-width: 250px;
+  --max-width: 90%;
+  font-weight: 500;
+}
+
+ion-toast.toast-success {
+  --background: var(--ion-color-success);
+  --color: var(--ion-color-success-contrast);
+}
+
+ion-toast.toast-danger {
+  --background: var(--ion-color-danger);
+  --color: var(--ion-color-danger-contrast);
+}
+
+ion-toast.toast-warning {
+  --background: var(--ion-color-warning);
+  --color: var(--ion-color-warning-contrast);
+}
+
+ion-toast.toast-info {
+  --background: var(--ion-color-primary);
+  --color: var(--ion-color-primary-contrast);
+}
+
+/* Toast de bienvenue personnalisé */
+ion-toast.toast-welcome {
+  --background: linear-gradient(135deg, #fd5200 0%, #ff6b35 100%);
+  --color: white;
+  --border-radius: 12px;
+  --box-shadow: 0 8px 24px rgba(253, 82, 0, 0.3);
+  --min-width: 280px;
+  --max-width: 95%;
+  font-weight: 600;
+  font-size: 16px;
+  text-align: center;
+  padding: 16px 20px;
+}
+
+/* Animation spéciale pour le toast de bienvenue */
+ion-toast.toast-welcome {
+  animation: welcomeSlideIn 0.5s ease-out;
+}
+
+@keyframes welcomeSlideIn {
+  0% {
+    transform: translateY(-120%) scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: translateY(-10%) scale(1.05);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Animation pour les toasts normaux */
+ion-toast {
+  animation: slideInDown 0.3s ease-out;
+}
+
+@keyframes slideInDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Styles pour l'icône dans le toast de bienvenue */
+ion-toast.toast-welcome ion-icon {
+  font-size: 20px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+/* Styles pour l'alerte de déconnexion */
+.logout-alert {
+  --background: var(--ion-color-light);
+  --border-radius: 12px;
+  --box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.logout-alert .alert-wrapper {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.logout-alert .alert-head {
+  background: linear-gradient(135deg, #ff9500 0%, #ff8c00 100%);
+  color: white;
+  padding: 20px 16px 16px;
+}
+
+.logout-alert .alert-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.logout-alert .alert-message {
+  color: var(--ion-color-dark);
+  font-size: 14px;
+  line-height: 1.4;
+  margin: 16px;
+}
+
+.logout-alert .alert-button-group {
+  padding: 0 16px 16px;
+  gap: 8px;
+}
+
+.logout-alert .alert-button {
+  border-radius: 8px;
+  font-weight: 500;
+  min-height: 44px;
+  margin: 0;
+  flex: 1;
+}
+
+.logout-alert .alert-button-cancel {
+  --background: var(--ion-color-light);
+  --color: var(--ion-color-medium);
+  --border-color: var(--ion-color-medium);
+  --border-width: 1px;
+}
+
+.logout-alert .alert-button-confirm {
+  --background: var(--ion-color-danger);
+  --color: white;
+  --border-color: var(--ion-color-danger);
+}
+
+.logout-alert .alert-button-confirm:hover {
+  --background: var(--ion-color-danger-shade);
+}
+
+

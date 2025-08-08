@@ -1,0 +1,25 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/detail-ressource/1"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="header-title">Assigner un ouvrier</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" [scrollY]="true">
+  <form class="assign-worker-form" (ngSubmit)="assigner()">
+    <ion-item class="form-item">
+      <ion-select interface="popover" placeholder="Sélectionner le type de profil" [(ngModel)]="profilSelectionne" name="profil" required>
+        <ion-select-option *ngFor="let type of profils" [value]="type.value">{{ type.label }}</ion-select-option>
+      </ion-select>
+    </ion-item>
+    <ion-item class="form-item">
+      <ion-input type="number" placeholder="Nombre d’ouvriers" [(ngModel)]="nombreOuvriers" name="nombreOuvriers" required></ion-input>
+    </ion-item>
+    <ion-item class="form-item">
+      <ion-input type="number" placeholder="Durée (jours)" [(ngModel)]="duree" name="duree" required></ion-input>
+    </ion-item>
+    <button class="assign-btn" type="submit">Assigner</button>
+  </form>
+</ion-content> 

@@ -1,0 +1,103 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Profil</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="refreshProfile()" fill="clear">
+        <ion-icon name="refresh-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="profile-bg">
+  <!-- État de chargement -->
+  <div *ngIf="isLoading" class="loading-container">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Chargement du profil...</p>
+  </div>
+
+  <!-- État d'erreur -->
+  <div *ngIf="!isLoading && errorMessage" class="error-container">
+    <ion-icon name="alert-circle-outline" class="error-icon"></ion-icon>
+    <h3>Erreur</h3>
+    <p>{{ errorMessage }}</p>
+    <ion-button (click)="refreshProfile()" fill="outline">
+      Réessayer
+    </ion-button>
+  </div>
+
+  <!-- Contenu du profil -->
+  <div *ngIf="!isLoading && !errorMessage && userProfile" class="profile-container">
+    <div class="profile-avatar-block">
+      <img [src]="userProfile.avatar" [alt]="userProfile.name" class="profile-avatar" />
+    </div>
+    
+    <h2 class="profile-name">{{ userProfile.name }}</h2>
+    <div class="profile-email">{{ userProfile.email }}</div>
+    
+    <button class="edit-profile-btn">Modifier le profil</button>
+    
+    <div class="profile-info-list">
+      <div class="profile-info-item">
+        <span class="profile-info-label">Mobile</span>
+        <span class="profile-info-value">{{ userProfile.mobile }}</span>
+      </div>
+      
+      <div class="profile-info-item">
+        <span class="profile-info-label">Société</span>
+        <span class="profile-info-value">{{ userProfile.company }}</span>
+      </div>
+      
+      <div class="profile-info-item">
+        <span class="profile-info-label">Adresse</span>
+        <span class="profile-info-value">
+          <div *ngIf="userProfile.street !== 'Non renseigné'">{{ userProfile.street }}</div>
+          <div *ngIf="userProfile.city !== 'Non renseigné'">{{ userProfile.city }}</div>
+          <div *ngIf="userProfile.country !== 'Non renseigné'">{{ userProfile.country }}</div>
+          <div *ngIf="userProfile.street === 'Non renseigné' && userProfile.city === 'Non renseigné' && userProfile.country === 'Non renseigné'">
+            Non renseignée
+          </div>
+        </span>
+      </div>
+      
+      <div class="profile-info-item">
+        <span class="profile-info-label">Langue</span>
+        <span class="profile-info-value">{{ userProfile.language }}</span>
+      </div>
+      
+      <div class="profile-info-item">
+        <span class="profile-info-label">Fuseau horaire</span>
+        <span class="profile-info-value">{{ userProfile.timezone }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- État vide -->
+  <div *ngIf="!isLoading && !errorMessage && !userProfile" class="empty-container">
+    <ion-icon name="person-outline" class="empty-icon"></ion-icon>
+    <h3>Aucun profil trouvé</h3>
+    <p>Impossible de charger les informations du profil utilisateur.</p>
+    <ion-button (click)="refreshProfile()" fill="outline">
+      Réessayer
+    </ion-button>
+  </div>
+
+  <!-- Bouton de déconnexion -->
+  <div class="logout-container">
+    <ion-button 
+      (click)="logout()" 
+      fill="outline" 
+      color="danger" 
+      class="logout-btn"
+      [disabled]="isLoggingOut">
+      <ion-icon name="log-out-outline" slot="start"></ion-icon>
+      <ion-spinner name="crescent" *ngIf="isLoggingOut"></ion-spinner>
+      <span *ngIf="!isLoggingOut">Se déconnecter</span>
+      <span *ngIf="isLoggingOut">Déconnexion...</span>
+    </ion-button>
+  </div>
+</ion-content> 

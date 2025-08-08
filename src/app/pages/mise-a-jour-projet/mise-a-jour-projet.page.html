@@ -1,0 +1,31 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Mise à jour du projet</ion-title>
+    <ion-buttons slot="end">
+      <ion-back-button defaultHref="/projets"></ion-back-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <form [formGroup]="majForm" (ngSubmit)="validerMaj()">
+    <ion-list>
+      <ion-item>
+        <ion-label position="stacked">État du projet</ion-label>
+        <ion-select formControlName="etat">
+          <ion-select-option *ngFor="let etat of etats" [value]="etat.value">{{ etat.label }}</ion-select-option>
+        </ion-select>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">Commentaire</ion-label>
+        <ion-textarea formControlName="commentaire" rows="5" placeholder="Ajouter un commentaire..."></ion-textarea>
+      </ion-item>
+    </ion-list>
+    <ion-button expand="block" type="submit" color="primary" style="margin-top: 24px;">
+      Valider la mise à jour
+    </ion-button>
+  </form>
+</ion-content> 

@@ -1,0 +1,111 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Projets</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="refreshProjets()">
+        <ion-icon name="refresh-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <!-- Indicateur de statut hors ligne -->
+  <div *ngIf="!isOnline" class="offline-indicator">
+    <ion-icon name="cloud-offline-outline"></ion-icon>
+    <span>Mode hors ligne - Données en cache</span>
+  </div>
+
+  <!-- État de chargement -->
+  <div *ngIf="isLoading" class="loading-state">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Chargement des projets...</p>
+  </div>
+
+  <!-- État d'erreur -->
+  <div *ngIf="!isLoading && errorMessage" class="error-state">
+    <ion-icon name="alert-circle-outline" class="error-icon"></ion-icon>
+    <p>{{ errorMessage }}</p>
+    <ion-button fill="outline" (click)="refreshProjets()">
+      <ion-icon name="refresh-outline" slot="start"></ion-icon>
+      Réessayer
+    </ion-button>
+  </div>
+
+  <!-- Liste des projets -->
+  <div *ngIf="!isLoading && !errorMessage && projets.length > 0" class="projects-container">
+    <div class="projects-title-row">
+      <h2 class="projects-title">Mes Projets</h2>
+    </div>
+
+    <div class="project-list">
+      <div *ngFor="let projet of projets" class="project-card" (click)="voirDetails(projet.id)">
+        <div class="project-image-container">
+          <img [src]="projet.imageUrl" 
+               [alt]="getImageAltText(projet.type, projet.state)"
+               class="project-img-full"
+               (error)="onImageError($event, projet)"
+               loading="lazy">
+          <div class="project-overlay">
+            <div class="project-status" [ngClass]="getStatusClass(projet.state)">
+              {{ getStatusText(projet.state) }}
+            </div>
+          </div>
+        </div>
+
+        <div class="project-info">
+          <h3 class="project-name">{{ projet.nom }}</h3>
+          <p class="project-client">{{ projet.client }}</p>
+          <div class="project-details">
+            <div class="project-location">
+              <ion-icon name="location-outline"></ion-icon>
+              <span>{{ projet.localisation }}</span>
+            </div>
+            <div class="project-type" [ngClass]="getTypeClass(projet.type)">
+              {{ getTypeText(projet.type) }}
+            </div>
+          </div>
+
+          <div class="project-progress-section">
+            <div class="progress-info">
+              <span class="progress-label">Progression</span>
+              <span class="progress-percentage">{{ (projet.progress * 100) | number:'1.0-0' }}%</span>
+            </div>
+            <div class="project-progress" [ngClass]="getProgressClass(projet.type)">
+              <div class="progress-bar" [style.width.%]="projet.progress * 100"></div>
+            </div>
+          </div>
+
+          <div class="project-dates">
+            <div class="date-item">
+              <ion-icon name="calendar-outline"></ion-icon>
+              <span>Début: {{ projet.dateDebut }}</span>
+            </div>
+            <div class="date-item">
+              <ion-icon name="calendar-outline"></ion-icon>
+              <span>Fin: {{ projet.dateFin }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="project-actions">
+          <ion-button fill="clear" size="small" (click)="voirDetails(projet.id)">
+            <ion-icon name="eye-outline" slot="start"></ion-icon>
+            Voir détails
+          </ion-button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- État vide -->
+  <div *ngIf="!isLoading && !errorMessage && projets.length === 0" class="empty-state">
+    <ion-icon name="folder-open-outline" class="empty-icon"></ion-icon>
+    <h3>Aucun projet trouvé</h3>
+    <p>Vous n'avez pas encore de projets.</p>
+  </div>
+</ion-content> 

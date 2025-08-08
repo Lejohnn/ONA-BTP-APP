@@ -1,20 +1,24 @@
-<ion-header [translucent]="true">
+<!-- <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title>
       Blank
     </ion-title>
   </ion-toolbar>
-</ion-header>
+</ion-header> -->
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
-    </ion-toolbar>
-  </ion-header>
-
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
+<ion-content class="splash-bg">
+  <div class="splash-container">
+    <img src="assets/images/logo.png" alt="Logo ONA BTP" class="splash-logo" />
+    <h1 class="splash-title">Bienvenue sur ONA BTP</h1>
+    <p class="splash-subtitle">Votre solution de gestion de chantier</p>
+    
+    <!-- Animation de chargement -->
+    <div class="loading-animation">
+      <div class="loading-dots">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+    </div>
   </div>
 </ion-content>

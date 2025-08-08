@@ -1,0 +1,112 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>{{ projet?.nom || 'Détails du projet' }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-back-button defaultHref="/tabs/projets"></ion-back-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <!-- État de chargement -->
+  <div *ngIf="isLoading" class="loading-state">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Chargement du projet...</p>
+  </div>
+
+  <!-- État d'erreur -->
+  <div *ngIf="!isLoading && errorMessage" class="error-state">
+    <ion-icon name="alert-circle-outline" class="error-icon"></ion-icon>
+    <p>{{ errorMessage }}</p>
+    <ion-button fill="outline" (click)="retryLoad()">
+      <ion-icon name="refresh-outline" slot="start"></ion-icon>
+      Réessayer
+    </ion-button>
+  </div>
+
+  <!-- Contenu du projet -->
+  <div *ngIf="!isLoading && !errorMessage && projet" class="project-detail-container">
+    <h2 class="section-title">Aperçu du projet</h2>
+    <div class="overview-list">
+      <div class="overview-item">
+        <img src="assets/icon/location.png" class="overview-icon" alt="Location" />
+        <div class="overview-label-value">
+          <div class="overview-label">Localisation</div>
+          <div class="overview-value">{{ projet.localisation }}</div>
+          <div class="overview-value-sub">{{ projet.localisation }}</div>
+        </div>
+      </div>
+      <div class="overview-item">
+        <img src="assets/icon/Construction.png" class="overview-icon" alt="Construction Type" />
+        <div class="overview-label-value">
+          <div class="overview-label">Type de construction</div>
+          <div class="overview-value">{{ projet.type }}</div>
+          <div class="overview-value-sub">{{ projet.type }}</div>
+        </div>
+      </div>
+      <div class="overview-item">
+        <img src="assets/icon/client.png" class="overview-icon" alt="Client Name" />
+        <div class="overview-label-value">
+          <div class="overview-label">Nom du client</div>
+          <div class="overview-value">{{ projet.client }}</div>
+          <div class="overview-value-sub">{{ projet.client }}</div>
+        </div>
+      </div>
+      <div class="overview-item">
+        <img src="assets/icon/date.png" class="overview-icon" alt="Start Date" />
+        <div class="overview-label-value">
+          <div class="overview-label">Date de début</div>
+          <div class="overview-value">{{ projet.dateDebut }}</div>
+          <div class="overview-value-sub">{{ projet.dateDebut }}</div>
+        </div>
+      </div>
+      <div class="overview-item">
+        <img src="assets/icon/date.png" class="overview-icon" alt="End Date" />
+        <div class="overview-label-value">
+          <div class="overview-label">Date de fin</div>
+          <div class="overview-value">{{ projet.dateFin }}</div>
+          <div class="overview-value-sub">{{ projet.dateFin }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="progress-section">
+      <ion-label class="progress-label">Progression</ion-label>
+      <ion-progress-bar [value]="projet.progress"></ion-progress-bar>
+      <div class="progress-value">{{ (projet.progress * 100) | number:'1.0-0' }}%</div>
+    </div>
+
+    <h2 class="section-title">Indicateurs clés</h2>
+    <ion-grid class="key-indicators-grid">
+      <ion-row>
+        <ion-col size="4" *ngFor="let indicator of keyIndicators.slice(0,3)">
+          <div class="indicator-block" 
+               [class.clickable]="indicator.label === 'Total' || indicator.label === 'Available Resources' || indicator.label === 'Workers Used'"
+               (click)="onIndicatorClick(indicator)">
+            <img [src]="indicator.icon" class="indicator-icon" [alt]="indicator.label" />
+            <div class="indicator-label">{{ indicator.label }}</div>
+            <div class="indicator-value">{{ indicator.value }}</div>
+          </div>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="4" *ngFor="let indicator of keyIndicators.slice(3,6)">
+          <div class="indicator-block" 
+               [class.clickable]="indicator.label === 'Total' || indicator.label === 'Available Resources' || indicator.label === 'Workers Used'"
+               (click)="onIndicatorClick(indicator)">
+            <img [src]="indicator.icon" class="indicator-icon" [alt]="indicator.label" />
+            <div class="indicator-label">{{ indicator.label }}</div>
+            <div class="indicator-value">{{ indicator.value }}</div>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <ion-button expand="block" class="cash-module-btn" (click)="goToCaisse()">
+      Aller au module Caisse
+    </ion-button>
+  </div>
+</ion-content> 

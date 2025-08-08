@@ -1,0 +1,69 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Connexion</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="login-container">
+    
+    <!-- Indicateur de statut de connexion amélioré -->
+    <div class="connection-status">
+      <ion-badge [color]="getOnlineStatusColor()" class="status-badge">
+        <ion-icon [name]="isOnline ? 'wifi' : 'wifi-outline'"></ion-icon>
+        {{ getOnlineStatusText() }}
+      </ion-badge>
+    </div>
+
+    <!-- Logo et titre -->
+    <div class="logo-section">
+      <img src="assets/images/logo.png" alt="Logo ONA BTP" class="logo-image" />
+      <h1 class="app-title">ONA BTP</h1>
+      <p class="app-subtitle">Gestion de projets BTP</p>
+    </div>
+
+    <!-- Formulaire de connexion -->
+    <form [formGroup]="formData" (ngSubmit)="userLogin()" class="login-form">
+      
+      <ion-item class="form-item">
+        <ion-label position="floating">Email</ion-label>
+        <ion-input 
+          type="email" 
+          formControlName="codeclient"
+          placeholder="Votre email"
+          autocomplete="email">
+        </ion-input>
+      </ion-item>
+
+      <ion-item class="form-item">
+        <ion-label position="floating">Mot de passe</ion-label>
+        <ion-input 
+          type="password" 
+          formControlName="password"
+          placeholder="Votre mot de passe"
+          autocomplete="current-password">
+        </ion-input>
+      </ion-item>
+
+      <!-- Bouton de connexion -->
+      <ion-button 
+        expand="block" 
+        type="submit"
+        class="login-btn"
+        [disabled]="formData.invalid || isLoading">
+        <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
+        <span *ngIf="!isLoading">
+          <ion-icon name="log-in-outline" slot="start"></ion-icon>
+          Se connecter
+        </span>
+      </ion-button>
+
+      <!-- Informations mode hors ligne -->
+      <div *ngIf="!isOnline" class="offline-info">
+        <ion-icon name="information-circle-outline"></ion-icon>
+        <span>Mode hors ligne - Connexion avec cache local</span>
+      </div>
+    </form>
+
+  </div>
+</ion-content> 

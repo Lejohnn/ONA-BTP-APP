@@ -1,0 +1,28 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/detail-ressource/1"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="header-title">Add Equipment</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" [scrollY]="true">
+  <form class="ajout-equipement-form" (ngSubmit)="assigner()">
+    <ion-item class="form-item">
+      <ion-select interface="popover" placeholder="Select Equipment" [(ngModel)]="equipementSelectionne" name="equipement" required>
+        <ion-select-option *ngFor="let eq of equipements" [value]="eq">{{ eq.label }}</ion-select-option>
+      </ion-select>
+    </ion-item>
+    <div class="stock-info" *ngIf="equipementSelectionne">
+      <div class="stock-total">Total Stock: {{ equipementSelectionne.total }}</div>
+    </div>
+    <ion-item class="form-item">
+      <ion-input type="number" placeholder="Quantity" [(ngModel)]="quantite" name="quantite" required></ion-input>
+    </ion-item>
+    <div class="stock-info" *ngIf="equipementSelectionne">
+      <div class="stock-dispo">Available Stock: {{ equipementSelectionne.disponible }}</div>
+    </div>
+    <button class="assign-btn" type="submit">Assign</button>
+  </form>
+</ion-content> 

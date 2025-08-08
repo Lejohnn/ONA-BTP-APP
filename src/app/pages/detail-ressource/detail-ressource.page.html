@@ -1,0 +1,54 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/liste-ressources"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="header-title">Assign Resource</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" [scrollY]="true">
+  <div class="assign-ressource-container">
+    <!-- Human Resources Section -->
+    <div class="ressource-section">
+      <div class="ressource-section-header">
+        <span class="section-title">Human Resources</span>
+      </div>
+      <div class="ressource-list">
+        <div *ngFor="let hr of humanResources" class="ressource-item">
+          <img [src]="hr.icon" class="ressource-icon" alt="Human icon" />
+          <div class="ressource-info">
+            <div class="ressource-nom">{{ hr.nom }}</div>
+            <div class="ressource-details">
+              <span class="ressource-effectif">{{ hr.effectif }} effective</span>
+              <span class="ressource-jours">{{ hr.jours }} days</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button class="add-profile-btn" (click)="addProfile()">Add Profile</button>
+    </div>
+
+    <!-- Material Resources Section -->
+    <div class="ressource-section">
+      <div class="ressource-section-header">
+        <span class="section-title">Material Resources</span>
+      </div>
+      <div class="ressource-list">
+        <div *ngFor="let mr of materialResources" class="ressource-item">
+          <img [src]="mr.icon" class="ressource-icon" alt="Material icon" />
+          <div class="ressource-info">
+            <div class="ressource-nom">{{ mr.nom }}</div>
+            <div class="ressource-details">
+              <span class="ressource-quantite">{{ mr.quantite }} units</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button class="add-material-btn" (click)="addMaterial()">Add Material</button>
+    </div>
+
+    <!-- Confirm Button -->
+    <button class="confirm-btn" (click)="confirm()">Confirm</button>
+  </div>
+</ion-content> 
