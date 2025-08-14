@@ -208,7 +208,7 @@ export class UserService {
     if (imageData && typeof imageData === 'string' && imageData.trim() !== '') {
       return `data:image/png;base64,${imageData}`;
     }
-    return 'assets/images/profile-avatar.png';
+    return 'person-circle';
   }
 
   private formatCompany(companyData: [number, string]): string {

@@ -1,5 +1,18 @@
 import { Component } from '@angular/core';
-import { IonicModule } from '@ionic/angular';
+import { 
+  IonApp, 
+  IonRouterOutlet, 
+  IonMenu, 
+  IonHeader, 
+  IonToolbar, 
+  IonTitle, 
+  IonContent, 
+  IonList, 
+  IonItem, 
+  IonIcon, 
+  IonLabel,
+  IonMenuToggle
+} from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Router } from '@angular/router';
@@ -23,7 +36,22 @@ import {
   standalone: true,
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
-  imports: [IonicModule, CommonModule, RouterModule],
+  imports: [
+    IonApp, 
+    IonRouterOutlet, 
+    IonMenu, 
+    IonHeader, 
+    IonToolbar, 
+    IonTitle, 
+    IonContent, 
+    IonList, 
+    IonItem, 
+    IonIcon, 
+    IonLabel,
+    IonMenuToggle,
+    CommonModule, 
+    RouterModule
+  ],
 })
 export class AppComponent {
   public appPages = [

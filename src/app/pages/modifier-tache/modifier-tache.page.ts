@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import {
-  IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonIcon, IonTextarea, IonItem, IonLabel, IonSelect, IonSelectOption, IonBackButton, IonButtons, IonRange
+  IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonIcon, IonTextarea, IonLabel, IonSelect, IonSelectOption, IonBackButton, IonButtons, IonRange
 } from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -16,7 +16,7 @@ import { RouterModule } from '@angular/router';
     FormsModule,
     ReactiveFormsModule,
     RouterModule,
-    IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonIcon, IonTextarea, IonItem, IonLabel, IonSelect, IonSelectOption, IonBackButton, IonButtons, IonRange
+    IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonIcon, IonTextarea, IonLabel, IonSelect, IonSelectOption, IonBackButton, IonButtons, IonRange
   ]
 })
 export class ModifierTachePage {

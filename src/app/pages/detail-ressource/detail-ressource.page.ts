@@ -27,13 +27,13 @@ interface MaterialResource {
 })
 export class DetailRessourcePage {
   humanResources: HumanResource[] = [
-    { id: 1, nom: 'Masons', icon: 'assets/icon/humanresource.png', effectif: 5, jours: 10 },
-    { id: 2, nom: 'Electricians', icon: 'assets/icon/humanresource.png', effectif: 2, jours: 7 }
+          { id: 1, nom: 'Masons', icon: 'people', effectif: 5, jours: 10 },
+      { id: 2, nom: 'Electricians', icon: 'people', effectif: 2, jours: 7 }
   ];
 
   materialResources: MaterialResource[] = [
-    { id: 1, nom: 'Concrete', icon: 'assets/icon/materialresource.png', quantite: 20 },
-    { id: 2, nom: 'Bricks', icon: 'assets/icon/materialresource.png', quantite: 500 }
+          { id: 1, nom: 'Concrete', icon: 'construct', quantite: 20 },
+      { id: 2, nom: 'Bricks', icon: 'construct', quantite: 500 }
   ];
 
   addProfile() {

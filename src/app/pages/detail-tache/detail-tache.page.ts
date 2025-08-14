@@ -40,7 +40,7 @@ export class DetailTachePage {
     dateFin: '2024-07-22',
     progression: 0.2,
     sensibiliteMeteo: 'Haute',
-    photos: ['assets/images/taches/progressPhoto.png'],
+          photos: ['assets/images/taches/progressPhoto.webp'],
     ressourcesHumaines: [
       { id: 1, nom: 'Ouvriers', quantite: 5 },
       { id: 2, nom: 'Superviseurs', quantite: 1 }

@@ -1,6 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
 import {
-  IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonIcon, IonInput, IonTextarea, IonItem, IonLabel, IonRange, IonToggle, IonBackButton, IonButtons
+  IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonIcon, IonInput, IonTextarea, IonLabel, IonRange, IonToggle, IonBackButton, IonButtons
 } from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -16,7 +16,7 @@ import { RouterModule } from '@angular/router';
     FormsModule,
     ReactiveFormsModule,
     RouterModule,
-    IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonIcon, IonInput, IonTextarea, IonItem, IonLabel, IonRange, IonToggle, IonBackButton, IonButtons
+    IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonIcon, IonInput, IonTextarea, IonLabel, IonRange, IonToggle, IonBackButton, IonButtons
   ]
 })
 export class CreerTachePage {

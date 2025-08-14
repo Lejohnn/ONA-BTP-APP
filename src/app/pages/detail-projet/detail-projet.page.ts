@@ -62,12 +62,12 @@ export class DetailProjetPage implements OnInit {
 
   loadKeyIndicators() {
     this.keyIndicators = [
-      { label: 'Ongoing', icon: 'assets/icon/Ongoing.png', value: 12 },
-      { label: 'Total', icon: 'assets/icon/Total.png', value: 20 },
-      { label: 'Not Started', icon: 'assets/icon/Not_Started.png', value: 8 },
-      { label: 'Available Resources', icon: 'assets/icon/Available_Resources.png', value: 35 },
-      { label: 'Workers Used', icon: 'assets/icon/Workers_Used.png', value: 18 },
-      { label: 'Cash Balance', icon: 'assets/icon/Cash_Balance.png', value: '3,500,000 FCFA' }
+      { label: 'Ongoing', icon: 'play-circle', value: 12 },
+      { label: 'Total', icon: 'stats-chart', value: 20 },
+      { label: 'Not Started', icon: 'time', value: 8 },
+      { label: 'Available Resources', icon: 'people-circle', value: 35 },
+      { label: 'Workers Used', icon: 'construct', value: 18 },
+      { label: 'Cash Balance', icon: 'wallet', value: '3,500,000 FCFA' }
     ];
   }
 
