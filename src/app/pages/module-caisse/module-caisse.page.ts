@@ -1,18 +1,19 @@
 import { Component } from '@angular/core';
+import { HeaderTitleService } from '../../services/header-title.service';
+
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { ToastService } from '../../services/toast.service';
-
 @Component({
   selector: 'app-module-caisse',
   standalone: true,
-  imports: [IonicModule, CommonModule],
+  imports: [IonicModule, CommonModule,],
   templateUrl: './module-caisse.page.html',
   styleUrls: ['./module-caisse.page.scss']
 })
 export class ModuleCaissePage {
 
-  constructor(private toastService: ToastService) {}
+  constructor(private toastService: ToastService, private headerTitleService: HeaderTitleService) {}
 
   /**
    * Actualise la page

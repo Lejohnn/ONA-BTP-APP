@@ -36,6 +36,142 @@
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import '@ionic/angular/css/palettes/dark.system.css';
 
+/* ===== STYLES GLOBAUX POUR LES HEADERS ===== */
+
+/* Style global pour tous les headers */
+ion-header {
+  --background: var(--header-background);
+  --color: var(--header-text-color);
+  --border-color: transparent;
+  box-shadow: var(--header-shadow);
+  animation: headerSlideIn 0.3s ease-out;
+  background: var(--header-background) !important;
+}
+
+ion-toolbar {
+  --background: transparent;
+  --color: var(--header-text-color);
+  --border-color: transparent;
+  --min-height: 60px;
+  --padding-top: 8px;
+  --padding-bottom: 8px;
+  background: transparent !important;
+}
+
+/* Style pour les titres des headers */
+ion-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--header-text-color);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  letter-spacing: 0.5px;
+  text-align: center;
+}
+
+/* Style pour les boutons dans les headers */
+ion-header ion-button {
+  --color: var(--header-text-color);
+  --color-activated: rgba(255, 255, 255, 0.8);
+  --color-focused: rgba(255, 255, 255, 0.8);
+  --color-hover: rgba(255, 255, 255, 0.8);
+  --icon-font-size: 20px;
+  --min-width: 44px;
+  --min-height: 44px;
+  --border-radius: 8px;
+  --background: rgba(255, 255, 255, 0.1);
+  --background-activated: rgba(255, 255, 255, 0.2);
+  --background-focused: rgba(255, 255, 255, 0.2);
+  --background-hover: rgba(255, 255, 255, 0.15);
+}
+
+/* Style pour les boutons retour */
+ion-back-button {
+  --color: var(--header-text-color);
+  --color-activated: rgba(255, 255, 255, 0.8);
+  --color-focused: rgba(255, 255, 255, 0.8);
+  --color-hover: rgba(255, 255, 255, 0.8);
+  --icon-font-size: 24px;
+  --icon-margin-start: 0;
+  --icon-margin-end: 0;
+  --icon-padding-start: 0;
+  --icon-padding-end: 0;
+  --min-width: 44px;
+  --min-height: 44px;
+  --border-radius: 8px;
+  --background: rgba(255, 255, 255, 0.1);
+  --background-activated: rgba(255, 255, 255, 0.2);
+  --background-focused: rgba(255, 255, 255, 0.2);
+  --background-hover: rgba(255, 255, 255, 0.15);
+}
+
+/* Style pour les boutons menu */
+ion-menu-button {
+  --color: var(--header-text-color);
+  --color-activated: rgba(255, 255, 255, 0.8);
+  --color-focused: rgba(255, 255, 255, 0.8);
+  --color-hover: rgba(255, 255, 255, 0.8);
+  --icon-font-size: 24px;
+  --min-width: 44px;
+  --min-height: 44px;
+  --border-radius: 8px;
+  --background: rgba(255, 255, 255, 0.1);
+  --background-activated: rgba(255, 255, 255, 0.2);
+  --background-focused: rgba(255, 255, 255, 0.2);
+  --background-hover: rgba(255, 255, 255, 0.15);
+}
+
+/* Animation d'entrée pour les headers */
+@keyframes headerSlideIn {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Styles supplémentaires pour garantir l'affichage du dégradé */
+ion-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--header-background);
+  z-index: -1;
+}
+
+/* Amélioration de la visibilité du titre */
+ion-title {
+  position: relative;
+  z-index: 1;
+}
+
+/* Responsive design pour les headers */
+@media (max-width: 480px) {
+  ion-title {
+    font-size: 14px;
+  }
+  
+  ion-header ion-button {
+    --icon-font-size: 18px;
+    --min-width: 40px;
+    --min-height: 40px;
+  }
+}
+
+/* Mode sombre pour les headers */
+@media (prefers-color-scheme: dark) {
+  ion-header {
+    --background: var(--header-background);
+    box-shadow: var(--header-shadow);
+    background: var(--header-background) !important;
+  }
+}
+
 /* Styles personnalisés pour les toasts */
 ion-toast {
   --background: var(--ion-color-primary);

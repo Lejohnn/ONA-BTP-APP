@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
-import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
+import { IonicModule } from '@ionic/angular';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { HeaderTitleService } from '../../services/header-title.service';
 
 @Component({
   selector: 'app-ajout-equipement',
@@ -19,6 +20,10 @@ export class AjoutEquipementPage {
   ];
   equipementSelectionne: any = null;
   quantite: number | null = null;
+
+  constructor(private headerTitleService: HeaderTitleService) {
+    this.headerTitleService.setTitle('Ajouter Équipement');
+  }
 
   assigner() {
     console.log('Assign clicked', {

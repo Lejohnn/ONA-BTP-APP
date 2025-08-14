@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
-import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
+import { IonicModule } from '@ionic/angular';
+import { Router } from '@angular/router';
+import { HeaderTitleService } from '../../services/header-title.service';
 
 interface Tache {
   id: number;
@@ -13,22 +14,27 @@ interface Tache {
 
 @Component({
   selector: 'app-liste-taches',
-  standalone: true,
-  imports: [IonicModule, CommonModule, RouterModule],
   templateUrl: './liste-taches.page.html',
-  styleUrls: ['./liste-taches.page.scss']
+  styleUrls: ['./liste-taches.page.scss'],
+  standalone: true,
+  imports: [IonicModule, CommonModule]
 })
 export class ListeTachesPage {
-  taches: Tache[] = [
-    { id: 1, nom: 'Site Preparation', statut: 'Pending', dateDebut: '2024-07-15', dateFin: '2024-07-22' },
-    { id: 2, nom: 'Foundation', statut: 'In Progress', dateDebut: '2024-07-23', dateFin: '2024-08-05' },
-    { id: 3, nom: 'Structure', statut: 'Done', dateDebut: '2024-08-06', dateFin: '2024-09-01' }
+  taches = [
+    { id: 1, nom: 'Préparer le terrain', statut: 'En cours', dateDebut: '2024-01-15', dateFin: '2024-01-20' },
+    { id: 2, nom: 'Coulage béton', statut: 'À faire', dateDebut: '2024-01-21', dateFin: '2024-01-25' },
+    { id: 3, nom: 'Pose échafaudage', statut: 'Terminé', dateDebut: '2024-01-10', dateFin: '2024-01-12' }
   ];
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private headerTitleService: HeaderTitleService
+  ) {
+    this.headerTitleService.setTitle('Liste des Tâches');
+  }
 
   ajouterTache() {
-    console.log('Ajouter tâche cliqué');
+    this.router.navigate(['/creer-tache']);
   }
 
   voirDetailTache(tacheId: number) {

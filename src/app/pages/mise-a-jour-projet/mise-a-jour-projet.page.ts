@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
+import { IonicModule } from '@ionic/angular';
+import { RouterModule, ActivatedRoute, Router } from '@angular/router';
+import { ReactiveFormsModule, FormsModule, FormBuilder, FormGroup } from '@angular/forms';
+import { HeaderTitleService } from '../../services/header-title.service';
 
 @Component({
   selector: 'app-mise-a-jour-projet',
@@ -24,8 +25,10 @@ export class MiseAJourProjetPage implements OnInit {
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private headerTitleService: HeaderTitleService
   ) {
+    this.headerTitleService.setTitle('Mise à Jour Projet');
     this.majForm = this.fb.group({
       etat: ['en_cours'],
       commentaire: ['']

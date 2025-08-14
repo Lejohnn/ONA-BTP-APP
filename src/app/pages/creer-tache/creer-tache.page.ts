@@ -1,10 +1,12 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component } from '@angular/core';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonIcon, IonInput, IonTextarea, IonLabel, IonRange, IonToggle, IonBackButton, IonButtons
 } from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { IonicModule } from '@ionic/angular';
+import { HeaderTitleService } from '../../services/header-title.service';
 
 @Component({
   selector: 'app-creer-tache',
@@ -16,6 +18,7 @@ import { RouterModule } from '@angular/router';
     FormsModule,
     ReactiveFormsModule,
     RouterModule,
+    IonicModule,
     IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonIcon, IonInput, IonTextarea, IonLabel, IonRange, IonToggle, IonBackButton, IonButtons
   ]
 })
@@ -24,7 +27,8 @@ export class CreerTachePage {
   expectedProgress = 0;
   weatherSensitive = false;
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private headerTitleService: HeaderTitleService) {
+    this.headerTitleService.setTitle('Créer Tâche');
     this.tacheForm = this.fb.group({
       name: ['', Validators.required],
       description: [''],

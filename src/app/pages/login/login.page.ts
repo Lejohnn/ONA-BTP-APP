@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
-import { AlertController } from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { OfflineStorageService } from '../../services/offline-storage.service';
 import { ToastService } from '../../services/toast.service';
+import { NetworkDiagnosticService } from '../../services/network-diagnostic.service';
+import { HeaderTitleService } from '../../services/header-title.service';
 
 @Component({
   selector: 'app-login',
@@ -22,12 +23,14 @@ export class LoginPage implements OnInit {
 
   constructor(
     private formBuilder: FormBuilder,
-    private router: Router,
     private authService: AuthService,
+    private router: Router,
+    private networkService: NetworkDiagnosticService,
     private offlineStorage: OfflineStorageService,
     private toastService: ToastService,
-    private alertController: AlertController
+    private headerTitleService: HeaderTitleService
   ) {
+    this.headerTitleService.setTitle('Connexion');
     this.formData = this.formBuilder.group({
       codeclient: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(1)]]
@@ -51,29 +54,11 @@ export class LoginPage implements OnInit {
     const cachedUser = await this.offlineStorage.getCachedUser();
     if (cachedUser && !this.isOnline) {
       console.log('Utilisateur en cache trouvé en mode hors ligne');
-      this.showOfflineLoginAlert(cachedUser);
+              this.connectWithCachedUser(cachedUser);
     }
   }
 
-  private async showOfflineLoginAlert(cachedUser: any): Promise<void> {
-    const alert = await this.alertController.create({
-      header: 'Mode Hors Ligne',
-      message: `Utilisateur "${cachedUser.email}" trouvé en cache. Voulez-vous vous connecter en mode hors ligne ?`,
-      buttons: [
-        {
-          text: 'Non',
-          role: 'cancel'
-        },
-        {
-          text: 'Oui',
-          handler: () => {
-            this.connectWithCachedUser(cachedUser);
-          }
-        }
-      ]
-    });
-    await alert.present();
-  }
+
 
   private async connectWithCachedUser(cachedUser: any): Promise<void> {
     try {
@@ -112,7 +97,7 @@ export class LoginPage implements OnInit {
       }
       
       if (this.formData.get('password')?.hasError('minlength')) {
-        this.showToast('Mot de passe trop court', 'warning');
+        this.showToast('Mot de passe requis', 'warning');
         return false;
       }
       

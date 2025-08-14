@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
-import { IonicModule } from '@ionic/angular';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { HeaderTitleService } from '../../services/header-title.service';
 
+import { CommonModule } from '@angular/common';
+import { IonicModule } from '@ionic/angular';
 @Component({
   selector: 'app-taches',
-  standalone: true,
-  imports: [IonicModule, CommonModule, RouterModule],
   templateUrl: './taches.page.html',
-  styleUrls: ['./taches.page.scss']
+  styleUrls: ['./taches.page.scss'],
+  standalone: true,
+  imports: [IonicModule, CommonModule,]
 })
 export class TachesPage {} 

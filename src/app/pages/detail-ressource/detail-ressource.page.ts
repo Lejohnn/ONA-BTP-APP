@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
+import { HeaderTitleService } from '../../services/header-title.service';
+
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-
 interface HumanResource {
   id: number;
   nom: string;
@@ -21,7 +22,7 @@ interface MaterialResource {
 @Component({
   selector: 'app-detail-ressource',
   standalone: true,
-  imports: [IonicModule, CommonModule, RouterModule],
+  imports: [IonicModule, CommonModule, RouterModule,],
   templateUrl: './detail-ressource.page.html',
   styleUrls: ['./detail-ressource.page.scss']
 })

@@ -4,6 +4,7 @@ import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { ProjetService, ProjetFigma } from '../../services/projet.service';
 import { ToastController } from '@ionic/angular/standalone';
+import { HeaderTitleService } from '../../services/header-title.service';
 
 @Component({
   selector: 'app-detail-projet',
@@ -23,12 +24,18 @@ export class DetailProjetPage implements OnInit {
     private route: ActivatedRoute, 
     private router: Router, 
     private projetService: ProjetService,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private headerTitleService: HeaderTitleService
   ) {}
 
   ngOnInit() {
-    this.projetId = Number(this.route.snapshot.paramMap.get('id'));
-    this.loadProjet(this.projetId);
+    this.route.params.subscribe(params => {
+      const projetId = params['id'];
+      if (projetId) {
+        this.projetId = Number(projetId);
+        this.loadProjet(this.projetId);
+      }
+    });
     this.loadKeyIndicators();
   }
 
@@ -38,22 +45,28 @@ export class DetailProjetPage implements OnInit {
 
     this.projetService.getProjetById(id).subscribe({
       next: (projet) => {
-        console.log('Projet chargé:', projet);
         this.projet = projet;
         this.isLoading = false;
-        
-        if (!projet) {
-          this.errorMessage = 'Projet non trouvé';
-          this.showToast('Projet non trouvé', 'warning');
+        // Mise à jour du titre avec le nom du projet
+        if (projet?.nom) {
+          this.headerTitleService.setTitle(`Détail Projet - ${projet.nom}`);
+        } else {
+          this.headerTitleService.setTitle('Détail Projet');
         }
       },
       error: (error) => {
         console.error('Erreur lors du chargement du projet:', error);
         this.errorMessage = 'Erreur lors du chargement du projet';
         this.isLoading = false;
-        this.showToast('Erreur de connexion à l\'API', 'danger');
       }
     });
+  }
+
+  getPageTitle(): string {
+    if (this.projet?.nom) {
+      return `ONA BTP - Détail Projet - ${this.projet.nom}`;
+    }
+    return 'ONA BTP - Détail Projet';
   }
 
   retryLoad() {

@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
+import { HeaderTitleService } from '../../services/header-title.service';
+
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-
 interface Resource {
   id: number;
   nom: string;
@@ -26,7 +27,7 @@ interface TacheDetail {
 @Component({
   selector: 'app-detail-tache',
   standalone: true,
-  imports: [IonicModule, CommonModule, RouterModule],
+  imports: [IonicModule, CommonModule, RouterModule,],
   templateUrl: './detail-tache.page.html',
   styleUrls: ['./detail-tache.page.scss']
 })

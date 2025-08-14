@@ -6,11 +6,14 @@ import { ProjetService, ProjetFigma } from '../../services/projet.service';
 import { OfflineStorageService } from '../../services/offline-storage.service';
 import { ImageService } from '../../services/image.service';
 import { ToastController } from '@ionic/angular/standalone';
+import { HeaderTitleService } from '../../services/header-title.service';
+import { FormsModule } from '@angular/forms';
+import { NetworkDiagnosticService } from '../../services/network-diagnostic.service';
 
 @Component({
   selector: 'app-liste-projets',
   standalone: true,
-  imports: [IonicModule, CommonModule],
+  imports: [IonicModule, CommonModule, FormsModule],
   templateUrl: './liste-projets.page.html',
   styleUrls: ['./liste-projets.page.scss']
 })
@@ -25,12 +28,14 @@ export class ListeProjetsPage implements OnInit {
     private projetService: ProjetService,
     private offlineStorage: OfflineStorageService,
     private imageService: ImageService,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private headerTitleService: HeaderTitleService
   ) {}
 
   ngOnInit() {
     this.checkOnlineStatus();
     this.loadProjets();
+    this.headerTitleService.setTitle('Liste des Projets');
   }
 
   // ===== GESTION STATUT CONNEXION =====

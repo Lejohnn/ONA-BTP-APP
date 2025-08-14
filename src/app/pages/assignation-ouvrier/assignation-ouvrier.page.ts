@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
-import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
+import { IonicModule } from '@ionic/angular';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { HeaderTitleService } from '../../services/header-title.service';
 
 @Component({
   selector: 'app-assignation-ouvrier',
@@ -12,6 +13,9 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./assignation-ouvrier.page.scss']
 })
 export class AssignationOuvrierPage {
+  constructor(private headerTitleService: HeaderTitleService) {
+    this.headerTitleService.setTitle('Assignation Ouvrier');
+  }
   profils = [
     { value: 'macon', label: 'Maçon' },
     { value: 'electricien', label: 'Électricien' },

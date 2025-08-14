@@ -1,11 +1,13 @@
 import { Component } from '@angular/core';
+import { HeaderTitleService } from '../../services/header-title.service';
+
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonIcon, IonTextarea, IonLabel, IonSelect, IonSelectOption, IonBackButton, IonButtons, IonRange
 } from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-
+import { IonicModule } from '@ionic/angular';
 @Component({
   selector: 'app-modifier-tache',
   standalone: true,
@@ -16,15 +18,15 @@ import { RouterModule } from '@angular/router';
     FormsModule,
     ReactiveFormsModule,
     RouterModule,
-    IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonIcon, IonTextarea, IonLabel, IonSelect, IonSelectOption, IonBackButton, IonButtons, IonRange
-  ]
+    IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonIcon, IonTextarea, IonLabel, IonSelect, IonSelectOption, IonBackButton, IonButtons, IonRange,
+    IonicModule,]
 })
 export class ModifierTachePage {
   tacheForm: FormGroup;
   statusList = ['Pending', 'In Progress', 'Done'];
   progress = 50;
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private headerTitleService: HeaderTitleService) {
     this.tacheForm = this.fb.group({
       statut: ['', Validators.required],
       comment: [''],
