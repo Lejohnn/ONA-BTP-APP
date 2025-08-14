@@ -65,7 +65,7 @@ export class LoginPage implements OnInit {
       const result = await this.authService.userLogin(cachedUser.email, 'demo');
       if (result.success) {
         this.showToast('Connexion en mode hors ligne réussie', 'success');
-        this.router.navigate(['/tabs/projets']);
+        this.router.navigate(['/tabs/dashboard']);
       } else {
         this.showToast('Erreur lors de la connexion en mode hors ligne', 'danger');
       }
@@ -136,8 +136,8 @@ export class LoginPage implements OnInit {
         // Afficher le toast de bienvenue personnalisé
         await this.toastService.showWelcomeToast(userName);
         
-        // Redirection vers la liste des projets
-        this.router.navigate(['/tabs/projets']);
+        // Redirection vers le tableau de bord
+        this.router.navigate(['/tabs/dashboard']);
       } else {
         console.log('❌ Authentification échouée');
         this.showToast(result.message || 'Échec de l\'authentification', 'danger');

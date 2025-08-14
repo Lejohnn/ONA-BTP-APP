@@ -11,6 +11,7 @@ export class HeaderTitleService {
   // Mapping des routes vers les titres avec format "ONA BTP - [Titre]"
   private pageTitles: { [key: string]: string } = {
     '/home': 'ONA BTP - Accueil',
+    '/tabs/dashboard': 'ONA BTP - Tableau de Bord',
     '/tabs/projets': 'ONA BTP - Projets',
     '/tabs/taches': 'ONA BTP - Tâches',
     '/tabs/caisse': 'ONA BTP - Caisse',

@@ -1,0 +1,177 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>ONA BTP - Tableau de Bord</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="refreshDashboard()">
+        <ion-icon name="refresh-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="dashboard-content">
+  <!-- En-tête du dashboard -->
+  <div class="dashboard-header">
+    <div class="welcome-section">
+      <h1 class="welcome-title">Bonjour, {{ userName }}</h1>
+      <p class="welcome-subtitle">Voici un aperçu de vos projets BTP</p>
+      <div class="date-info">
+        <ion-icon name="calendar-outline"></ion-icon>
+        <span>{{ currentDate }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statistiques principales -->
+  <div class="stats-grid">
+    <!-- Projets totaux -->
+    <div class="stat-card primary">
+      <div class="stat-icon">
+        <ion-icon name="business-outline"></ion-icon>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats.totalProjets }}</div>
+        <div class="stat-label">Projets Totaux</div>
+        <div class="stat-trend positive" *ngIf="stats.projetsEnCours > 0">
+          <ion-icon name="trending-up-outline"></ion-icon>
+          {{ stats.projetsEnCours }} en cours
+        </div>
+      </div>
+    </div>
+
+    <!-- Heures totales -->
+    <div class="stat-card secondary">
+      <div class="stat-icon">
+        <ion-icon name="time-outline"></ion-icon>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats.totalHeures }}</div>
+        <div class="stat-label">Heures Totales</div>
+        <div class="stat-trend positive" *ngIf="stats.heuresCetteSemaine > 0">
+          <ion-icon name="trending-up-outline"></ion-icon>
+          +{{ stats.heuresCetteSemaine }}h cette semaine
+        </div>
+      </div>
+    </div>
+
+    <!-- Tâches complétées -->
+    <div class="stat-card success">
+      <div class="stat-icon">
+        <ion-icon name="checkmark-circle-outline"></ion-icon>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats.tachesCompletees }}/{{ stats.totalTaches }}</div>
+        <div class="stat-label">Tâches Complétées</div>
+        <div class="stat-percentage">
+          <ion-progress-bar [value]="stats.pourcentageTaches" color="success"></ion-progress-bar>
+          <span>{{ (stats.pourcentageTaches * 100) | number:'1.0-0' }}%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progression globale -->
+    <div class="stat-card warning">
+      <div class="stat-icon">
+        <ion-icon name="analytics-outline"></ion-icon>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ (stats.progressionGlobale * 100) | number:'1.0-0' }}%</div>
+        <div class="stat-label">Progression Globale</div>
+        <div class="stat-progress">
+          <ion-progress-bar [value]="stats.progressionGlobale" color="warning"></ion-progress-bar>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Projets récents -->
+  <div class="section-container">
+    <div class="section-header">
+      <h2 class="section-title">Projets Récents</h2>
+      <ion-button fill="clear" size="small" (click)="voirTousProjets()">
+        Voir tout
+        <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
+      </ion-button>
+    </div>
+    
+    <div class="recent-projects">
+      <div *ngFor="let projet of projetsRecents" class="project-card" (click)="voirProjet(projet.id)">
+        <div class="project-header">
+          <div class="project-status" [ngClass]="getStatusClass(projet.statut)">
+            {{ projet.statut }}
+          </div>
+          <div class="project-progress">
+            {{ (projet.progression * 100) | number:'1.0-0' }}%
+          </div>
+        </div>
+        <h3 class="project-name">{{ projet.nom }}</h3>
+        <p class="project-client">{{ projet.client }}</p>
+        <div class="project-details">
+          <div class="project-location">
+            <ion-icon name="location-outline"></ion-icon>
+            {{ projet.localisation }}
+          </div>
+          <div class="project-date">
+            <ion-icon name="calendar-outline"></ion-icon>
+            {{ projet.dateFin }}
+          </div>
+        </div>
+        <ion-progress-bar [value]="projet.progression" [color]="getProgressColor(projet.progression)"></ion-progress-bar>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tâches urgentes -->
+  <div class="section-container">
+    <div class="section-header">
+      <h2 class="section-title">Tâches Urgentes</h2>
+      <ion-button fill="clear" size="small" (click)="voirToutesTaches()">
+        Voir tout
+        <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
+      </ion-button>
+    </div>
+    
+    <div class="urgent-tasks">
+      <div *ngFor="let tache of tachesUrgentes" class="task-card" (click)="voirTache(tache.id)">
+        <div class="task-priority" [ngClass]="getPriorityClass(tache.priorite)">
+          <ion-icon name="alert-circle-outline"></ion-icon>
+        </div>
+        <div class="task-content">
+          <h4 class="task-name">{{ tache.nom }}</h4>
+          <p class="task-project">{{ tache.projet }}</p>
+          <div class="task-meta">
+            <span class="task-deadline">
+              <ion-icon name="time-outline"></ion-icon>
+              {{ tache.deadline }}
+            </span>
+            <span class="task-status" [ngClass]="getTaskStatusClass(tache.statut)">
+              {{ tache.statut }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions rapides -->
+  <div class="section-container">
+    <h2 class="section-title">Actions Rapides</h2>
+    <div class="quick-actions">
+      <ion-button expand="block" fill="solid" class="action-btn primary" (click)="creerProjet()">
+        <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+        Nouveau Projet
+      </ion-button>
+      <ion-button expand="block" fill="outline" class="action-btn secondary" (click)="creerTache()">
+        <ion-icon name="list-outline" slot="start"></ion-icon>
+        Nouvelle Tâche
+      </ion-button>
+      <ion-button expand="block" fill="outline" class="action-btn tertiary" (click)="voirRapports()">
+        <ion-icon name="document-text-outline" slot="start"></ion-icon>
+        Voir Rapports
+      </ion-button>
+    </div>
+  </div>
+</ion-content>

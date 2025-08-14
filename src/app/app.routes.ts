@@ -28,6 +28,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/tabs/tabs.page').then(m => m.TabsPage),
     children: [
       {
+        path: 'dashboard',
+        loadComponent: () => import('./pages/dashboard/dashboard.page').then(m => m.DashboardPage)
+      },
+      {
         path: 'projets',
         loadComponent: () => import('./pages/liste-projets/liste-projets.page').then(m => m.ListeProjetsPage)
       },
@@ -53,7 +57,7 @@ export const routes: Routes = [
       },
       {
         path: '',
-        redirectTo: 'projets',
+        redirectTo: 'dashboard',
         pathMatch: 'full'
       }
     ]
@@ -91,5 +95,10 @@ export const routes: Routes = [
   {
     path: 'mise-a-jour-projet/:id',
     loadComponent: () => import('./pages/mise-a-jour-projet/mise-a-jour-projet.page').then(m => m.MiseAJourProjetPage)
+  },
+  {
+    path: 'dashboard',
+    loadComponent: () => import('./pages/dashboard/dashboard.page').then( m => m.DashboardPage)
   }
+
 ];
