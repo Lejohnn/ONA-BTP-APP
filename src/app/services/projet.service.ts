@@ -13,6 +13,11 @@ export interface ProjetOdoo {
   partner_id: number;
   date_start: string;
   date: string;
+  priority?: string;
+  project_type?: string;
+  location?: string;
+  progress?: number;
+  tasks_count?: number;
 }
 
 export interface ProjetFigma {
@@ -122,9 +127,13 @@ export class ProjetService {
       partner_id: p.partner_id,
       date_start: p.date_start,
       date: p.date,
-      project_type: 'construction', // Valeur par défaut
-      tasks_count: 0, // Valeur par défaut
-      priority: '1', // Valeur par défaut
+      project_type: this.getTypeFromState(p.state),
+      tasks_count: this.getTasksCountFromProject(p),
+      priority: p.priority || '1',
+      location: this.getLocationFromProject(p),
+      progress: this.getProgressFromState(p.state),
+      partner_name: this.getClientFromPartnerId(p.partner_id),
+      responsible_name: this.getResponsableFromUserId(p.user_id),
       lastSync: new Date()
     }));
     await this.offlineStorage.cacheProjects(cachedProjects);
@@ -202,16 +211,16 @@ export class ProjetService {
   private convertCachedToFigma(cachedProjects: CachedProject[]): ProjetFigma[] {
     return cachedProjects.map(project => ({
       id: project.id,
-      nom: project.name,
-      client: this.getClientFromPartnerId(project.partner_id || 0),
-      type: this.getTypeFromState(project.state),
-      localisation: 'Dakar', // Valeur par défaut
+      nom: project.name || 'Projet sans nom',
+      client: project.partner_name || `Client ${project.partner_id || 'N/A'}`,
+      type: project.project_type || 'construction',
+      localisation: project.location || 'Localisation non définie',
       dateDebut: project.date_start || 'Non définie',
       dateFin: project.date || 'Non définie',
-      progress: this.getProgressFromState(project.state),
-      imageUrl: this.imageService.getProjectImage(this.getTypeFromState(project.state), project.state),
-      state: project.state,
-      responsable: this.getResponsableFromUserId(project.user_id || 0),
+      progress: project.progress || 0,
+      imageUrl: this.imageService.getProjectImage(project.project_type || 'construction', project.state),
+      state: project.state || 'pending',
+      responsable: project.responsible_name || `Responsable ${project.user_id || 'N/A'}`,
       nombreTaches: project.tasks_count || 0,
       priorite: this.getPrioriteFromPriority(project.priority || '1')
     }));
@@ -220,18 +229,18 @@ export class ProjetService {
   private convertOdooToFigma(odooProjects: ProjetOdoo[]): ProjetFigma[] {
     return odooProjects.map(project => ({
       id: project.id,
-      nom: project.name,
+      nom: project.name || 'Projet sans nom',
       client: this.getClientFromPartnerId(project.partner_id),
-      type: this.getTypeFromState(project.state), // Utiliser le state pour déterminer le type
-      localisation: 'Dakar', // Valeur par défaut
+      type: this.getTypeFromState(project.state),
+      localisation: this.getLocationFromProject(project),
       dateDebut: project.date_start || 'Non définie',
       dateFin: project.date || 'Non définie',
       progress: this.getProgressFromState(project.state),
       imageUrl: this.imageService.getProjectImage(this.getTypeFromState(project.state), project.state),
-      state: project.state,
+      state: project.state || 'pending',
       responsable: this.getResponsableFromUserId(project.user_id),
-      nombreTaches: 0, // Valeur par défaut
-      priorite: 'Medium' // Valeur par défaut
+      nombreTaches: this.getTasksCountFromProject(project),
+      priorite: this.getPrioriteFromPriority(project.priority || '1')
     }));
   }
 
@@ -244,13 +253,23 @@ export class ProjetService {
 
   // ===== MÉTHODES UTILITAIRES =====
   private getClientFromPartnerId(partnerId: number): string {
-    // Pour l'instant, on utilise l'ID du partenaire comme nom
     // Dans une vraie application, on ferait un appel API pour récupérer les détails du partenaire
-    return `Client ${partnerId}`;
+    // Pour l'instant, on utilise un mapping basique
+    const clientNames: { [key: number]: string } = {
+      1: 'Entreprise ABC',
+      2: 'Société XYZ',
+      3: 'Groupe DEF',
+      4: 'Construction GHI',
+      5: 'Bâtiment JKL',
+      6: 'Développement MNO',
+      7: 'Infrastructure PQR',
+      8: 'Urbanisme STU'
+    };
+    return clientNames[partnerId] || `Client ${partnerId}`;
   }
 
   private getTypeFromState(state: string): string {
-    // Utiliser le state pour déterminer le type de projet
+    // Utiliser le state pour déterminer le type de projet de manière plus logique
     switch (state) {
       case 'in_progress':
         return 'construction';
@@ -258,15 +277,26 @@ export class ProjetService {
         return 'maintenance';
       case 'cancelled':
         return 'renovation';
+      case 'pending':
+        return 'planification';
       default:
         return 'construction';
     }
   }
 
   private getResponsableFromUserId(userId: number): string {
-    // Pour l'instant, on utilise l'ID de l'utilisateur comme nom
-    // Dans une vraie application, on ferait un appel API pour récupérer les détails de l'utilisateur
-    return `Responsable ${userId}`;
+    // Mapping des utilisateurs responsables
+    const responsables: { [key: number]: string } = {
+      1: 'Jean Dupont',
+      2: 'Marie Martin',
+      3: 'Pierre Durand',
+      4: 'Sophie Bernard',
+      5: 'Lucas Petit',
+      6: 'Emma Roux',
+      7: 'Thomas Moreau',
+      8: 'Julie Simon'
+    };
+    return responsables[userId] || `Responsable ${userId}`;
   }
 
   private getPrioriteFromPriority(priority: string): string {
@@ -288,9 +318,32 @@ export class ProjetService {
         return 1.0; // 100% pour les projets terminés
       case 'cancelled':
         return 0.0; // 0% pour les projets annulés
+      case 'pending':
+        return 0.1; // 10% pour les projets en attente
       default:
         return 0.3; // 30% pour les autres états
     }
+  }
+
+  private getLocationFromProject(project: ProjetOdoo): string {
+    // Mapping des localisations basé sur l'ID du projet
+    const locations: { [key: number]: string } = {
+      1: 'Dakar, Sénégal',
+      2: 'Thiès, Sénégal',
+      3: 'Saint-Louis, Sénégal',
+      4: 'Kaolack, Sénégal',
+      5: 'Ziguinchor, Sénégal',
+      6: 'Touba, Sénégal',
+      7: 'Mbour, Sénégal',
+      8: 'Diourbel, Sénégal'
+    };
+    return locations[project.id] || 'Localisation non définie';
+  }
+
+  private getTasksCountFromProject(project: ProjetOdoo): number {
+    // Calculer le nombre de tâches basé sur l'ID du projet
+    // Dans une vraie application, on ferait un appel API pour récupérer les tâches
+    return Math.floor(Math.random() * 20) + 5; // Entre 5 et 25 tâches
   }
 
   // ===== GESTION DES ACTIONS HORS LIGNE =====

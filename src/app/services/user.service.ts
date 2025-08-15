@@ -2,7 +2,11 @@ import { Injectable } from '@angular/core';
 import { CapacitorHttp, HttpOptions } from '@capacitor/core';
 import { Observable, from, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
+import { HydrationService } from './hydration.service';
+import { User } from '../models/user.model';
+import { IUserOdoo } from '../models/interfaces/user.interface';
 
+// Interfaces legacy pour compatibilité (à supprimer progressivement)
 export interface UserOdoo {
   id: number;
   name: string;
@@ -39,7 +43,7 @@ export class UserService {
   private dbName = 'btptst';
   private uid: number = 0;
 
-  constructor() {
+  constructor(private hydrationService: HydrationService) {
     this.getUidFromStorage();
   }
 
@@ -58,7 +62,12 @@ export class UserService {
   }
 
   // ===== RÉCUPÉRATION DES DONNÉES UTILISATEUR =====
-  getUserProfile(): Observable<UserProfile | null> {
+  
+  /**
+   * Récupère le profil utilisateur avec le nouveau pattern d'hydratation
+   * @returns Observable<User | null>
+   */
+  getUserProfile(): Observable<User | null> {
     console.log('🔍 getUserProfile() appelé, UID:', this.uid);
     
     if (!this.uid) {
@@ -69,7 +78,7 @@ export class UserService {
     return this.getUserFromOdoo().pipe(
       map(userData => {
         if (userData && userData.length > 0) {
-          return this.convertOdooToProfile(userData[0]);
+          return this.hydrateUserFromOdoo(userData[0]);
         }
         return null;
       }),
@@ -80,7 +89,47 @@ export class UserService {
     );
   }
 
-  private getUserFromOdoo(): Observable<UserOdoo[]> {
+  /**
+   * Méthode legacy pour compatibilité (à supprimer progressivement)
+   * @returns Observable<UserProfile | null>
+   */
+  getUserProfileLegacy(): Observable<UserProfile | null> {
+    console.log('🔍 getUserProfileLegacy() appelé, UID:', this.uid);
+    
+    if (!this.uid) {
+      console.error('❌ UID non disponible pour récupérer le profil');
+      return of(null);
+    }
+
+    return this.getUserFromOdoo().pipe(
+      map(userData => {
+        if (userData && userData.length > 0) {
+          // Conversion de IUserOdoo vers UserOdoo pour la compatibilité legacy
+          const legacyUserData: UserOdoo = {
+            id: userData[0].id,
+            name: userData[0].name,
+            email: userData[0].email,
+            mobile: userData[0].mobile,
+            lang: userData[0].lang,
+            tz: userData[0].tz || 'Europe/Paris',
+            avatar_1024: userData[0].avatar_1024,
+            company_id: userData[0].company_id || [0, ''],
+            city: userData[0].city,
+            street: userData[0].street,
+            country_id: userData[0].country_id
+          };
+          return this.convertOdooToProfile(legacyUserData);
+        }
+        return null;
+      }),
+      catchError(error => {
+        console.error('❌ Erreur lors de la récupération du profil utilisateur:', error);
+        return of(null);
+      })
+    );
+  }
+
+  private getUserFromOdoo(): Observable<IUserOdoo[]> {
     console.log('🔍 getUserFromOdoo() appelé');
     console.log('📊 UID:', this.uid, 'DB:', this.dbName, 'URL:', this.odooUrl);
     
@@ -114,7 +163,27 @@ export class UserService {
               "company_id",
               "city",
               "street",
-              "country_id"
+              "country_id",
+              "active",
+              "display_name",
+              "login",
+              "partner_id",
+              "employee",
+              "employee_id",
+              "equipment_count",
+              "equipment_ids",
+              "expense_manager_id",
+              "gender",
+              "currency_id",
+              "create_date",
+              "write_date",
+              "create_uid",
+              "write_uid",
+              "partner_latitude",
+              "partner_longitude",
+              "project_ids",
+              "sale_order_ids",
+              "task_ids"
             ] 
           }
         ]
@@ -140,7 +209,7 @@ export class UserService {
         console.log('📥 Réponse utilisateur reçue:', response);
         if (response.status === 200 && response.data?.result) {
           console.log('✅ Données utilisateur récupérées:', response.data.result);
-          return response.data.result as UserOdoo[];
+          return response.data.result as IUserOdoo[];
         }
         console.log('⚠️ Pas de données utilisateur dans la réponse');
         return [];
@@ -152,7 +221,43 @@ export class UserService {
     );
   }
 
-  // ===== CONVERSION DE DONNÉES =====
+  // ===== HYDATATION ET CONVERSION DE DONNÉES =====
+  
+  /**
+   * Hydrate un utilisateur à partir des données Odoo
+   * @param userData Données brutes Odoo
+   * @returns User hydraté
+   */
+  private hydrateUserFromOdoo(userData: IUserOdoo): User {
+    console.log('🔄 Hydratation de l\'utilisateur depuis Odoo');
+    
+    try {
+      // Validation des données
+      if (!this.hydrationService.validateUserData(userData)) {
+        console.error('❌ Données utilisateur invalides');
+        return this.hydrationService.createDefaultUser();
+      }
+
+      // Prétraitement des données
+      const cleanedData = this.hydrationService.preprocessUserData(userData);
+      
+      // Hydratation avec le service dédié
+      const user = this.hydrationService.hydrateUser(cleanedData);
+      
+      console.log('✅ Utilisateur hydraté avec succès');
+      return user;
+      
+    } catch (error) {
+      console.error('❌ Erreur lors de l\'hydratation:', error);
+      return this.hydrationService.createDefaultUser();
+    }
+  }
+
+  /**
+   * Méthode legacy pour compatibilité (à supprimer progressivement)
+   * @param userData Données brutes Odoo
+   * @returns UserProfile
+   */
   private convertOdooToProfile(userData: UserOdoo): UserProfile {
     return {
       id: userData.id,

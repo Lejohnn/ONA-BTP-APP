@@ -1,78 +1,113 @@
-.login-title {
-  font-family: 'Inter', sans-serif;
-  font-weight: 900;
-  font-size: 1.5rem;
-  color: #222f3e;
-  margin-bottom: 24px;
-  letter-spacing: 1px;
-  text-align: center;
-}// Fond général avec dégradé chantier
+/* ===== STYLES DE LA LISTE DES PROJETS ===== */
 
-// Optimisation CSS - Version réduite
-.projects-bg {
-  --background: #fff;
-  height: 100vh;
-  overflow-y: auto;
+ion-content {
+  --background: #f8f9fa;
 }
 
-// États de chargement optimisés
-.loading-state, .error-state, .empty-state {
+/* Indicateur hors ligne */
+.offline-indicator {
+  background: linear-gradient(135deg, #ffce00 0%, #ffd31a 100%);
+  color: #2c3e50;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(255, 206, 0, 0.2);
+}
+
+.offline-indicator ion-icon {
+  font-size: 18px;
+}
+
+/* États de chargement et d'erreur */
+.loading-state,
+.error-state,
+.empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px 20px;
+  padding: 60px 20px;
   text-align: center;
-  
-  ion-spinner {
-    margin-bottom: 16px;
-    --color: var(--ion-color-primary);
-  }
-  
-  p {
-    color: var(--ion-color-medium);
-    margin: 8px 0;
-  }
+}
+
+.loading-state ion-spinner {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+  --color: #fd5200;
+}
+
+.loading-state p,
+.error-state p,
+.empty-state p {
+  color: #7f8c8d;
+  font-size: 16px;
+  margin: 8px 0 16px 0;
 }
 
 .error-state .error-icon {
-  font-size: 3rem;
-  color: var(--ion-color-danger);
+  font-size: 48px;
+  color: #f04141;
   margin-bottom: 16px;
 }
 
 .empty-state .empty-icon {
-  font-size: 4rem;
-  color: var(--ion-color-medium);
+  font-size: 64px;
+  color: #bdc3c7;
   margin-bottom: 16px;
 }
 
-// Conteneur principal
+.empty-state h3 {
+  color: #2c3e50;
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+}
+
+/* En-tête des projets */
 .projects-container {
   padding: 16px;
 }
 
-.projects-title-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  padding: 0 8px;
+.projects-header {
+  margin-bottom: 24px;
 }
 
 .projects-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--ion-color-dark);
-  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0 0 16px 0;
 }
 
-.add-project-text-btn {
-  --color: var(--ion-color-primary);
+.projects-stats {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-size: 14px;
   font-weight: 500;
+  color: #2c3e50;
 }
 
-// Liste des projets optimisée
+.stat-item ion-icon {
+  font-size: 16px;
+  color: #fd5200;
+}
+
+/* Liste des projets */
 .project-list {
   display: flex;
   flex-direction: column;
@@ -81,83 +116,199 @@
 
 .project-card {
   background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
   overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-  }
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
 
-// Section image optimisée
+.project-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* Image du projet */
 .project-image-container {
   position: relative;
   height: 200px;
   overflow: hidden;
-  
-  .project-img-full {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-  }
-  
-  &:hover .project-img-full {
-    transform: scale(1.05);
-  }
+}
+
+.project-img-full {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.project-card:hover .project-img-full {
+  transform: scale(1.05);
 }
 
 .project-overlay {
   position: absolute;
   top: 12px;
   right: 12px;
-  
-  .project-status {
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: white;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-// Classes de statut optimisées
-.status-in-progress { background: linear-gradient(135deg, #ffd93d 0%, #fd5200); }
-.status-done { background: linear-gradient(135deg, #4caf50, #45a049); }
-.status-cancelled { background: linear-gradient(135deg, #f44336, #d32f2f); }
-.status-pending { background: linear-gradient(135deg, #2196f3, #1976d2); }
-.status-default { background: linear-gradient(135deg, #9e9e9e, #757575); }
+.project-status {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  text-align: center;
+  backdrop-filter: blur(4px);
+}
 
-// Informations du projet
+.project-priority {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  text-align: center;
+  backdrop-filter: blur(4px);
+}
+
+/* Classes de statut */
+.status-in-progress {
+  background: rgba(16, 220, 96, 0.9);
+  color: white;
+}
+
+.status-done {
+  background: rgba(56, 128, 255, 0.9);
+  color: white;
+}
+
+.status-cancelled {
+  background: rgba(245, 65, 65, 0.9);
+  color: white;
+}
+
+.status-pending {
+  background: rgba(255, 206, 0, 0.9);
+  color: #2c3e50;
+}
+
+/* Classes de priorité */
+.priority-low {
+  background: rgba(16, 220, 96, 0.9);
+  color: white;
+}
+
+.priority-medium {
+  background: rgba(255, 206, 0, 0.9);
+  color: #2c3e50;
+}
+
+.priority-high {
+  background: rgba(255, 107, 53, 0.9);
+  color: white;
+}
+
+.priority-critical {
+  background: rgba(245, 65, 65, 0.9);
+  color: white;
+}
+
+/* Informations du projet */
 .project-info {
-  padding: 16px;
+  padding: 20px;
 }
 
 .project-name {
-  font-size: 1.2rem;
+  font-size: 18px;
   font-weight: 600;
-  color: var(--ion-color-dark);
+  color: #2c3e50;
   margin: 0 0 8px 0;
   line-height: 1.3;
 }
 
 .project-client {
-  color: var(--ion-color-medium);
-  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #7f8c8d;
+  font-size: 14px;
   margin: 0 0 12px 0;
 }
 
-// Progression optimisée
-.progress-section {
-  margin: 12px 0;
+.project-client ion-icon {
+  font-size: 16px;
+  color: #fd5200;
 }
 
-.progress-header {
+.project-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.project-location,
+.project-type {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #7f8c8d;
+}
+
+.project-location ion-icon {
+  font-size: 14px;
+  color: #3498db;
+}
+
+.project-type ion-icon {
+  font-size: 14px;
+  color: #fd5200;
+}
+
+/* Classes de type */
+.type-construction {
+  color: #fd5200;
+}
+
+.type-renovation {
+  color: #9b59b6;
+}
+
+.type-maintenance {
+  color: #3498db;
+}
+
+.type-planning {
+  color: #f39c12;
+}
+
+/* Responsable */
+.project-responsible {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #7f8c8d;
+  margin-bottom: 16px;
+}
+
+.project-responsible ion-icon {
+  font-size: 14px;
+  color: #27ae60;
+}
+
+/* Section de progression */
+.project-progress-section {
+  margin-bottom: 16px;
+}
+
+.progress-info {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -165,116 +316,136 @@
 }
 
 .progress-label {
-  font-size: 0.9rem;
-  color: var(--ion-color-medium);
+  font-size: 13px;
   font-weight: 500;
+  color: #2c3e50;
 }
 
-.progress-value {
-  font-size: 0.9rem;
-  color: var(--ion-color-dark);
+.progress-percentage {
+  font-size: 14px;
   font-weight: 600;
+  color: #fd5200;
+}
+
+.project-progress {
+  height: 8px;
+  background: #ecf0f1;
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
 }
 
 .progress-bar {
-  height: 8px;
-  border-radius: 4px;
-  overflow: hidden;
-  background: #f0f0f0;
-}
-
-.progress-fill {
   height: 100%;
   border-radius: 4px;
   transition: width 0.3s ease;
 }
 
-// Classes de progression optimisées
-.progress-in-progress .progress-fill { background: linear-gradient(90deg, #fd5200 0%, #fca160 100%); }
-.progress-done .progress-fill { background: linear-gradient(90deg, #4caf50 0%, #45a049 100%); }
-.progress-cancelled .progress-fill { background: linear-gradient(90deg, #f44336 0%, #d32f2f 100%); }
-.progress-pending .progress-fill { background: linear-gradient(90deg, #2196f3 0%, #1976d2 100%); }
-
-// Métadonnées optimisées
-.project-metadata {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid #f0f0f0;
+/* Classes de progression */
+.progress-construction .progress-bar {
+  background: linear-gradient(135deg, #fd5200 0%, #ff6b35 100%);
 }
 
-.project-type {
+.progress-renovation .progress-bar {
+  background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+}
+
+.progress-maintenance .progress-bar {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+}
+
+.progress-planning .progress-bar {
+  background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+}
+
+/* Métadonnées */
+.project-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.meta-item {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 12px;
-  border-radius: 16px;
-  font-size: 0.8rem;
+  font-size: 12px;
+  color: #7f8c8d;
+}
+
+.meta-item ion-icon {
+  font-size: 14px;
+  color: #95a5a6;
+}
+
+/* Actions */
+.project-actions {
+  padding: 0 20px 20px 20px;
+}
+
+.project-actions ion-button {
+  --color: #fd5200;
+  --border-color: #fd5200;
   font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
-.type-construction { color: #fd5200; background: rgba(253, 82, 0, 0.1); }
-.type-renovation { color: #2196f3; background: rgba(33, 150, 243, 0.1); }
-.type-maintenance { color: #4caf50; background: rgba(76, 175, 80, 0.1); }
-.type-default { color: #9e9e9e; background: rgba(158, 158, 158, 0.1); }
-
-.project-location {
-  color: var(--ion-color-medium);
-  font-size: 0.8rem;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-// Bouton d'ajout flottant
-.add-project-btn {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #fd5200 0%, #ffd93d);
-  color: white;
-  font-size: 2rem;
-  font-weight: 300;
-  box-shadow: 0 4px 16px rgba(253, 82, 0, 0.3);
-  z-index: 1000;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  
-  &:hover {
-    transform: scale(1.1);
-    box-shadow: 0 6px 20px rgba(253, 82, 0, 0.4);
-  }
-  
-  &:active {
-    transform: scale(0.95);
-  }
-}
-
-// Responsive optimisé
-@media (max-width: 768px) {
+/* Responsive design */
+@media (max-width: 480px) {
   .projects-container {
     padding: 12px;
   }
   
-  .project-image-container {
-    height: 160px;
+  .project-info {
+    padding: 16px;
   }
   
   .project-name {
-    font-size: 1.1rem;
+    font-size: 16px;
   }
   
-  .add-project-btn {
-    bottom: 16px;
-    right: 16px;
-    width: 48px;
-    height: 48px;
-    font-size: 1.5rem;
+  .projects-stats {
+    gap: 12px;
+  }
+  
+  .stat-item {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+}
+
+/* Mode sombre */
+@media (prefers-color-scheme: dark) {
+  ion-content {
+    --background: #1a1a1a;
+  }
+  
+  .project-card {
+    background: #2a2a2a;
+    border-color: #333333;
+  }
+  
+  .project-name {
+    color: #ffffff;
+  }
+  
+  .project-client,
+  .project-location,
+  .project-type,
+  .project-responsible,
+  .meta-item {
+    color: #b0b0b0;
+  }
+  
+  .progress-label {
+    color: #ffffff;
+  }
+  
+  .project-progress {
+    background: #333333;
+  }
+  
+  .stat-item {
+    background: #2a2a2a;
+    color: #ffffff;
   }
 } 

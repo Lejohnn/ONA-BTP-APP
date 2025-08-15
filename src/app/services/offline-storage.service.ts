@@ -17,9 +17,13 @@ export interface CachedProject {
   partner_id: number;
   date_start: string;
   date: string;
-  project_type: string; // Valeur par défaut
-  tasks_count: number; // Valeur par défaut
-  priority: string; // Valeur par défaut
+  project_type: string;
+  tasks_count: number;
+  priority: string;
+  location: string;
+  progress: number;
+  partner_name: string;
+  responsible_name: string;
   lastSync: Date;
 }
 

@@ -2,7 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
-import { ProjetService, ProjetFigma } from '../../services/projet.service';
+import { ProjectService } from '../../services/project.service';
+import { Project } from '../../models/project.model';
 import { OfflineStorageService } from '../../services/offline-storage.service';
 import { ImageService } from '../../services/image.service';
 import { ToastController } from '@ionic/angular/standalone';
@@ -18,14 +19,14 @@ import { NetworkDiagnosticService } from '../../services/network-diagnostic.serv
   styleUrls: ['./liste-projets.page.scss']
 })
 export class ListeProjetsPage implements OnInit {
-  projets: ProjetFigma[] = [];
+  projets: Project[] = [];
   isLoading: boolean = true;
   errorMessage: string = '';
   isOnline: boolean = true;
 
   constructor(
     private router: Router,
-    private projetService: ProjetService,
+    private projectService: ProjectService,
     private offlineStorage: OfflineStorageService,
     private imageService: ImageService,
     private toastController: ToastController,
@@ -51,8 +52,8 @@ export class ListeProjetsPage implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.projetService.getProjets().subscribe({
-      next: (projets) => {
+    this.projectService.getProjects().subscribe({
+      next: (projets: Project[]) => {
         console.log('Projets chargés:', projets);
         this.projets = projets;
         this.isLoading = false;
@@ -63,7 +64,7 @@ export class ListeProjetsPage implements OnInit {
           this.showToast(`${projets.length} projet(s) chargé(s)`, 'success');
         }
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Erreur lors du chargement des projets:', error);
         this.errorMessage = 'Erreur lors du chargement des projets';
         this.isLoading = false;
@@ -77,7 +78,7 @@ export class ListeProjetsPage implements OnInit {
   }
 
   // ===== GESTION DES IMAGES =====
-  onImageError(event: any, projet: ProjetFigma): void {
+  onImageError(event: any, projet: Project): void {
     console.log('Erreur de chargement image pour le projet:', projet.id);
     // Utiliser une image de fallback
     event.target.src = this.imageService.getPlaceholderImage('medium');
@@ -93,6 +94,7 @@ export class ListeProjetsPage implements OnInit {
       'construction': 'progress-construction',
       'renovation': 'progress-renovation',
       'maintenance': 'progress-maintenance',
+      'planification': 'progress-planning',
       'default': 'progress-default'
     };
     return classMap[type] || classMap['default'];
@@ -103,6 +105,7 @@ export class ListeProjetsPage implements OnInit {
       'construction': 'type-construction',
       'renovation': 'type-renovation',
       'maintenance': 'type-maintenance',
+      'planification': 'type-planning',
       'default': 'type-default'
     };
     return classMap[type] || classMap['default'];
@@ -119,12 +122,24 @@ export class ListeProjetsPage implements OnInit {
     return classMap[state] || classMap['default'];
   }
 
+  getPriorityClass(priority: string): string {
+    const classMap: { [key: string]: string } = {
+      'Low': 'priority-low',
+      'Medium': 'priority-medium',
+      'High': 'priority-high',
+      'Critical': 'priority-critical',
+      'default': 'priority-medium'
+    };
+    return classMap[priority] || classMap['default'];
+  }
+
   // ===== GESTION DES TEXTES =====
   getTypeText(type: string): string {
     const textMap: { [key: string]: string } = {
       'construction': 'Construction',
       'renovation': 'Rénovation',
       'maintenance': 'Maintenance',
+      'planification': 'Planification',
       'default': 'Projet'
     };
     return textMap[type] || textMap['default'];
@@ -139,6 +154,48 @@ export class ListeProjetsPage implements OnInit {
       'default': 'Non défini'
     };
     return textMap[state] || textMap['default'];
+  }
+
+  getPriorityText(priority: string): string {
+    const textMap: { [key: string]: string } = {
+      'Low': 'Basse',
+      'Medium': 'Moyenne',
+      'High': 'Haute',
+      'Critical': 'Critique',
+      'default': 'Moyenne'
+    };
+    return textMap[priority] || textMap['default'];
+  }
+
+  // ===== STATISTIQUES =====
+  getProjetsEnCours(): number {
+    return this.projets.filter(p => p.state === 'En cours').length;
+  }
+
+  getProjetsTermines(): number {
+    return this.projets.filter(p => p.state === 'Terminé').length;
+  }
+
+  // ===== FORMATAGE DES DATES =====
+  formatDate(dateString: string): string {
+    if (!dateString || dateString === 'Non définie') {
+      return 'Non définie';
+    }
+    
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return dateString; // Retourner la chaîne originale si pas une date valide
+      }
+      
+      return date.toLocaleDateString('fr-FR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+    } catch (error) {
+      return dateString;
+    }
   }
 
   // ===== NAVIGATION =====
@@ -161,12 +218,9 @@ export class ListeProjetsPage implements OnInit {
   // ===== STATISTIQUES CACHE =====
   async getCacheStats(): Promise<void> {
     try {
-      const stats = await this.projetService.getCacheStats();
-      console.log('Statistiques cache:', stats);
-      
-      if (stats.pendingActions > 0) {
-        this.showToast(`${stats.pendingActions} action(s) en attente de synchronisation`, 'warning');
-      }
+      // Note: Cette méthode n'existe pas encore dans le nouveau service
+      // Elle sera implémentée plus tard si nécessaire
+      console.log('Statistiques cache: Non implémenté dans le nouveau service');
     } catch (error) {
       console.error('Erreur lors de la récupération des statistiques:', error);
     }

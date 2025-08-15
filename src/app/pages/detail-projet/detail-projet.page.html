@@ -29,84 +29,134 @@
 
   <!-- Contenu du projet -->
   <div *ngIf="!isLoading && !errorMessage && projet" class="project-detail-container">
-    <h2 class="section-title">Aperçu du projet</h2>
-    <div class="overview-list">
-      <div class="overview-item">
-        <ion-icon name="location" class="overview-icon"></ion-icon>
-        <div class="overview-label-value">
-          <div class="overview-label">Localisation</div>
-          <div class="overview-value">{{ projet.localisation }}</div>
-          <div class="overview-value-sub">{{ projet.localisation }}</div>
+    
+    <!-- 1. EN-TÊTE ET INFORMATIONS GÉNÉRALES -->
+    <div class="project-header">
+      <div class="project-title-section">
+        <h1 class="project-title">{{ projet.name }}</h1>
+        <div class="project-state-badge" [style.background-color]="getProjectStateColor()">
+          {{ projet.state }}
         </div>
       </div>
-      <div class="overview-item">
-        <ion-icon name="construct" class="overview-icon"></ion-icon>
-        <div class="overview-label-value">
-          <div class="overview-label">Type de construction</div>
-          <div class="overview-value">{{ projet.type }}</div>
-          <div class="overview-value-sub">{{ projet.type }}</div>
+      
+      <div class="project-info-grid">
+        <div class="info-item">
+          <ion-icon name="location-outline" class="info-icon"></ion-icon>
+          <div class="info-content">
+            <div class="info-label">Localisation</div>
+            <div class="info-value">{{ getProjectLocation() }}</div>
+          </div>
         </div>
-      </div>
-      <div class="overview-item">
-        <ion-icon name="person" class="overview-icon"></ion-icon>
-        <div class="overview-label-value">
-          <div class="overview-label">Nom du client</div>
-          <div class="overview-value">{{ projet.client }}</div>
-          <div class="overview-value-sub">{{ projet.client }}</div>
+        
+        <div class="info-item">
+          <ion-icon name="calendar-outline" class="info-icon"></ion-icon>
+          <div class="info-content">
+            <div class="info-label">Date de début</div>
+            <div class="info-value">{{ projet.getFormattedStartDate() || 'Non définie' }}</div>
+          </div>
         </div>
-      </div>
-      <div class="overview-item">
-        <ion-icon name="calendar" class="overview-icon"></ion-icon>
-        <div class="overview-label-value">
-          <div class="overview-label">Date de début</div>
-          <div class="overview-value">{{ projet.dateDebut }}</div>
-          <div class="overview-value-sub">{{ projet.dateDebut }}</div>
+        
+        <div class="info-item">
+          <ion-icon name="calendar-outline" class="info-icon"></ion-icon>
+          <div class="info-content">
+            <div class="info-label">Date de fin</div>
+            <div class="info-value">{{ projet.getFormattedEndDate() || 'Non définie' }}</div>
+          </div>
         </div>
-      </div>
-      <div class="overview-item">
-        <ion-icon name="calendar" class="overview-icon"></ion-icon>
-        <div class="overview-label-value">
-          <div class="overview-label">Date de fin</div>
-          <div class="overview-value">{{ projet.dateFin }}</div>
-          <div class="overview-value-sub">{{ projet.dateFin }}</div>
+        
+        <div class="info-item">
+          <ion-icon name="wallet-outline" class="info-icon"></ion-icon>
+          <div class="info-content">
+            <div class="info-label">Budget total</div>
+            <div class="info-value">{{ getProjectBudget() }}</div>
+          </div>
         </div>
       </div>
     </div>
 
+    <!-- 2. BARRE DE PROGRESSION -->
     <div class="progress-section">
-      <ion-label class="progress-label">Progression</ion-label>
-      <ion-progress-bar [value]="projet.progress"></ion-progress-bar>
-      <div class="progress-value">{{ (projet.progress * 100) | number:'1.0-0' }}%</div>
+      <div class="progress-header">
+        <div class="progress-label">Progression du projet</div>
+        <div class="progress-percentage">{{ (getProjectProgress() * 100) | number:'1.0-0' }}%</div>
+      </div>
+      <ion-progress-bar 
+        [value]="getProjectProgress()" 
+        class="custom-progress-bar">
+      </ion-progress-bar>
     </div>
 
-    <h2 class="section-title">Indicateurs clés</h2>
-    <ion-grid class="key-indicators-grid">
-      <ion-row>
-        <ion-col size="4" *ngFor="let indicator of keyIndicators.slice(0,3)">
-          <div class="indicator-block" 
-               [class.clickable]="indicator.label === 'Total' || indicator.label === 'Available Resources' || indicator.label === 'Workers Used'"
-               (click)="onIndicatorClick(indicator)">
-            <img [src]="indicator.icon" class="indicator-icon" [alt]="indicator.label" />
+    <!-- 3. INDICATEURS CLÉS -->
+    <div class="indicators-section">
+      <h2 class="section-title">Indicateurs clés</h2>
+      
+      <!-- Ligne 1 : Tâches -->
+      <div class="indicators-row">
+        <div class="indicator-card" 
+             *ngFor="let indicator of keyIndicators.slice(0, 3)"
+             (click)="onIndicatorClick(indicator)">
+          <div class="indicator-icon-container" [style.background-color]="indicator.color + '20'">
+            <ion-icon [name]="indicator.icon" 
+                     [style.color]="indicator.color"
+                     class="indicator-icon">
+            </ion-icon>
+          </div>
+          <div class="indicator-content">
             <div class="indicator-label">{{ indicator.label }}</div>
             <div class="indicator-value">{{ indicator.value }}</div>
           </div>
-        </ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col size="4" *ngFor="let indicator of keyIndicators.slice(3,6)">
-          <div class="indicator-block" 
-               [class.clickable]="indicator.label === 'Total' || indicator.label === 'Available Resources' || indicator.label === 'Workers Used'"
-               (click)="onIndicatorClick(indicator)">
-            <img [src]="indicator.icon" class="indicator-icon" [alt]="indicator.label" />
-            <div class="indicator-label">{{ indicator.label }}</div>
-            <div class="indicator-value">{{ indicator.value }}</div>
-          </div>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
+        </div>
+      </div>
 
-    <ion-button expand="block" class="cash-module-btn" (click)="goToCaisse()">
-      Aller au module Caisse
-    </ion-button>
+      <!-- Ligne 2 : Ressources et Finances -->
+      <div class="indicators-row">
+        <div class="indicator-card" 
+             *ngFor="let indicator of keyIndicators.slice(3, 6)"
+             [ngClass]="{'finance-card': indicator.action === 'caisse'}"
+             (click)="onIndicatorClick(indicator)">
+          <div class="indicator-icon-container" [style.background-color]="indicator.color + '20'">
+            <ion-icon [name]="indicator.icon" 
+                     [style.color]="indicator.color"
+                     class="indicator-icon">
+            </ion-icon>
+          </div>
+          <div class="indicator-content">
+            <div class="indicator-label">{{ indicator.label }}</div>
+            <div class="indicator-value">{{ indicator.value }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. INFORMATIONS SUPPLÉMENTAIRES -->
+    <div class="additional-info-section">
+      <h3 class="section-subtitle">Informations complémentaires</h3>
+      
+      <div class="info-cards">
+        <div class="info-card">
+          <ion-icon name="construct-outline" class="card-icon"></ion-icon>
+          <div class="card-content">
+            <div class="card-label">Type de construction</div>
+            <div class="card-value">{{ projet.constructionType || 'Non renseigné' }}</div>
+          </div>
+        </div>
+        
+        <div class="info-card">
+          <ion-icon name="person-outline" class="card-icon"></ion-icon>
+          <div class="card-content">
+            <div class="card-label">Chef de projet</div>
+            <div class="card-value">{{ projet.projectManagerName || 'Non assigné' }}</div>
+          </div>
+        </div>
+        
+        <div class="info-card">
+          <ion-icon name="business-outline" class="card-icon"></ion-icon>
+          <div class="card-content">
+            <div class="card-label">Client</div>
+            <div class="card-value">{{ projet.partnerName || 'Non renseigné' }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </ion-content> 

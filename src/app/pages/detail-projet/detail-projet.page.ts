@@ -2,9 +2,25 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
-import { ProjetService, ProjetFigma } from '../../services/projet.service';
+import { ProjectService } from '../../services/project.service';
+import { Project } from '../../models/project.model';
 import { ToastController } from '@ionic/angular/standalone';
 import { HeaderTitleService } from '../../services/header-title.service';
+import { addIcons } from 'ionicons';
+import { 
+  playCircleOutline,
+  listOutline,
+  timeOutline,
+  peopleOutline,
+  constructOutline,
+  walletOutline,
+  locationOutline,
+  calendarOutline,
+  personOutline,
+  businessOutline,
+  alertCircleOutline,
+  refreshOutline
+} from 'ionicons/icons';
 
 @Component({
   selector: 'app-detail-projet',
@@ -14,7 +30,7 @@ import { HeaderTitleService } from '../../services/header-title.service';
   styleUrls: ['./detail-projet.page.scss']
 })
 export class DetailProjetPage implements OnInit {
-  projet: ProjetFigma | undefined;
+  projet: Project | null = null;
   isLoading: boolean = true;
   errorMessage: string = '';
   keyIndicators: any[] = [];
@@ -23,10 +39,26 @@ export class DetailProjetPage implements OnInit {
   constructor(
     private route: ActivatedRoute, 
     private router: Router, 
-    private projetService: ProjetService,
+    private projectService: ProjectService,
     private toastController: ToastController,
     private headerTitleService: HeaderTitleService
-  ) {}
+  ) {
+    // Initialisation des icônes Ionic
+    addIcons({
+      playCircleOutline,
+      listOutline,
+      timeOutline,
+      peopleOutline,
+      constructOutline,
+      walletOutline,
+      locationOutline,
+      calendarOutline,
+      personOutline,
+      businessOutline,
+      alertCircleOutline,
+      refreshOutline
+    });
+  }
 
   ngOnInit() {
     this.route.params.subscribe(params => {
@@ -36,20 +68,21 @@ export class DetailProjetPage implements OnInit {
         this.loadProjet(this.projetId);
       }
     });
-    this.loadKeyIndicators();
   }
 
   loadProjet(id: number) {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.projetService.getProjetById(id).subscribe({
+    this.projectService.getProjectById(id).subscribe({
       next: (projet) => {
         this.projet = projet;
         this.isLoading = false;
+        this.loadKeyIndicators();
+        
         // Mise à jour du titre avec le nom du projet
-        if (projet?.nom) {
-          this.headerTitleService.setTitle(`Détail Projet - ${projet.nom}`);
+        if (projet?.name) {
+          this.headerTitleService.setTitle(`Détail Projet - ${projet.name}`);
         } else {
           this.headerTitleService.setTitle('Détail Projet');
         }
@@ -63,8 +96,8 @@ export class DetailProjetPage implements OnInit {
   }
 
   getPageTitle(): string {
-    if (this.projet?.nom) {
-      return `ONA BTP - Détail Projet - ${this.projet.nom}`;
+    if (this.projet?.name) {
+      return `ONA BTP - ${this.projet.name}`;
     }
     return 'ONA BTP - Détail Projet';
   }
@@ -74,13 +107,54 @@ export class DetailProjetPage implements OnInit {
   }
 
   loadKeyIndicators() {
+    if (!this.projet) return;
+
     this.keyIndicators = [
-      { label: 'Ongoing', icon: 'play-circle', value: 12 },
-      { label: 'Total', icon: 'stats-chart', value: 20 },
-      { label: 'Not Started', icon: 'time', value: 8 },
-      { label: 'Available Resources', icon: 'people-circle', value: 35 },
-      { label: 'Workers Used', icon: 'construct', value: 18 },
-      { label: 'Cash Balance', icon: 'wallet', value: '3,500,000 FCFA' }
+      // Ligne 1 : Tâches
+      { 
+        label: 'Tâches en cours', 
+        icon: 'play-circle-outline', 
+        value: this.projet.openTaskCount || 0,
+        color: '#FCC15D',
+        action: 'tasks'
+      },
+      { 
+        label: 'Tâches totales', 
+        icon: 'list-outline', 
+        value: this.projet.taskCount || 0,
+        color: '#FD5200',
+        action: 'tasks'
+      },
+      { 
+        label: 'Tâches non lancées', 
+        icon: 'time-outline', 
+        value: Math.max(0, (this.projet.taskCount || 0) - (this.projet.openTaskCount || 0) - (this.projet.closedTaskCount || 0)),
+        color: '#8c755e',
+        action: 'tasks'
+      },
+      // Ligne 2 : Ressources
+      { 
+        label: 'Ressources disponibles', 
+        icon: 'people-outline', 
+        value: this.projet.collaboratorCount || 0,
+        color: '#FCC15D',
+        action: 'resources'
+      },
+      { 
+        label: 'Hommes utilisés', 
+        icon: 'construct-outline', 
+        value: Math.floor((this.projet.collaboratorCount || 0) * 0.7), // Simulation
+        color: '#FD5200',
+        action: 'resources'
+      },
+      // Finances
+      { 
+        label: 'Solde caisse/0 XAF', 
+        icon: 'wallet-outline', 
+        value: '2 000 000 XAF',
+        color: '#FCC15D',
+        action: 'caisse'
+      }
     ];
   }
 
@@ -94,44 +168,98 @@ export class DetailProjetPage implements OnInit {
     toast.present();
   }
 
-  setDefaultProjet(id: any) {}
-
-  goToTaches() {
-    // Navigation vers la page des tâches (à implémenter)
-  }
-  
-  goToRessources() {}
-  
-  goToMeteo() {}
-  
-  goToJournal() {}
-  
   goToCaisse() {
     if (this.projet) {
       this.router.navigate(['/module-caisse', this.projet.id]);
     }
   }
   
-  goToMajProjet() {
+  goToTaches() {
     if (this.projet) {
-      this.router.navigate(['/mise-a-jour-projet', this.projet.id]);
+      this.router.navigate(['/liste-taches', this.projet.id]);
+    }
+  }
+  
+  goToRessources() {
+    if (this.projet) {
+      this.router.navigate(['/detail-ressource', this.projet.id]);
     }
   }
 
   onIndicatorClick(indicator: any) {
-    switch (indicator.label) {
-      case 'Total':
-        this.router.navigate(['/liste-taches']);
+    switch (indicator.action) {
+      case 'tasks':
+        this.goToTaches();
         break;
-      case 'Available Resources':
-        this.router.navigate(['/detail-tache', 1]); // ID par défaut, à adapter selon vos besoins
+      case 'resources':
+        this.goToRessources();
         break;
-      case 'Workers Used':
-        this.router.navigate(['/creer-tache']);
+      case 'caisse':
+        this.goToCaisse();
         break;
       default:
-        // Pas d'action pour les autres indicateurs
+        this.showToast(`Accès à ${indicator.label}`, 'primary');
         break;
     }
+  }
+
+  // Méthodes utilitaires pour l'affichage
+  getProjectLocation(): string {
+    if (!this.projet) return 'Non renseigné';
+    
+    // Simulation de localisation basée sur les données disponibles
+    if (this.projet.partnerName) {
+      return this.projet.partnerName;
+    }
+    return 'Douala, Cameroun'; // Valeur par défaut
+  }
+
+  getProjectBudget(): string {
+    if (!this.projet) return 'Non renseigné';
+    
+    // Utiliser les données réelles du projet si disponibles
+    if (this.projet.effectiveHours && this.projet.effectiveHours > 0) {
+      // Simulation de budget basée sur les heures effectives
+      const budgetPerHour = 50000; // 50 000 XAF par heure
+      const totalBudget = this.projet.effectiveHours * budgetPerHour;
+      return this.formatCurrency(totalBudget);
+    }
+    
+    // Fallback basé sur le type de construction
+    const budgets: { [key: string]: string } = {
+      'Résidentiel': '15 000 000 XAF',
+      'Commercial': '25 000 000 XAF',
+      'Industriel': '50 000 000 XAF',
+      'Institutionnel': '35 000 000 XAF'
+    };
+    
+    return budgets[this.projet.constructionType] || '20 000 000 XAF';
+  }
+
+  private formatCurrency(amount: number): string {
+    return new Intl.NumberFormat('fr-FR', {
+      style: 'currency',
+      currency: 'XAF',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount);
+  }
+
+  getProjectProgress(): number {
+    if (!this.projet) return 0;
+    return this.projet.progress || 0;
+  }
+
+  getProjectStateColor(): string {
+    if (!this.projet) return '#8c755e';
+    
+    const stateColors: { [key: string]: string } = {
+      'open': '#FCC15D',
+      'close': '#FD5200',
+      'pending': '#8c755e',
+      'draft': '#8c755e'
+    };
+    
+    return stateColors[this.projet.state] || '#8c755e';
   }
 } 

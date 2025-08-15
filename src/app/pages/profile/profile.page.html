@@ -27,7 +27,7 @@
   <!-- Contenu du profil -->
   <div *ngIf="!isLoading && !errorMessage && userProfile" class="profile-container">
     <div class="profile-avatar-block">
-      <img [src]="userProfile.avatar" [alt]="userProfile.name" class="profile-avatar" />
+      <img [src]="userProfile.getAvatarUrl()" [alt]="userProfile.name" class="profile-avatar" />
     </div>
     
     <h2 class="profile-name">{{ userProfile.name }}</h2>
@@ -38,7 +38,7 @@
     <div class="profile-info-list">
       <div class="profile-info-item">
         <span class="profile-info-label">Mobile</span>
-        <span class="profile-info-value">{{ userProfile.mobile }}</span>
+        <span class="profile-info-value">{{ userProfile.getFormattedPhone() }}</span>
       </div>
       
       <div class="profile-info-item">
@@ -49,23 +49,47 @@
       <div class="profile-info-item">
         <span class="profile-info-label">Adresse</span>
         <span class="profile-info-value">
-          <div *ngIf="userProfile.street !== 'Non renseigné'">{{ userProfile.street }}</div>
-          <div *ngIf="userProfile.city !== 'Non renseigné'">{{ userProfile.city }}</div>
-          <div *ngIf="userProfile.country !== 'Non renseigné'">{{ userProfile.country }}</div>
-          <div *ngIf="userProfile.street === 'Non renseigné' && userProfile.city === 'Non renseigné' && userProfile.country === 'Non renseigné'">
-            Non renseignée
-          </div>
+          {{ userProfile.getFullAddress() }}
         </span>
       </div>
       
       <div class="profile-info-item">
         <span class="profile-info-label">Langue</span>
-        <span class="profile-info-value">{{ userProfile.language }}</span>
+        <span class="profile-info-value">{{ userProfile.getLanguageDisplay() }}</span>
       </div>
       
       <div class="profile-info-item">
         <span class="profile-info-label">Fuseau horaire</span>
-        <span class="profile-info-value">{{ userProfile.timezone }}</span>
+        <span class="profile-info-value">{{ userProfile.getTimezoneDisplay() }}</span>
+      </div>
+      
+      <!-- Nouvelles informations avec le modèle hydraté -->
+      <div class="profile-info-item" *ngIf="userProfile.isEmployee()">
+        <span class="profile-info-label">Statut</span>
+        <span class="profile-info-value">Employé</span>
+      </div>
+      
+      <div class="profile-info-item" *ngIf="userProfile.hasLocation()">
+        <span class="profile-info-label">Localisation</span>
+        <span class="profile-info-value">
+          {{ userProfile.latitude }}, {{ userProfile.longitude }}
+        </span>
+      </div>
+      
+      <!-- Statistiques -->
+      <div class="profile-info-item">
+        <span class="profile-info-label">Projets</span>
+        <span class="profile-info-value">{{ userProfile.projectCount }}</span>
+      </div>
+      
+      <div class="profile-info-item">
+        <span class="profile-info-label">Tâches</span>
+        <span class="profile-info-value">{{ userProfile.taskCount }}</span>
+      </div>
+      
+      <div class="profile-info-item">
+        <span class="profile-info-label">Équipements</span>
+        <span class="profile-info-value">{{ userProfile.equipmentCount }}</span>
       </div>
     </div>
   </div>
