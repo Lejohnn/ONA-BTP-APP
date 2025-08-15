@@ -1,17 +1,7 @@
 import { Component } from '@angular/core';
 import { 
   IonApp, 
-  IonRouterOutlet, 
-  IonMenu, 
-  IonHeader, 
-  IonToolbar, 
-  IonTitle, 
-  IonContent, 
-  IonList, 
-  IonItem, 
-  IonIcon, 
-  IonLabel,
-  IonMenuToggle
+  IonRouterOutlet
 } from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -23,7 +13,6 @@ import {
   card, 
   person, 
   list, 
-  settings, 
   wallet,
   homeOutline,
   businessOutline,
@@ -38,17 +27,7 @@ import {
   styleUrls: ['./app.component.scss'],
   imports: [
     IonApp, 
-    IonRouterOutlet, 
-    IonMenu, 
-    IonHeader, 
-    IonToolbar, 
-    IonTitle, 
-    IonContent, 
-    IonList, 
-    IonItem, 
-    IonIcon, 
-    IonLabel,
-    IonMenuToggle,
+    IonRouterOutlet,
     CommonModule, 
     RouterModule
   ],
@@ -59,7 +38,6 @@ export class AppComponent {
     { title: 'Projets', url: '/tabs/projets', icon: 'business' },
     { title: 'Tâches', url: '/tabs/taches', icon: 'list' },
     { title: 'Caisse', url: '/tabs/caisse', icon: 'wallet' },
-    { title: 'Paramètres', url: '/tabs/parametres', icon: 'settings' },
     { title: 'Profil', url: '/tabs/profile', icon: 'person' }
   ];
 
@@ -70,7 +48,6 @@ export class AppComponent {
       card, 
       person, 
       list, 
-      settings, 
       wallet,
       homeOutline,
       businessOutline,

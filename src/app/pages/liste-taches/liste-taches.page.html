@@ -1,31 +1,184 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
-      <ion-back-button defaultHref="/home"></ion-back-button>
+      <ion-back-button [defaultHref]="getBackButtonHref()"></ion-back-button>
     </ion-buttons>
     <ion-title>ONA BTP - Liste des Tâches</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="refreshTasks()">
+        <ion-icon name="refresh-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="taches-bg">
-  <div class="taches-container">
-    <div *ngFor="let tache of taches; let i = index" class="tache-block">
-      <div class="tache-main-row">
-        <div class="tache-info-col">
-          <div class="tache-header-row">
-            <span class="tache-statut" [ngClass]="tache.statut.toLowerCase().replace(' ', '-')">{{ tache.statut }}</span>
-            <span class="tache-nom">{{ tache.nom }}</span>
-          </div>
-          <div class="tache-dates-row">
-            <span class="tache-dates">Start: {{ tache.dateDebut }} &nbsp; End: {{ tache.dateFin }}</span>
-            <ion-button size="small" fill="outline" class="tache-detail-btn" (click)="voirDetailTache(tache.id)">See Details</ion-button>
-          </div>
-          <ion-progress-bar *ngIf="tache.statut === 'Pending'" [value]="0.2" class="tache-progress"></ion-progress-bar>
-        </div>
-        <img [src]="'assets/images/taches/' + ((i % 4) + 1) + '.webp'" class="tache-img" alt="Tache image" />
+  <!-- État de chargement -->
+  <div *ngIf="isLoading" class="loading-state">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Chargement des tâches...</p>
+  </div>
+
+  <!-- État d'erreur -->
+  <div *ngIf="!isLoading && errorMessage" class="error-state">
+    <ion-icon name="alert-circle-outline" class="error-icon"></ion-icon>
+    <p>{{ errorMessage }}</p>
+    <ion-button fill="outline" (click)="refreshTasks()">
+      <ion-icon name="refresh-outline" slot="start"></ion-icon>
+      Réessayer
+    </ion-button>
+  </div>
+
+  <!-- Contenu principal -->
+  <div *ngIf="!isLoading && !errorMessage" class="taches-container">
+    
+    <!-- Statistiques rapides -->
+    <div class="stats-section">
+      <div class="stat-item">
+        <ion-icon name="list-outline"></ion-icon>
+        <span>{{ tasks.length }} tâches</span>
+      </div>
+      <div class="stat-item">
+        <ion-icon name="construct-outline"></ion-icon>
+        <span>{{ getTasksByState('in_progress').length }} en cours</span>
+      </div>
+      <div class="stat-item">
+        <ion-icon name="checkmark-circle-outline"></ion-icon>
+        <span>{{ getTasksByState('done').length }} terminées</span>
       </div>
     </div>
+
+    <!-- Barre de recherche -->
+    <div class="search-section">
+      <ion-searchbar 
+        [(ngModel)]="searchTerm" 
+        placeholder="Rechercher une tâche..."
+        (ionInput)="filterTasks()">
+      </ion-searchbar>
+    </div>
+
+    <!-- Filtres -->
+    <div class="filters-section">
+      <ion-chip 
+        *ngFor="let filter of availableFilters" 
+        [class.active]="activeFilter === filter.value"
+        (click)="setFilter(filter.value)">
+        <ion-icon [name]="filter.icon"></ion-icon>
+        <ion-label>{{ filter.label }}</ion-label>
+      </ion-chip>
+    </div>
+
+    <!-- Liste des tâches -->
+    <div *ngIf="filteredTasks.length > 0" class="taches-list">
+      <div *ngFor="let task of filteredTasks; trackBy: trackByTaskId" class="tache-block">
+        
+        <div class="tache-main-row">
+          <!-- Informations de la tâche -->
+          <div class="tache-info-col">
+            <div class="tache-header-row">
+              <div class="tache-statut" [ngClass]="task.state">
+                {{ task.getStateDisplay() }}
+              </div>
+              <div class="tache-priority" *ngIf="task.isOverdue()">
+                <ion-icon name="warning-outline"></ion-icon>
+                <span>En retard</span>
+              </div>
+            </div>
+            
+            <div class="tache-nom">{{ task.name }}</div>
+            
+            <div class="tache-description" *ngIf="task.description">
+              {{ task.description }}
+            </div>
+            
+            <div class="tache-dates-row" *ngIf="task.deadline">
+              <ion-icon name="calendar-outline"></ion-icon>
+              <div class="tache-dates">Échéance: {{ task.getFormattedDeadline() }}</div>
+            </div>
+            
+            <div class="tache-project-row" *ngIf="task.projectName">
+              <ion-icon name="business-outline"></ion-icon>
+              <div class="tache-project">{{ task.projectName }}</div>
+            </div>
+            
+            <div class="tache-assignee-row" *ngIf="task.userName">
+              <ion-icon name="person-outline"></ion-icon>
+              <div class="tache-assignee">{{ task.userName }}</div>
+            </div>
+            
+            <!-- Progression -->
+            <div class="tache-progress-section" *ngIf="task.progress > 0">
+              <div class="progress-info">
+                <span class="progress-label">Progression</span>
+                <span class="progress-value">{{ task.getProgressDisplay() }}</span>
+              </div>
+              <ion-progress-bar 
+                [value]="task.progress" 
+                class="tache-progress">
+              </ion-progress-bar>
+            </div>
+            
+            <!-- Heures -->
+            <div class="tache-hours-row" *ngIf="task.totalHoursSpent > 0 || task.remainingHours > 0">
+              <div class="hours-item" *ngIf="task.totalHoursSpent > 0">
+                <ion-icon name="time-outline"></ion-icon>
+                <span>{{ task.getTotalHoursFormatted() }}</span>
+              </div>
+              <div class="hours-item" *ngIf="task.remainingHours > 0">
+                <ion-icon name="hourglass-outline"></ion-icon>
+                <span>{{ task.getHoursRemaining() }}h restantes</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Image de la tâche -->
+          <div class="tache-image-col">
+            <img [src]="getTaskImage(task)" 
+                 [alt]="'Tâche ' + task.name"
+                 class="tache-img"
+                 (error)="onImageError($event, task)"
+                 loading="lazy">
+          </div>
+        </div>
+        
+        <!-- Actions -->
+        <div class="tache-actions-row">
+          <ion-button 
+            class="tache-detail-btn"
+            (click)="voirDetailTache(task.id)">
+            <ion-icon name="eye-outline" slot="start"></ion-icon>
+            Détails
+          </ion-button>
+          
+          <ion-button 
+            class="tache-detail-btn"
+            (click)="modifierTache(task.id)">
+            <ion-icon name="create-outline" slot="start"></ion-icon>
+            Modifier
+          </ion-button>
+        </div>
+      </div>
+    </div>
+
+    <!-- État vide -->
+    <div *ngIf="!isLoading && !errorMessage && filteredTasks.length === 0" class="empty-state">
+      <ion-icon name="list-outline" class="empty-icon"></ion-icon>
+      <h3>Aucune tâche trouvée</h3>
+      <p *ngIf="searchTerm || activeFilter !== 'all'">
+        Aucune tâche ne correspond à vos critères de recherche.
+      </p>
+      <p *ngIf="!searchTerm && activeFilter === 'all'">
+        Vous n'avez pas encore de tâches. Commencez par en créer une !
+      </p>
+      <ion-button fill="solid" (click)="ajouterTache()">
+        <ion-icon name="add-outline" slot="start"></ion-icon>
+        Créer une tâche
+      </ion-button>
+    </div>
   </div>
-  <button class="add-tache-btn" (click)="ajouterTache()">+</button>
+
+  <!-- Bouton flottant pour ajouter une tâche -->
+  <button class="add-tache-btn" (click)="ajouterTache()">
+    <ion-icon name="add"></ion-icon>
+  </button>
 </ion-content> 

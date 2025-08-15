@@ -57,7 +57,7 @@ interface TacheUrgente {
     IonIcon, 
     IonContent, 
     IonProgressBar,
-    IonMenuButton
+
   ],
   templateUrl: './dashboard.page.html',
   styleUrls: ['./dashboard.page.scss']

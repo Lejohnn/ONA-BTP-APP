@@ -1,13 +1,9 @@
-.header-title {
-  font-family: 'Lexend', 'Inter', Arial, sans-serif;
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: #222f3e;
-  text-align: center;
-}
+/* ===== STYLE ORIGINAL DE L'APPLICATION ===== */
+
 .taches-bg {
   --background: #fff;
 }
+
 .taches-container {
   max-width: 500px;
   margin: 0 auto;
@@ -16,6 +12,73 @@
   border-radius: 18px;
   box-shadow: 0 2px 12px rgba(44,62,80,0.07);
 }
+
+/* ===== STATISTIQUES ===== */
+.stats-section {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f5f2f0;
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  color: #8c755e;
+  font-weight: 500;
+}
+
+.stat-item ion-icon {
+  font-size: 16px;
+  color: #ED8205;
+}
+
+/* ===== RECHERCHE ET FILTRES ===== */
+.search-section {
+  margin-bottom: 16px;
+}
+
+ion-searchbar {
+  --background: #f5f2f0;
+  --border-radius: 12px;
+  --box-shadow: none;
+  --color: #222f3e;
+  --placeholder-color: #8c755e;
+  --icon-color: #8c755e;
+}
+
+.filters-section {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+ion-chip {
+  --background: #f5f2f0;
+  --color: #8c755e;
+  --border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  
+  &.active {
+    --background: #ED8205;
+    --color: #fff;
+  }
+}
+
+/* ===== LISTE DES TÂCHES ===== */
+.taches-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
 .tache-block {
   background: #f5f2f0;
   border-radius: 14px;
@@ -26,24 +89,28 @@
   flex-direction: column;
   gap: 8px;
 }
+
 .tache-main-row {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 18px;
 }
+
 .tache-info-col {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
+
 .tache-header-row {
   display: flex;
   align-items: center;
   gap: 12px;
   margin-bottom: 2px;
 }
+
 .tache-statut {
   font-size: 0.98rem;
   font-weight: 700;
@@ -53,33 +120,150 @@
   color: #8c755e;
   text-transform: capitalize;
 }
+
 .tache-statut.pending {
   background: #f9ca24;
   color: #fff;
 }
-.tache-statut.in-progress {
+
+.tache-statut.in_progress {
   background: #ED8205;
   color: #fff;
 }
+
 .tache-statut.done {
   background: #27ae60;
   color: #fff;
 }
+
+.tache-statut.open {
+  background: #3498db;
+  color: #fff;
+}
+
+.tache-statut.draft {
+  background: #95a5a6;
+  color: #fff;
+}
+
+.tache-statut.cancelled {
+  background: #e74c3c;
+  color: #fff;
+}
+
+.tache-statut.closed {
+  background: #34495e;
+  color: #fff;
+}
+
+.tache-priority {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: #e74c3c;
+  font-weight: 600;
+}
+
 .tache-nom {
   font-size: 1.08rem;
   font-weight: 700;
   color: #222f3e;
 }
-.tache-dates-row {
+
+.tache-description {
+  font-size: 0.95rem;
+  color: #8c755e;
+  line-height: 1.4;
+  margin-bottom: 4px;
+}
+
+.tache-dates-row,
+.tache-project-row,
+.tache-assignee-row {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 2px;
-}
-.tache-dates {
-  font-size: 0.97rem;
+  gap: 8px;
+  font-size: 0.9rem;
   color: #8c755e;
 }
+
+.tache-dates-row ion-icon,
+.tache-project-row ion-icon,
+.tache-assignee-row ion-icon {
+  font-size: 16px;
+  color: #ED8205;
+}
+
+.tache-progress-section {
+  margin-top: 8px;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.progress-label {
+  font-size: 0.9rem;
+  color: #8c755e;
+  font-weight: 500;
+}
+
+.progress-value {
+  font-size: 0.9rem;
+  color: #ED8205;
+  font-weight: 600;
+}
+
+.tache-progress {
+  margin-top: 6px;
+  height: 10px;
+  border-radius: 8px;
+  --background: #e1e1e1;
+  --progress-background: #ED8205;
+}
+
+.tache-hours-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.hours-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: #8c755e;
+}
+
+.hours-item ion-icon {
+  font-size: 14px;
+  color: #ED8205;
+}
+
+.tache-image-col {
+  flex-shrink: 0;
+}
+
+.tache-img {
+  width: 92px;
+  height: 92px;
+  object-fit: cover;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(44,62,80,0.07);
+  background: #fff;
+}
+
+.tache-actions-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
 .tache-detail-btn {
   font-size: 0.92rem;
   height: 28px;
@@ -94,10 +278,12 @@
   border: none !important;
   box-shadow: none !important;
 }
+
 .tache-detail-btn:focus {
   outline: none !important;
   box-shadow: none !important;
 }
+
 .add-tache-btn {
   background: #EB8012;
   color: #fff;
@@ -117,33 +303,90 @@
   cursor: pointer;
   transition: background 0.2s;
 }
+
 .add-tache-btn:hover {
   background: #fd5200;
 }
-.tache-progress {
-  margin-top: 6px;
-  height: 10px;
-  border-radius: 8px;
+
+/* ===== ÉTATS DE CHARGEMENT ET D'ERREUR ===== */
+.loading-state,
+.error-state,
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
 }
-.tache-img {
-  width: 92px;
-  height: 92px;
-  object-fit: cover;
-  border-radius: 12px;
-  box-shadow: 0 1px 4px rgba(44,62,80,0.07);
-  background: #fff;
+
+.loading-state ion-spinner {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+  --color: #ED8205;
 }
-ion-fab-button[color=warning] {
-  --background: #ED8205;
-  --color: #fff;
-  font-size: 1.5rem;
+
+.loading-state p,
+.error-state p,
+.empty-state p {
+  color: #8c755e;
+  font-size: 16px;
+  margin: 8px 0 16px 0;
 }
+
+.error-state .error-icon {
+  font-size: 48px;
+  color: #e74c3c;
+  margin-bottom: 16px;
+}
+
+.empty-state .empty-icon {
+  font-size: 64px;
+  color: #bdc3c7;
+  margin-bottom: 16px;
+}
+
+.empty-state h3 {
+  color: #222f3e;
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
 @media (max-width: 600px) {
   .taches-container {
     padding: 12px 2px 24px 2px;
   }
+  
   .tache-img {
     width: 68px;
     height: 68px;
+  }
+  
+  .tache-main-row {
+    gap: 12px;
+  }
+  
+  .stats-section {
+    gap: 8px;
+  }
+  
+  .stat-item {
+    font-size: 0.8rem;
+    padding: 6px 10px;
+  }
+  
+  .tache-block {
+    padding: 10px 10px 10px 14px;
+  }
+  
+  .tache-nom {
+    font-size: 1rem;
+  }
+  
+  .tache-description {
+    font-size: 0.9rem;
   }
 } 

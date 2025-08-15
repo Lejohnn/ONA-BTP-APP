@@ -176,7 +176,7 @@ export class DetailProjetPage implements OnInit {
   
   goToTaches() {
     if (this.projet) {
-      this.router.navigate(['/liste-taches', this.projet.id]);
+      this.router.navigate(['/tabs/liste-taches'], { queryParams: { projectId: this.projet.id } });
     }
   }
   

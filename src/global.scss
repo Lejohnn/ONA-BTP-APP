@@ -60,12 +60,18 @@ ion-toolbar {
 
 /* Style pour les titres des headers */
 ion-title {
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 700;
   color: var(--header-text-color);
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  letter-spacing: 0.5px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  letter-spacing: 0.8px;
   text-align: center;
+  margin: 0;
+  padding: 0 16px;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Style pour les boutons dans les headers */
@@ -90,18 +96,19 @@ ion-back-button {
   --color-activated: rgba(255, 255, 255, 0.8);
   --color-focused: rgba(255, 255, 255, 0.8);
   --color-hover: rgba(255, 255, 255, 0.8);
-  --icon-font-size: 24px;
+  --icon-font-size: 26px;
   --icon-margin-start: 0;
   --icon-margin-end: 0;
   --icon-padding-start: 0;
   --icon-padding-end: 0;
-  --min-width: 44px;
-  --min-height: 44px;
-  --border-radius: 8px;
-  --background: rgba(255, 255, 255, 0.1);
-  --background-activated: rgba(255, 255, 255, 0.2);
-  --background-focused: rgba(255, 255, 255, 0.2);
-  --background-hover: rgba(255, 255, 255, 0.15);
+  --min-width: 48px;
+  --min-height: 48px;
+  --border-radius: 10px;
+  --background: rgba(255, 255, 255, 0.15);
+  --background-activated: rgba(255, 255, 255, 0.25);
+  --background-focused: rgba(255, 255, 255, 0.25);
+  --background-hover: rgba(255, 255, 255, 0.2);
+  transition: all 0.2s ease;
 }
 
 /* Style pour les boutons menu */
@@ -153,14 +160,68 @@ ion-title {
 /* Responsive design pour les headers */
 @media (max-width: 480px) {
   ion-title {
-    font-size: 14px;
+    font-size: 16px;
+    letter-spacing: 0.5px;
   }
   
   ion-header ion-button {
-    --icon-font-size: 18px;
-    --min-width: 40px;
-    --min-height: 40px;
+    --icon-font-size: 20px;
+    --min-width: 42px;
+    --min-height: 42px;
   }
+  
+  ion-back-button {
+    --icon-font-size: 24px;
+    --min-width: 44px;
+    --min-height: 44px;
+  }
+}
+
+/* Amélioration de l'espacement des boutons */
+ion-buttons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Style pour les boutons d'action dans les headers */
+ion-header ion-button[slot="end"] {
+  --background: rgba(255, 255, 255, 0.2);
+  --background-activated: rgba(255, 255, 255, 0.3);
+  --background-focused: rgba(255, 255, 255, 0.3);
+  --background-hover: rgba(255, 255, 255, 0.25);
+  --border-radius: 12px;
+  --icon-font-size: 22px;
+}
+
+/* Amélioration de l'apparence générale des headers */
+ion-header {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Style pour les toolbars */
+ion-toolbar {
+  --padding-start: 8px;
+  --padding-end: 8px;
+}
+
+/* Amélioration de la lisibilité des titres */
+ion-title {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  text-transform: none;
+}
+
+/* Style pour les boutons avec effet de survol */
+ion-header ion-button:hover {
+  transform: scale(1.05);
+  transition: transform 0.2s ease;
+}
+
+/* Style pour les boutons retour avec effet de survol */
+ion-back-button:hover {
+  transform: scale(1.1);
+  transition: transform 0.2s ease;
 }
 
 /* Mode sombre pour les headers */

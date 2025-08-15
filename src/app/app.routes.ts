@@ -39,10 +39,7 @@ export const routes: Routes = [
         path: 'taches',
         loadComponent: () => import('./pages/taches/taches.page').then(m => m.TachesPage)
       },
-      {
-        path: 'parametres',
-        loadComponent: () => import('./pages/parametres/parametres.page').then(m => m.ParametresPage)
-      },
+
       {
         path: 'caisse',
         loadComponent: () => import('./pages/module-caisse/module-caisse.page').then(m => m.ModuleCaissePage)

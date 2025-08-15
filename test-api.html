@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test API Odoo</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .result { margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 3px; white-space: pre-wrap; }
+        .error { background: #f8d7da; color: #721c24; }
+        .success { background: #d4edda; color: #155724; }
+    </style>
+</head>
+<body>
+    <h1>Test API Odoo - Tâches</h1>
+    
+    <div class="test-section">
+        <h3>Test 1: Tâches avec champs minimaux</h3>
+        <button onclick="testSimpleFields()">Tester champs simples</button>
+        <div id="result1" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Test 2: Vérifier les champs disponibles</h3>
+        <button onclick="testFieldAvailability()">Vérifier champs</button>
+        <div id="result2" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Test 3: Compter les tâches</h3>
+        <button onclick="testCountTasks()">Compter tâches</button>
+        <div id="result3" class="result"></div>
+    </div>
+
+    <script>
+        const odooUrl = 'https://btp.onaerp.com/jsonrpc';
+        const dbName = 'btptst';
+        const uid = 1; // Test avec UID 1
+        const token = 'btp_authentication_token';
+
+        async function makeRequest(data) {
+            try {
+                const response = await fetch(odooUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                return { success: true, data: result };
+            } catch (error) {
+                return { success: false, error: error.message };
+            }
+        }
+
+        function displayResult(elementId, result, isError = false) {
+            const element = document.getElementById(elementId);
+            element.textContent = JSON.stringify(result, null, 2);
+            element.className = 'result ' + (isError ? 'error' : 'success');
+        }
+
+        async function testSimpleFields() {
+            const data = {
+                jsonrpc: '2.0',
+                method: 'call',
+                params: {
+                    service: 'object',
+                    method: 'execute',
+                    args: [
+                        dbName,
+                        uid,
+                        token,
+                        'project.task',
+                        'search_read',
+                        [['active', '=', true]],
+                        ['id', 'name', 'description', 'project_id', 'state', 'progress']
+                    ]
+                }
+            };
+
+            const result = await makeRequest(data);
+            displayResult('result1', result.data || result.error, !result.success);
+        }
+
+        async function testFieldAvailability() {
+            const data = {
+                jsonrpc: '2.0',
+                method: 'call',
+                params: {
+                    service: 'object',
+                    method: 'execute',
+                    args: [
+                        dbName,
+                        uid,
+                        token,
+                        'project.task',
+                        'fields_get',
+                        [],
+                        { attributes: ['string', 'type', 'required'] }
+                    ]
+                }
+            };
+
+            const result = await makeRequest(data);
+            displayResult('result2', result.data || result.error, !result.success);
+        }
+
+        async function testCountTasks() {
+            const data = {
+                jsonrpc: '2.0',
+                method: 'call',
+                params: {
+                    service: 'object',
+                    method: 'execute',
+                    args: [
+                        dbName,
+                        uid,
+                        token,
+                        'project.task',
+                        'search_count',
+                        [['active', '=', true]]
+                    ]
+                }
+            };
+
+            const result = await makeRequest(data);
+            displayResult('result3', result.data || result.error, !result.success);
+        }
+    </script>
+</body>
+</html>

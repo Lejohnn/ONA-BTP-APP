@@ -15,7 +15,7 @@ export class HeaderTitleService {
     '/tabs/projets': 'ONA BTP - Projets',
     '/tabs/taches': 'ONA BTP - Tâches',
     '/tabs/caisse': 'ONA BTP - Caisse',
-    '/tabs/parametres': 'ONA BTP - Paramètres',
+
     '/tabs/profile': 'ONA BTP - Profil',
     '/liste-projets': 'ONA BTP - Liste des Projets',
     '/liste-taches': 'ONA BTP - Liste des Tâches',
@@ -29,7 +29,7 @@ export class HeaderTitleService {
     '/mise-a-jour-projet': 'ONA BTP - Mise à Jour Projet',
     '/login': 'ONA BTP - Connexion',
     '/module-caisse': 'ONA BTP - Module Caisse',
-    '/parametres': 'ONA BTP - Paramètres',
+
     '/profile': 'ONA BTP - Profil',
     '/taches': 'ONA BTP - Tâches'
   };
