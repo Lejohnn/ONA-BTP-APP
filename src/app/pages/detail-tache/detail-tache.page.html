@@ -4,97 +4,241 @@
       <ion-back-button defaultHref="/tabs/liste-taches"></ion-back-button>
     </ion-buttons>
     <ion-title>ONA BTP - Détail Tâche</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="refreshTask()">
+        <ion-icon name="refresh-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" [scrollY]="true">
-  <div class="detail-tache-container">
-    <!-- Info principale -->
+  <!-- État de chargement -->
+  <div *ngIf="isLoading" class="loading-state">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Chargement des détails de la tâche...</p>
+  </div>
+
+  <!-- État d'erreur -->
+  <div *ngIf="!isLoading && errorMessage" class="error-state">
+    <ion-icon name="alert-circle-outline" class="error-icon"></ion-icon>
+    <p>{{ errorMessage }}</p>
+    <ion-button fill="outline" (click)="refreshTask()">
+      <ion-icon name="refresh-outline" slot="start"></ion-icon>
+      Réessayer
+    </ion-button>
+  </div>
+
+  <!-- Contenu principal -->
+  <div *ngIf="!isLoading && !errorMessage && task" class="detail-tache-container">
+    <!-- En-tête de la tâche -->
     <div class="detail-tache-header">
-      <h1 class="detail-tache-nom">{{ tache.nom }}</h1>
-      <p class="detail-tache-description">{{ tache.description }}</p>
+      <h1 class="detail-tache-nom">{{ task.name }}</h1>
+      <p class="detail-tache-description" *ngIf="task.description">{{ task.description }}</p>
     </div>
 
-    <!-- Dates et progression -->
-    <div class="detail-tache-dates-block">
-      <div class="detail-tache-dates">
-        <div>Start: {{ tache.dateDebut }}</div>
-        <div>End: {{ tache.dateFin }}</div>
+    <!-- Informations principales -->
+    <div class="detail-tache-main-info">
+      <!-- Statut et priorité -->
+      <div class="detail-tache-status-block">
+        <div class="status-item">
+          <div class="status-label">Statut</div>
+          <div class="detail-tache-statut" [ngClass]="getStatusClass(task.state)">
+            {{ task.getStateDisplay() }}
+          </div>
+        </div>
+        <div class="status-item">
+          <div class="status-label">Priorité</div>
+          <div class="detail-tache-priority" [ngClass]="getPriorityClass(task.priority)">
+            {{ task.getPriorityDisplay() }}
+          </div>
+        </div>
       </div>
+
+      <!-- Progression -->
       <div class="detail-tache-progress-block">
         <div class="progress-header">
-          <span class="progress-label">Progress</span>
-          <span class="progress-value">{{ (tache.progression * 100) | number:'1.0-0' }}%</span>
+          <span class="progress-label">Progression</span>
+          <span class="progress-value">{{ task.getProgressDisplay() }}</span>
         </div>
-        <ion-progress-bar [value]="tache.progression" class="detail-tache-progress"></ion-progress-bar>
+        <ion-progress-bar [value]="task.progress" class="detail-tache-progress"></ion-progress-bar>
       </div>
     </div>
 
-    <!-- Statut et météo -->
-    <div class="detail-tache-status-block">
-      <div class="status-item">
-        <div class="status-label">Status</div>
-        <div class="detail-tache-statut" [ngClass]="tache.statut.toLowerCase().replace(' ', '-')">
-          {{ tache.statut }}
+    <!-- Dates et échéances -->
+    <div class="detail-tache-dates-block">
+      <h3 class="section-title">Dates et échéances</h3>
+      <div class="dates-grid">
+        <div class="date-item" *ngIf="task.deadline">
+          <ion-icon name="calendar-outline"></ion-icon>
+          <div class="date-info">
+            <div class="date-label">Échéance</div>
+            <div class="date-value">{{ task.getFormattedDeadline() }}</div>
+            <div class="date-status" *ngIf="task.isOverdue()" class="overdue">
+              <ion-icon name="warning-outline"></ion-icon>
+              En retard
+            </div>
+            <div class="date-status" *ngIf="!task.isOverdue() && task.getDaysRemaining() > 0" class="on-time">
+              {{ task.getDaysRemaining() }} jour(s) restant(s)
+            </div>
+          </div>
+        </div>
+        <div class="date-item" *ngIf="task.createDate">
+          <ion-icon name="time-outline"></ion-icon>
+          <div class="date-info">
+            <div class="date-label">Créée le</div>
+            <div class="date-value">{{ task.createDate | date:'dd/MM/yyyy' }}</div>
+          </div>
+        </div>
+        <div class="date-item" *ngIf="task.writeDate">
+          <ion-icon name="create-outline"></ion-icon>
+          <div class="date-info">
+            <div class="date-label">Modifiée le</div>
+            <div class="date-value">{{ task.writeDate | date:'dd/MM/yyyy' }}</div>
+          </div>
         </div>
       </div>
-      <div class="status-item">
-        <div class="status-label">Weather Sensitivity</div>
-        <div class="meteo-sensibilite" [ngClass]="tache.sensibiliteMeteo.toLowerCase()">
-          {{ tache.sensibiliteMeteo }}
+    </div>
+
+    <!-- Heures et temps -->
+    <div class="detail-tache-hours-block">
+      <h3 class="section-title">Heures et temps</h3>
+      <div class="hours-grid">
+        <div class="hours-item" *ngIf="task.totalHoursSpent > 0">
+          <ion-icon name="time-outline"></ion-icon>
+          <div class="hours-info">
+            <div class="hours-label">Heures effectuées</div>
+            <div class="hours-value">{{ task.getTotalHoursFormatted() }}</div>
+          </div>
+        </div>
+        <div class="hours-item" *ngIf="task.remainingHours > 0">
+          <ion-icon name="hourglass-outline"></ion-icon>
+          <div class="hours-info">
+            <div class="hours-label">Heures restantes</div>
+            <div class="hours-value">{{ task.getHoursRemaining() }}h</div>
+          </div>
+        </div>
+        <div class="hours-item" *ngIf="task.effectiveHours > 0">
+          <ion-icon name="checkmark-circle-outline"></ion-icon>
+          <div class="hours-info">
+            <div class="hours-label">Heures effectives</div>
+            <div class="hours-value">{{ task.getEffectiveHoursFormatted() }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Relations -->
+    <div class="detail-tache-relations-block">
+      <h3 class="section-title">Relations</h3>
+      <div class="relations-grid">
+        <div class="relation-item" *ngIf="task.projectName">
+          <ion-icon name="business-outline"></ion-icon>
+          <div class="relation-info">
+            <div class="relation-label">Projet</div>
+            <div class="relation-value">{{ task.projectName }}</div>
+          </div>
+        </div>
+        <div class="relation-item" *ngIf="task.userName">
+          <ion-icon name="person-outline"></ion-icon>
+          <div class="relation-info">
+            <div class="relation-label">Assigné à</div>
+            <div class="relation-value">{{ task.userName }}</div>
+          </div>
+        </div>
+        <div class="relation-item" *ngIf="task.stageName">
+          <ion-icon name="layers-outline"></ion-icon>
+          <div class="relation-info">
+            <div class="relation-label">Étape</div>
+            <div class="relation-value">{{ task.stageName }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sous-tâches -->
+    <div class="detail-tache-subtasks-block" *ngIf="subTasks.length > 0">
+      <div class="section-header">
+        <h3 class="section-title">Sous-tâches ({{ subTasks.length }})</h3>
+        <ion-button fill="clear" size="small" (click)="editTask()">
+          <ion-icon name="add-outline" slot="start"></ion-icon>
+          Ajouter
+        </ion-button>
+      </div>
+      <div class="subtasks-list">
+        <div *ngFor="let subTask of subTasks" class="subtask-item">
+          <div class="subtask-info">
+            <div class="subtask-name">{{ subTask.name }}</div>
+            <div class="subtask-status" [ngClass]="getStatusClass(subTask.state)">
+              {{ subTask.getStateDisplay() }}
+            </div>
+          </div>
+          <div class="subtask-progress">
+            <ion-progress-bar [value]="subTask.progress" class="subtask-progress-bar"></ion-progress-bar>
+            <span class="subtask-progress-text">{{ subTask.getProgressDisplay() }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tâches dépendantes -->
+    <div class="detail-tache-dependencies-block" *ngIf="dependentTasks.length > 0">
+      <h3 class="section-title">Tâches dépendantes ({{ dependentTasks.length }})</h3>
+      <div class="dependencies-list">
+        <div *ngFor="let depTask of dependentTasks" class="dependency-item">
+          <div class="dependency-info">
+            <div class="dependency-name">{{ depTask.name }}</div>
+            <div class="dependency-status" [ngClass]="getStatusClass(depTask.state)">
+              {{ depTask.getStateDisplay() }}
+            </div>
+          </div>
+          <div class="dependency-progress">
+            <ion-progress-bar [value]="depTask.progress" class="dependency-progress-bar"></ion-progress-bar>
+            <span class="dependency-progress-text">{{ depTask.getProgressDisplay() }}</span>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Photos -->
     <div class="detail-tache-photos">
-      <h2 class="section-title">Progress Photos</h2>
-      <div class="photos-grid">
-        <img *ngFor="let photo of tache.photos" [src]="photo" class="progress-photo" alt="Progress photo" />
+      <div class="section-header">
+        <h3 class="section-title">Photos de progression</h3>
+        <ion-button fill="clear" size="small" (click)="addPhoto()">
+          <ion-icon name="camera-outline" slot="start"></ion-icon>
+          Ajouter
+        </ion-button>
       </div>
-      <button class="add-photo-btn" (click)="ajouterPhoto()">
-        <img src="assets/images/taches/takePhoto.webp" alt="Add photo" />
-        Add/Edit Photo
-      </button>
-    </div>
-
-    <!-- Ressources -->
-    <div class="detail-tache-ressources">
-      <!-- Ressources Humaines -->
-      <div class="ressources-section">
-        <div class="ressources-header">
-          <h2 class="section-title">Human Resources</h2>
-          <button class="edit-btn" (click)="editerRessourcesHumaines()">Edit</button>
-        </div>
-        <div class="ressources-list">
-          <div *ngFor="let res of tache.ressourcesHumaines" class="ressource-item">
-            <span class="ressource-nom">{{ res.nom }}</span>
-            <span class="ressource-quantite">{{ res.quantite }}</span>
-          </div>
-        </div>
+      <div class="photos-grid" *ngIf="false">
+        <!-- TODO: Implémenter l'affichage des photos -->
+        <img src="assets/images/taches/progressPhoto.webp" class="progress-photo" alt="Progress photo" />
       </div>
-
-      <!-- Ressources Matérielles -->
-      <div class="ressources-section">
-        <div class="ressources-header">
-          <h2 class="section-title">Material Resources</h2>
-          <button class="edit-btn" (click)="editerRessourcesMaterielles()">Edit</button>
-        </div>
-        <div class="ressources-list">
-          <div *ngFor="let res of tache.ressourcesMaterielles" class="ressource-item">
-            <span class="ressource-nom">{{ res.nom }}</span>
-            <span class="ressource-quantite">{{ res.quantite }}</span>
-          </div>
-        </div>
+      <div class="no-photos" *ngIf="true">
+        <ion-icon name="images-outline" class="no-photos-icon"></ion-icon>
+        <p>Aucune photo de progression</p>
+        <ion-button fill="outline" (click)="addPhoto()">
+          <ion-icon name="camera-outline" slot="start"></ion-icon>
+          Prendre une photo
+        </ion-button>
       </div>
     </div>
 
     <!-- Actions -->
     <div class="detail-tache-actions">
-      <h2 class="section-title">Actions</h2>
+      <h3 class="section-title">Actions</h3>
       <div class="actions-buttons">
-        <button class="action-btn update" (click)="updateTask()">Update Task</button>
-        <button class="action-btn return" (click)="returnTask()">Return Task</button>
+        <ion-button class="action-btn update" (click)="updateTask()">
+          <ion-icon name="refresh-outline" slot="start"></ion-icon>
+          Mettre à jour
+        </ion-button>
+        <ion-button class="action-btn edit" (click)="editTask()">
+          <ion-icon name="create-outline" slot="start"></ion-icon>
+          Modifier
+        </ion-button>
+        <ion-button class="action-btn return" (click)="returnTask()">
+          <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+          Retourner
+        </ion-button>
       </div>
     </div>
   </div>

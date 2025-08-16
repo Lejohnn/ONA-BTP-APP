@@ -1,0 +1,31 @@
+{
+  "jsonrpc": "2.0",
+  "method": "call",
+  "params": {
+    "model": "project.task",
+    "method": "search_read",
+    "args": [],
+    "kwargs": {
+      "domain": [["id", "=", 1]],
+      "fields": [
+        "id",
+        "name", 
+        "description",
+        "state",
+        "priority",
+        "progress",
+        "date_deadline",
+        "effective_hours",
+        "remaining_hours",
+        "total_hours_spent",
+        "user_id",
+        "project_id",
+        "stage_id",
+        "create_date",
+        "write_date"
+      ],
+      "limit": 1
+    }
+  }
+}
+

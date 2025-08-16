@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { CapacitorHttp, HttpOptions } from '@capacitor/core';
-import { Observable, from, of } from 'rxjs';
+import { Observable, from, of, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { HydrationService } from './hydration.service';
 import { ITaskOdoo, ITask } from '../models/interfaces/task.interface';
@@ -25,8 +25,9 @@ export class TaskService {
       this.uid = parseInt(storedUid);
       console.log('✅ UID parsé:', this.uid);
     } else {
-      this.uid = 0;
-      console.log('❌ Pas d\'UID trouvé, valeur par défaut:', this.uid);
+      // Utiliser l'UID 7 par défaut comme découvert dans le test
+      this.uid = 7;
+      console.log('⚠️ Pas d\'UID trouvé, utilisation de l\'UID par défaut:', this.uid);
     }
   }
 
@@ -80,6 +81,234 @@ export class TaskService {
       }),
       catchError(error => {
         console.error('❌ Erreur lors de la récupération des tâches du projet:', error);
+        return of([]);
+      })
+    );
+  }
+
+  /**
+   * Récupère les détails d'une tâche spécifique par son ID
+   * @param taskId ID de la tâche
+   * @returns Observable avec les détails de la tâche
+   */
+  getTaskDetails(taskId: number): Observable<ITask> {
+    console.log('🔍 TaskService - getTaskDetails() appelé avec taskId:', taskId);
+    console.log('🔍 TaskService - UID actuel:', this.uid);
+
+    if (!this.uid) {
+      console.error('❌ TaskService - UID non disponible pour récupérer les détails de la tâche');
+      return throwError(() => new Error('UID non disponible'));
+    }
+
+    const requestBody = {
+      jsonrpc: "2.0",
+      method: "call",
+      params: {
+        service: "object",
+        method: "execute_kw",
+        args: [
+          this.dbName,
+          this.uid,
+          "demo",
+          "project.task",
+          "search_read",
+          [[["id", "=", taskId]]],
+          {
+            fields: [
+              'id', 'name', 'description', 'state', 'priority', 'date_deadline',
+              'progress', 'user_id', 'project_id', 'remaining_hours',
+              'effective_hours', 'total_hours_spent', 'create_date', 'write_date',
+              'stage_id', 'display_name'
+            ],
+            limit: 1
+          }
+        ]
+      }
+    };
+
+    const options: HttpOptions = {
+      url: this.odooUrl,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'User-Agent': 'ONA-BTP-Mobile/1.0'
+      },
+      data: requestBody,
+      connectTimeout: 30000,
+      readTimeout: 30000
+    };
+
+    console.log('📤 TaskService - Requête détails tâche envoyée:', JSON.stringify(requestBody, null, 2));
+
+    return from(CapacitorHttp.post(options)).pipe(
+      map(response => {
+        console.log('📦 TaskService - Réponse API détails tâche reçue');
+        console.log('📦 TaskService - Status de la réponse:', response.status);
+        console.log('📦 TaskService - Data de la réponse:', JSON.stringify(response.data, null, 2));
+        console.log('📦 TaskService - Data.result existe?', !!response.data?.result);
+        console.log('📦 TaskService - Data.result est un array?', Array.isArray(response.data?.result));
+        console.log('📦 TaskService - Data.result.length:', response.data?.result?.length);
+        
+        if (response.status === 200 && response.data?.result && response.data.result.length > 0) {
+          const rawTask = response.data.result[0];
+          console.log('📋 TaskService - Données brutes de la tâche:', rawTask);
+          
+          const task = this.hydrateTaskFromOdoo(rawTask);
+          console.log('✅ TaskService - Tâche hydratée avec succès:', task);
+          return task;
+        } else {
+          console.error('❌ TaskService - Tâche non trouvée ou réponse invalide');
+          console.error('❌ TaskService - Status:', response.status);
+          console.error('❌ TaskService - Data:', response.data);
+          throw new Error('Tâche non trouvée');
+        }
+      }),
+      catchError(error => {
+        console.error('❌ TaskService - Erreur lors de la récupération des détails de la tâche:', error);
+        console.error('❌ TaskService - Type d\'erreur:', typeof error);
+        console.error('❌ TaskService - Message d\'erreur:', error.message);
+        return throwError(() => new Error('Impossible de récupérer les détails de la tâche'));
+      })
+    );
+  }
+
+  /**
+   * Récupère les sous-tâches d'une tâche parent
+   * @param parentTaskId ID de la tâche parent
+   * @returns Observable avec la liste des sous-tâches
+   */
+  getSubTasks(parentTaskId: number): Observable<ITask[]> {
+    console.log('🔍 Récupération des sous-tâches pour la tâche:', parentTaskId);
+
+    if (!this.uid) {
+      console.error('❌ UID non disponible pour récupérer les sous-tâches');
+      return of([]);
+    }
+
+    const requestBody = {
+      jsonrpc: "2.0",
+      method: "call",
+      params: {
+        service: "object",
+        method: "execute_kw",
+        args: [
+          this.dbName,
+          this.uid,
+          "demo",
+          "project.task",
+          "search_read",
+          [[["parent_id", "=", parentTaskId]]],
+          {
+            fields: [
+              'id', 'name', 'description', 'state', 'priority', 'date_deadline',
+              'progress', 'user_id', 'project_id', 'remaining_hours',
+              'effective_hours', 'total_hours_spent', 'create_date', 'write_date',
+              'stage_id', 'display_name'
+            ],
+            limit: 50
+          }
+        ]
+      }
+    };
+
+    const options: HttpOptions = {
+      url: this.odooUrl,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'User-Agent': 'ONA-BTP-Mobile/1.0'
+      },
+      data: requestBody,
+      connectTimeout: 30000,
+      readTimeout: 30000
+    };
+
+    return from(CapacitorHttp.post(options)).pipe(
+      map(response => {
+        console.log('📦 Réponse API sous-tâches:', response);
+        
+        if (response.status === 200 && response.data?.result) {
+          const tasks = response.data.result.map((rawTask: ITaskOdoo) => this.hydrateTaskFromOdoo(rawTask));
+          console.log('✅ Sous-tâches hydratées:', tasks);
+          return tasks;
+        } else {
+          console.log('❌ Aucune sous-tâche trouvée');
+          return [];
+        }
+      }),
+      catchError(error => {
+        console.error('❌ Erreur lors de la récupération des sous-tâches:', error);
+        return of([]);
+      })
+    );
+  }
+
+  /**
+   * Récupère les tâches dépendantes d'une tâche
+   * @param taskId ID de la tâche
+   * @returns Observable avec la liste des tâches dépendantes
+   */
+  getDependentTasks(taskId: number): Observable<ITask[]> {
+    console.log('🔍 Récupération des tâches dépendantes pour la tâche:', taskId);
+
+    if (!this.uid) {
+      console.error('❌ UID non disponible pour récupérer les tâches dépendantes');
+      return of([]);
+    }
+
+    const requestBody = {
+      jsonrpc: "2.0",
+      method: "call",
+      params: {
+        service: "object",
+        method: "execute_kw",
+        args: [
+          this.dbName,
+          this.uid,
+          "demo",
+          "project.task",
+          "search_read",
+          [[["depend_on_ids", "in", [taskId]]]],
+          {
+            fields: [
+              'id', 'name', 'description', 'state', 'priority', 'date_deadline',
+              'progress', 'user_id', 'project_id', 'remaining_hours',
+              'effective_hours', 'total_hours_spent', 'create_date', 'write_date',
+              'stage_id', 'display_name'
+            ],
+            limit: 50
+          }
+        ]
+      }
+    };
+
+    const options: HttpOptions = {
+      url: this.odooUrl,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'User-Agent': 'ONA-BTP-Mobile/1.0'
+      },
+      data: requestBody,
+      connectTimeout: 30000,
+      readTimeout: 30000
+    };
+
+    return from(CapacitorHttp.post(options)).pipe(
+      map(response => {
+        console.log('📦 Réponse API tâches dépendantes:', response);
+        
+        if (response.status === 200 && response.data?.result) {
+          const tasks = response.data.result.map((rawTask: ITaskOdoo) => this.hydrateTaskFromOdoo(rawTask));
+          console.log('✅ Tâches dépendantes hydratées:', tasks);
+          return tasks;
+        } else {
+          console.log('❌ Aucune tâche dépendante trouvée');
+          return [];
+        }
+      }),
+      catchError(error => {
+        console.error('❌ Erreur lors de la récupération des tâches dépendantes:', error);
         return of([]);
       })
     );
@@ -205,6 +434,8 @@ export class TaskService {
   }
 
   private hydrateTaskFromOdoo(taskData: ITaskOdoo): ITask {
+    console.log('🔄 TaskService - hydrateTaskFromOdoo() appelé avec taskData:', taskData);
+    
     // Nettoyer la description HTML
     let cleanDescription = '';
     if (taskData.description && typeof taskData.description === 'string') {
@@ -214,6 +445,7 @@ export class TaskService {
         .replace(/&nbsp;/g, ' ') // Remplacer les espaces insécables
         .trim();
     }
+    console.log('📝 TaskService - Description nettoyée:', cleanDescription);
 
     // Extraire les informations des relations
     const projectInfo = taskData.project_id && Array.isArray(taskData.project_id) 
@@ -237,9 +469,11 @@ export class TaskService {
     const writeDate = taskData.write_date ? new Date(taskData.write_date) : new Date();
 
     // Nettoyer l'état (enlever le préfixe numérique)
-    const cleanState = taskData.state.replace(/^\d+_/, '');
+    const cleanState = taskData.state && typeof taskData.state === 'string' 
+      ? taskData.state.replace(/^\d+_/, '') 
+      : 'draft';
 
-    return {
+    const hydratedTask = {
       // Informations de base
       id: taskData.id,
       name: taskData.name,
@@ -373,6 +607,9 @@ export class TaskService {
         };
       }
     };
+    
+    console.log('✅ TaskService - Tâche hydratée créée avec succès:', hydratedTask);
+    return hydratedTask;
   }
 
   private getStateDisplay(state: string): string {

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Détail Tâche</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .result { background: #f5f5f5; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .error { background: #ffebee; color: #c62828; }
+        .success { background: #e8f5e8; color: #2e7d32; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>Test API Détail Tâche</h1>
+    <button onclick="testTaskDetails()">Tester Détails Tâche ID 1</button>
+    <div id="result"></div>
+
+    <script>
+        async function testTaskDetails() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<div class="result">Chargement...</div>';
+
+            const url = 'https://btp.onaerp.com/jsonrpc';
+            const data = {
+                jsonrpc: "2.0",
+                method: "call",
+                params: {
+                    service: "object",
+                    method: "execute_kw",
+                    args: [
+                        "btptst",
+                        7,
+                        "demo",
+                        "project.task",
+                        "search_read",
+                        [[["id", "=", 1]]],
+                        {
+                            fields: [
+                                'id', 'name', 'description', 'state', 'priority', 'progress',
+                                'date_deadline', 'effective_hours', 'remaining_hours', 'total_hours_spent',
+                                'user_id', 'project_id', 'stage_id', 'create_date', 'write_date'
+                            ],
+                            limit: 1
+                        }
+                    ]
+                }
+            };
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                console.log('Réponse API:', result);
+
+                if (result.result && result.result.length > 0) {
+                    const task = result.result[0];
+                    resultDiv.innerHTML = `
+                        <div class="result success">
+                            <h3>✅ Tâche trouvée !</h3>
+                            <p><strong>ID:</strong> ${task.id}</p>
+                            <p><strong>Nom:</strong> ${task.name}</p>
+                            <p><strong>Description:</strong> ${task.description || 'Aucune'}</p>
+                            <p><strong>État:</strong> ${task.state}</p>
+                            <p><strong>Priorité:</strong> ${task.priority}</p>
+                            <p><strong>Progression:</strong> ${task.progress}</p>
+                            <p><strong>Date limite:</strong> ${task.date_deadline || 'Non définie'}</p>
+                            <p><strong>Heures effectives:</strong> ${task.effective_hours || 0}</p>
+                            <p><strong>Heures restantes:</strong> ${task.remaining_hours || 0}</p>
+                            <p><strong>Total heures:</strong> ${task.total_hours_spent || 0}</p>
+                            <p><strong>Utilisateur:</strong> ${task.user_id ? task.user_id[1] : 'Non assigné'}</p>
+                            <p><strong>Projet:</strong> ${task.project_id ? task.project_id[1] : 'Non assigné'}</p>
+                            <p><strong>Étape:</strong> ${task.stage_id ? task.stage_id[1] : 'Non assigné'}</p>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="result error">
+                            <h3>❌ Aucune tâche trouvée</h3>
+                            <pre>${JSON.stringify(result, null, 2)}</pre>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="result error">
+                        <h3>❌ Erreur lors de la requête</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
+

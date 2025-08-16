@@ -8,18 +8,18 @@ export interface ITaskOdoo {
   id: number;
   name: string;
   description: string | false;
-  project_id: [number, string] | false;
+  project_id?: [number, string] | false;
   state: string;
   progress: number;
   date_deadline: string | false;
-  effective_hours: number;
-  remaining_hours: number;
-  total_hours_spent: number;
-  user_id: [number, string] | false;
-  stage_id: [number, string] | false;
+  effective_hours?: number;
+  remaining_hours?: number;
+  total_hours_spent?: number;
+  user_id?: [number, string] | false;
+  stage_id?: [number, string] | false;
   priority: string;
-  create_date: string;
-  write_date: string;
+  create_date?: string;
+  write_date?: string;
 }
 
 /**

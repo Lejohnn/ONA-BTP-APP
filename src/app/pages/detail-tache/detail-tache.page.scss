@@ -8,14 +8,6 @@ ion-content::part(scroll) {
   padding-bottom: 32px;
 }
 
-.header-title {
-  font-family: 'Lexend', 'Inter', Arial, sans-serif;
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: #222f3e;
-  text-align: center;
-}
-
 .detail-tache-container {
   width: 100%;
   max-width: 600px;
@@ -32,7 +24,38 @@ ion-content::part(scroll) {
   }
 }
 
-// Info principale
+/* ===== ÉTATS DE CHARGEMENT ET D'ERREUR ===== */
+.loading-state,
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.loading-state ion-spinner {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+  --color: #fd5200;
+}
+
+.loading-state p,
+.error-state p {
+  color: #7f8c8d;
+  font-size: 16px;
+  margin: 8px 0 16px 0;
+}
+
+.error-state .error-icon {
+  font-size: 48px;
+  color: #f04141;
+  margin-bottom: 16px;
+}
+
+/* ===== EN-TÊTE DE LA TÂCHE ===== */
 .detail-tache-header {
   .detail-tache-nom {
     font-size: 1.5rem;
@@ -48,17 +71,91 @@ ion-content::part(scroll) {
   }
 }
 
-// Dates et progression
-.detail-tache-dates-block {
+/* ===== INFORMATIONS PRINCIPALES ===== */
+.detail-tache-main-info {
   background: #fff;
   border-radius: 12px;
   padding: 16px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  .detail-tache-dates {
-    color: #576574;
-    font-size: 0.95rem;
-    margin-bottom: 16px;
-    div { margin-bottom: 4px; }
+}
+
+.detail-tache-status-block {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+
+  .status-item {
+    flex: 1;
+    min-width: 140px;
+    .status-label {
+      font-size: 0.9rem;
+      color: #576574;
+      margin-bottom: 8px;
+    }
+  }
+}
+
+.detail-tache-statut {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-transform: capitalize;
+  
+  &.draft {
+    background: #95a5a6;
+    color: #fff;
+  }
+  &.open {
+    background: #3498db;
+    color: #fff;
+  }
+  &.pending {
+    background: #f9ca24;
+    color: #fff;
+  }
+  &.in-progress {
+    background: #fd5200;
+    color: #fff;
+  }
+  &.done {
+    background: #27ae60;
+    color: #fff;
+  }
+  &.cancelled {
+    background: #e74c3c;
+    color: #fff;
+  }
+  &.closed {
+    background: #34495e;
+    color: #fff;
+  }
+}
+
+.detail-tache-priority {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  
+  &.low {
+    background: #51cf66;
+    color: #fff;
+  }
+  &.normal {
+    background: #74b9ff;
+    color: #fff;
+  }
+  &.high {
+    background: #fdcb6e;
+    color: #222f3e;
+  }
+  &.urgent {
+    background: #e17055;
+    color: #fff;
   }
 }
 
@@ -84,219 +181,400 @@ ion-content::part(scroll) {
   --buffer-background: #e9ecef;
 }
 
-// Statut et météo
-.detail-tache-status-block {
-  display: flex;
-  gap: 16px;
-  margin-bottom: 8px;
-  flex-wrap: wrap;
+/* ===== DATES ET ÉCHÉANCES ===== */
+.detail-tache-dates-block {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  
+  .section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #222f3e;
+    margin: 0 0 16px;
+  }
+}
 
-  .status-item {
-    flex: 1;
-    min-width: 140px;
-    background: #fff;
-    border-radius: 12px;
-    padding: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    .status-label {
-      font-size: 0.9rem;
-      color: #576574;
-      margin-bottom: 8px;
+.dates-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.date-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  
+  ion-icon {
+    font-size: 20px;
+    color: #fd5200;
+    margin-top: 2px;
+  }
+}
+
+.date-info {
+  flex: 1;
+  
+  .date-label {
+    font-size: 0.9rem;
+    color: #576574;
+    margin-bottom: 4px;
+  }
+  
+  .date-value {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #222f3e;
+    margin-bottom: 4px;
+  }
+  
+  .date-status {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    
+    &.overdue {
+      color: #e74c3c;
+    }
+    
+    &.on-time {
+      color: #27ae60;
+    }
+    
+    ion-icon {
+      font-size: 14px;
+      margin: 0;
     }
   }
 }
 
-.detail-tache-statut {
-  display: inline-block;
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 0.95rem;
-  text-transform: capitalize;
-  &.pending {
-    background: #f9ca24;
-    color: #fff;
-  }
-  &.in-progress {
-    background: #fd5200;
-    color: #fff;
-  }
-  &.done {
-    background: #27ae60;
-    color: #fff;
+/* ===== HEURES ET TEMPS ===== */
+.detail-tache-hours-block {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  
+  .section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #222f3e;
+    margin: 0 0 16px;
   }
 }
 
-.meteo-sensibilite {
-  display: inline-block;
-  padding: 6px 12px;
+.hours-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.hours-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #f8f9fa;
   border-radius: 8px;
-  font-weight: 600;
-  font-size: 0.95rem;
-  &.haute {
-    background: #ff6b6b;
-    color: #fff;
+  
+  ion-icon {
+    font-size: 20px;
+    color: #fd5200;
   }
-  &.moyenne {
-    background: #ffd93d;
+}
+
+.hours-info {
+  flex: 1;
+  
+  .hours-label {
+    font-size: 0.9rem;
+    color: #576574;
+    margin-bottom: 4px;
+  }
+  
+  .hours-value {
+    font-size: 1rem;
+    font-weight: 600;
     color: #222f3e;
   }
-  &.basse {
-    background: #51cf66;
-    color: #fff;
+}
+
+/* ===== RELATIONS ===== */
+.detail-tache-relations-block {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  
+  .section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #222f3e;
+    margin: 0 0 16px;
   }
 }
 
-// Photos
+.relations-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.relation-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  
+  ion-icon {
+    font-size: 20px;
+    color: #fd5200;
+  }
+}
+
+.relation-info {
+  flex: 1;
+  
+  .relation-label {
+    font-size: 0.9rem;
+    color: #576574;
+    margin-bottom: 4px;
+  }
+  
+  .relation-value {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #222f3e;
+  }
+}
+
+/* ===== SOUS-TÂCHES ET DÉPENDANCES ===== */
+.detail-tache-subtasks-block,
+.detail-tache-dependencies-block {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  
+  .section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #222f3e;
+    margin: 0;
+  }
+}
+
+.subtasks-list,
+.dependencies-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.subtask-item,
+.dependency-item {
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.subtask-info,
+.dependency-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.subtask-name,
+.dependency-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #222f3e;
+}
+
+.subtask-status,
+.dependency-status {
+  font-size: 0.85rem;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: 500;
+  
+  &.draft { background: #95a5a6; color: #fff; }
+  &.open { background: #3498db; color: #fff; }
+  &.pending { background: #f9ca24; color: #fff; }
+  &.in-progress { background: #fd5200; color: #fff; }
+  &.done { background: #27ae60; color: #fff; }
+  &.cancelled { background: #e74c3c; color: #fff; }
+  &.closed { background: #34495e; color: #fff; }
+}
+
+.subtask-progress,
+.dependency-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.subtask-progress-bar,
+.dependency-progress-bar {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  --progress-background: #fd5200;
+  --buffer-background: #e9ecef;
+}
+
+.subtask-progress-text,
+.dependency-progress-text {
+  font-size: 0.85rem;
+  color: #576574;
+  font-weight: 500;
+  min-width: 40px;
+  text-align: right;
+}
+
+/* ===== PHOTOS ===== */
 .detail-tache-photos {
   background: #fff;
   border-radius: 12px;
   padding: 16px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  .section-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #222f3e;
-    margin: 0 0 16px;
-  }
-  .photos-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 12px;
-    margin-bottom: 16px;
-    .progress-photo {
-      width: 100%;
-      aspect-ratio: 1;
-      object-fit: cover;
-      border-radius: 8px;
-    }
-  }
-  .add-photo-btn {
+}
+
+.photos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+  
+  .progress-photo {
     width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    background: #f8f9fa;
-    border: 2px dashed #c8d6e5;
+    aspect-ratio: 1;
+    object-fit: cover;
     border-radius: 8px;
-    padding: 12px;
-    color: #576574;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-    img {
-      width: 24px;
-      height: 24px;
-    }
-    &:hover {
-      background: #f1f3f5;
-      border-color: #8395a7;
-    }
   }
 }
 
-// Ressources
-.detail-tache-ressources {
+.no-photos {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-}
-
-.ressources-section {
-  background: #fff;
-  border-radius: 12px;
-  padding: 16px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  .ressources-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  align-items: center;
+  padding: 40px 20px;
+  text-align: center;
+  
+  .no-photos-icon {
+    font-size: 48px;
+    color: #bdc3c7;
     margin-bottom: 16px;
-    .section-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: #222f3e;
-      margin: 0;
-    }
-    .edit-btn {
-      background: #f8f9fa;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 6px;
-      color: #fd5200;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background 0.2s;
-      &:hover {
-        background: #f1f3f5;
-      }
-    }
   }
-  .ressources-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-  .ressource-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 12px;
-    background: #f8f9fa;
-    border-radius: 6px;
-    .ressource-nom {
-      color: #222f3e;
-      font-weight: 500;
-    }
-    .ressource-quantite {
-      color: #576574;
-      font-weight: 600;
-    }
+  
+  p {
+    color: #7f8c8d;
+    font-size: 16px;
+    margin: 0 0 16px 0;
   }
 }
 
-// Actions
+/* ===== ACTIONS ===== */
 .detail-tache-actions {
   background: #fff;
   border-radius: 12px;
   padding: 16px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  
   .section-title {
     font-size: 1.1rem;
     font-weight: 600;
     color: #222f3e;
     margin: 0 0 16px;
   }
-  .actions-buttons {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    .action-btn {
-      flex: 1;
-      min-width: 140px;
-      padding: 12px 24px;
-      border: none;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      &.update {
-        background: #fd5200;
-        color: #fff;
-        &:hover {
-          background: #e64a00;
-        }
-      }
-      &.return {
-        background: #f8f9fa;
-        color: #222f3e;
-        border: 2px solid #c8d6e5;
-        &:hover {
-          background: #f1f3f5;
-          border-color: #8395a7;
-        }
+}
+
+.actions-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  
+  .action-btn {
+    flex: 1;
+    min-width: 140px;
+    
+    &.update {
+      --background: #fd5200;
+      --color: #fff;
+      
+      &:hover {
+        --background: #e64a00;
       }
     }
+    
+    &.edit {
+      --background: #3498db;
+      --color: #fff;
+      
+      &:hover {
+        --background: #2980b9;
+      }
+    }
+    
+    &.return {
+      --background: #f8f9fa;
+      --color: #222f3e;
+      --border-color: #c8d6e5;
+      --border-width: 2px;
+      
+      &:hover {
+        --background: #f1f3f5;
+        --border-color: #8395a7;
+      }
+    }
+  }
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 600px) {
+  .detail-tache-container {
+    padding: 60px 12px 16px 12px;
+  }
+  
+  .detail-tache-status-block {
+    flex-direction: column;
+    gap: 12px;
+    
+    .status-item {
+      min-width: auto;
+    }
+  }
+  
+  .actions-buttons {
+    flex-direction: column;
+    
+    .action-btn {
+      min-width: auto;
+    }
+  }
+  
+  .subtask-info,
+  .dependency-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
   }
 } 
