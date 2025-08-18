@@ -321,7 +321,8 @@ export class HydrationService {
       date: rawData.date || '',
       user_id: rawData.user_id || false,
       partner_id: rawData.partner_id || false,
-      task_count: rawData.task_count || 0,
+      progressbar: rawData.progressbar || 0,
+      task_ids: rawData.task_ids || [],
       type_of_construction: rawData.type_of_construction || false
     };
 
@@ -347,7 +348,8 @@ export class HydrationService {
       date: new Date().toISOString(),
       user_id: false,
       partner_id: false,
-      task_count: 0,
+      progressbar: 0,
+      task_ids: [],
       type_of_construction: false
     };
 

@@ -29,12 +29,12 @@ export class ListeTachesPage implements OnInit, OnDestroy {
   searchTerm = '';
   activeFilter = 'all';
   
-  // Filtres disponibles
+  // Filtres disponibles - Basés sur les vrais statuts Odoo
   availableFilters = [
     { value: 'all', label: 'Toutes', icon: 'list-outline' },
-    { value: 'pending', label: 'En attente', icon: 'time-outline' },
-    { value: 'in_progress', label: 'En cours', icon: 'construct-outline' },
-    { value: 'done', label: 'Terminées', icon: 'checkmark-circle-outline' },
+    { value: '01_in_progress', label: 'En cours', icon: 'construct-outline' },
+    { value: '03_approved', label: 'Approuvées', icon: 'checkmark-outline' },
+    { value: '1_done', label: 'Terminées', icon: 'checkmark-circle-outline' },
     { value: 'overdue', label: 'En retard', icon: 'warning-outline' }
   ];
   
@@ -55,6 +55,13 @@ export class ListeTachesPage implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.loadTasks();
+    this.checkProjectFilter();
+  }
+
+  ionViewWillEnter() {
+    // Recharger les tâches quand on entre dans la page
+    console.log('🔄 ionViewWillEnter - Rechargement des tâches');
     this.loadTasks();
     this.checkProjectFilter();
   }
@@ -102,6 +109,12 @@ export class ListeTachesPage implements OnInit, OnDestroy {
   loadTasksByProject(projectId: number) {
     this.isLoading = true;
     this.errorMessage = '';
+    console.log('🔍 loadTasksByProject appelé pour le projet:', projectId);
+
+    // Annuler la souscription précédente si elle existe
+    if (this.tasksSubscription) {
+      this.tasksSubscription.unsubscribe();
+    }
 
     this.tasksSubscription = this.taskService.getTasksByProject(projectId).subscribe({
       next: (tasks) => {
@@ -109,6 +122,7 @@ export class ListeTachesPage implements OnInit, OnDestroy {
         this.filteredTasks = [...tasks];
         this.isLoading = false;
         console.log('✅ Tâches du projet chargées:', tasks.length);
+        console.log('📋 Tâches:', tasks.map(t => `${t.id}: ${t.name}`));
       },
       error: (error) => {
         console.error('❌ Erreur lors du chargement des tâches du projet:', error);
@@ -119,7 +133,14 @@ export class ListeTachesPage implements OnInit, OnDestroy {
   }
 
   refreshTasks() {
-    this.loadTasks();
+    console.log('🔄 refreshTasks() appelé');
+    if (this.currentProjectId) {
+      console.log('🔄 Rechargement des tâches pour le projet:', this.currentProjectId);
+      this.loadTasksByProject(this.currentProjectId);
+    } else {
+      console.log('🔄 Rechargement de toutes les tâches');
+      this.loadTasks();
+    }
   }
 
   // ===== FILTRES ET RECHERCHE =====
@@ -166,26 +187,24 @@ export class ListeTachesPage implements OnInit, OnDestroy {
 
   getStatusClass(state: string): string {
     const statusMap: { [key: string]: string } = {
-      'draft': 'status-draft',
-      'open': 'status-open',
-      'pending': 'status-pending',
-      'in_progress': 'status-in-progress',
-      'done': 'status-done',
-      'cancelled': 'status-cancelled',
-      'closed': 'status-closed'
+      '01_in_progress': 'status-in-progress',
+      '02_pending': 'status-pending',
+      '03_approved': 'status-approved',
+      '1_done': 'status-done',
+      '2_cancelled': 'status-cancelled',
+      '3_closed': 'status-closed'
     };
     return statusMap[state] || 'status-default';
   }
 
   getStatusIcon(state: string): string {
     const iconMap: { [key: string]: string } = {
-      'draft': 'document-outline',
-      'open': 'folder-open-outline',
-      'pending': 'time-outline',
-      'in_progress': 'construct-outline',
-      'done': 'checkmark-circle-outline',
-      'cancelled': 'close-circle-outline',
-      'closed': 'lock-closed-outline'
+      '01_in_progress': 'construct-outline',
+      '02_pending': 'time-outline',
+      '03_approved': 'checkmark-outline',
+      '1_done': 'checkmark-circle-outline',
+      '2_cancelled': 'close-circle-outline',
+      '3_closed': 'lock-closed-outline'
     };
     return iconMap[state] || 'help-outline';
   }

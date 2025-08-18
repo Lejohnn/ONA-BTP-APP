@@ -2,6 +2,25 @@ ion-content {
   --background: #fff;
 }
 
+.error-message {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 4px;
+  margin-left: 16px;
+  margin-bottom: 8px;
+}
+
+ion-item {
+  --background: transparent;
+  --border-color: #e9ecef;
+  --border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+ion-item.ion-invalid {
+  --border-color: #dc3545;
+}
+
 .creer-tache-form {
   display: flex;
   flex-direction: column;

@@ -40,11 +40,11 @@
       </div>
       <div class="stat-item">
         <ion-icon name="construct-outline"></ion-icon>
-        <span>{{ getTasksByState('in_progress').length }} en cours</span>
+        <span>{{ getTasksByState('01_in_progress').length }} en cours</span>
       </div>
       <div class="stat-item">
         <ion-icon name="checkmark-circle-outline"></ion-icon>
-        <span>{{ getTasksByState('done').length }} terminées</span>
+        <span>{{ getTasksByState('1_done').length }} terminées</span>
       </div>
     </div>
 
@@ -178,7 +178,11 @@
   </div>
 
   <!-- Bouton flottant pour ajouter une tâche -->
-  <button class="add-tache-btn" (click)="ajouterTache()">
-    <ion-icon name="add"></ion-icon>
-  </button>
+  <ion-button 
+    class="add-tache-btn" 
+    (click)="ajouterTache()"
+    fill="solid"
+    shape="round">
+    <span class="add-icon">+</span>
+  </ion-button>
 </ion-content> 

@@ -71,7 +71,7 @@ export class DetailTachePage implements OnInit, OnDestroy {
     // Récupération des détails de la tâche
     console.log('📞 DetailTachePage - Appel à taskService.getTaskDetails()');
     const taskSubscription = this.taskService.getTaskDetails(taskIdNumber).subscribe({
-      next: (task) => {
+      next: (task: any) => {
         console.log('✅ DetailTachePage - Détails de la tâche récupérés avec succès:', task);
         console.log('📊 DetailTachePage - Type de task:', typeof task);
         console.log('📊 DetailTachePage - Task est null?', task === null);
@@ -84,7 +84,7 @@ export class DetailTachePage implements OnInit, OnDestroy {
         // Chargement des sous-tâches et tâches dépendantes
         this.loadRelatedTasks(taskIdNumber);
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('❌ DetailTachePage - Erreur lors du chargement des détails:', error);
         console.error('❌ DetailTachePage - Type d\'erreur:', typeof error);
         console.error('❌ DetailTachePage - Message d\'erreur:', error.message);
@@ -106,22 +106,22 @@ export class DetailTachePage implements OnInit, OnDestroy {
     // Chargement des sous-tâches
     console.log('📞 DetailTachePage - Appel à taskService.getSubTasks()');
     const subTasksSubscription = this.taskService.getSubTasks(taskId).subscribe({
-      next: (tasks) => {
+      next: (tasks: any) => {
         console.log('✅ DetailTachePage - Sous-tâches récupérées:', tasks);
         this.subTasks = tasks;
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('❌ DetailTachePage - Erreur lors du chargement des sous-tâches:', error);
       }
     });
 
     // Chargement des tâches dépendantes
     const dependentTasksSubscription = this.taskService.getDependentTasks(taskId).subscribe({
-      next: (tasks) => {
+      next: (tasks: any) => {
         console.log('✅ Tâches dépendantes récupérées:', tasks);
         this.dependentTasks = tasks;
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('❌ Erreur lors du chargement des tâches dépendantes:', error);
       }
     });
@@ -148,8 +148,16 @@ export class DetailTachePage implements OnInit, OnDestroy {
    * Modifie la tâche
    */
   editTask() {
+    console.log('🔧 DetailTachePage - editTask() appelé');
+    console.log('🔧 DetailTachePage - Task:', this.task);
+    console.log('🔧 DetailTachePage - Task ID:', this.task?.id);
+    
     if (this.task) {
-      this.router.navigate(['/modifier-tache', this.task.id]);
+      const url = `/modifier-tache?taskId=${this.task.id}`;
+      console.log('🔧 DetailTachePage - Navigation vers:', url);
+      this.router.navigate(['/modifier-tache'], { queryParams: { taskId: this.task.id } });
+    } else {
+      console.error('❌ DetailTachePage - Pas de tâche disponible pour la modification');
     }
   }
 

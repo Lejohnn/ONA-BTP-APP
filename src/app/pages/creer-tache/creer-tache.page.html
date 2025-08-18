@@ -9,8 +9,78 @@
 
 <ion-content [fullscreen]="true" [scrollY]="true">
   <form [formGroup]="tacheForm" class="creer-tache-form">
-    <ion-input class="input-large" formControlName="name" placeholder="Task Name"></ion-input>
-    <ion-textarea class="input-large" formControlName="description" placeholder="Describe the task..."></ion-textarea>
+    <!-- Nom de la tâche -->
+    <ion-item>
+      <ion-label position="stacked">Nom de la tâche *</ion-label>
+      <ion-input 
+        formControlName="name" 
+        placeholder="Entrez le nom de la tâche"
+        [class.ion-invalid]="tacheForm.get('name')?.invalid && tacheForm.get('name')?.touched">
+      </ion-input>
+    </ion-item>
+    <div *ngIf="tacheForm.get('name')?.invalid && tacheForm.get('name')?.touched" class="error-message">
+      Le nom de la tâche est requis
+    </div>
+
+    <!-- Description -->
+    <ion-item>
+      <ion-label position="stacked">Description</ion-label>
+      <ion-textarea 
+        formControlName="description" 
+        placeholder="Décrivez la tâche..."
+        rows="3">
+      </ion-textarea>
+    </ion-item>
+
+    <!-- Projet -->
+    <ion-item>
+      <ion-label position="stacked">Projet</ion-label>
+      <ion-select 
+        formControlName="projectId" 
+        placeholder="Sélectionnez un projet"
+        [disabled]="isLoadingProjects">
+        <ion-select-option value="">Aucun projet</ion-select-option>
+        <ion-select-option *ngFor="let project of projects" [value]="project.id">
+          {{ project.name }}
+        </ion-select-option>
+      </ion-select>
+      <ion-spinner *ngIf="isLoadingProjects" name="crescent"></ion-spinner>
+    </ion-item>
+
+    <!-- Employé assigné -->
+    <ion-item>
+      <ion-label position="stacked">Employé assigné</ion-label>
+      <ion-select 
+        formControlName="userId" 
+        placeholder="Sélectionnez un employé"
+        [disabled]="isLoadingEmployees">
+        <ion-select-option value="">Aucun employé</ion-select-option>
+        <ion-select-option *ngFor="let employee of employees" [value]="employee.id">
+          {{ employee.name }}
+        </ion-select-option>
+      </ion-select>
+      <ion-spinner *ngIf="isLoadingEmployees" name="crescent"></ion-spinner>
+    </ion-item>
+
+    <!-- Date limite -->
+    <ion-item>
+      <ion-label position="stacked">Date limite</ion-label>
+      <ion-datetime 
+        formControlName="dateDeadline"
+        presentation="date"
+        placeholder="Sélectionnez une date limite">
+      </ion-datetime>
+    </ion-item>
+
+    <!-- Priorité -->
+    <ion-item>
+      <ion-label position="stacked">Priorité</ion-label>
+      <ion-select formControlName="priority">
+        <ion-select-option value="0">Normale</ion-select-option>
+        <ion-select-option value="1">Élevée</ion-select-option>
+        <ion-select-option value="2">Très élevée</ion-select-option>
+      </ion-select>
+    </ion-item>
 
     <!-- <div class="dates-inline-row">
       <ion-input
@@ -67,6 +137,14 @@
     </div>
     <ion-button expand="block" fill="solid" class="add-resource-btn" (click)="addMaterialResource()">Add Material Resources</ion-button>
 
-    <ion-button expand="block" fill="solid" class="create-btn" (click)="onCreate()">Create</ion-button>
+    <ion-button 
+      expand="block" 
+      fill="solid" 
+      class="create-btn" 
+      (click)="onCreate()"
+      [disabled]="isLoading || !tacheForm.valid">
+      <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+      {{ isLoading ? 'Création...' : 'Créer la tâche' }}
+    </ion-button>
   </form>
 </ion-content> 

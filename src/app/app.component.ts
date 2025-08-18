@@ -6,19 +6,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Router } from '@angular/router';
-import { addIcons } from 'ionicons';
-import { 
-  home, 
-  business, 
-  card, 
-  person, 
-  list, 
-  wallet,
-  homeOutline,
-  businessOutline,
-  walletOutline,
-  personOutline
-} from 'ionicons/icons';
+import { IconService } from './services/icon.service';
 
 @Component({
   selector: 'app-root',
@@ -41,19 +29,8 @@ export class AppComponent {
     { title: 'Profil', url: '/tabs/profile', icon: 'person' }
   ];
 
-  constructor(private router: Router) {
-    addIcons({ 
-      home, 
-      business, 
-      card, 
-      person, 
-      list, 
-      wallet,
-      homeOutline,
-      businessOutline,
-      walletOutline,
-      personOutline
-    });
+  constructor(private router: Router, private iconService: IconService) {
+    // Le service d'icônes est automatiquement initialisé
   }
 
   navigate(url: string) {

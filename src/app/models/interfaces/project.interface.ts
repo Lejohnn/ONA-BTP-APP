@@ -15,7 +15,8 @@ export interface IProjectOdoo {
   date: string;
   user_id: [number, string] | false;
   partner_id: [number, string] | false;
-  task_count: number;
+  progressbar: number;
+  task_ids: number[];
   type_of_construction: string | false;
 }
 

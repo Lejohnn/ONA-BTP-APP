@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { CapacitorHttp, HttpOptions } from '@capacitor/core';
 import { Observable, from, of } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { map, catchError, switchMap } from 'rxjs/operators';
 import { HydrationService } from './hydration.service';
+import { OfflineStorageService, CachedUser } from './offline-storage.service';
 import { User } from '../models/user.model';
 import { IUserOdoo } from '../models/interfaces/user.interface';
 
@@ -43,7 +44,10 @@ export class UserService {
   private dbName = 'btptst';
   private uid: number = 0;
 
-  constructor(private hydrationService: HydrationService) {
+  constructor(
+    private hydrationService: HydrationService,
+    private offlineStorage: OfflineStorageService
+  ) {
     this.getUidFromStorage();
   }
 
@@ -61,6 +65,79 @@ export class UserService {
     }
   }
 
+  // ===== CACHE ET OFFLINE =====
+  
+  /**
+   * Récupère le profil utilisateur depuis le cache local
+   * @returns Observable<User | null>
+   */
+  getUserProfileFromCache(): Observable<User | null> {
+    return from(this.offlineStorage.getCachedUser()).pipe(
+      map(cachedUser => {
+        if (cachedUser) {
+          console.log('📦 Utilisateur en cache:', cachedUser.name);
+          return this.convertCachedToUser(cachedUser);
+        }
+        return null;
+      })
+    );
+  }
+
+  /**
+   * Met en cache le profil utilisateur
+   * @param user Utilisateur à mettre en cache
+   */
+  async cacheUserProfile(user: User): Promise<void> {
+    const cachedUser: CachedUser = {
+      uid: user.id,
+      email: user.email,
+      name: user.name,
+      lastLogin: new Date()
+    };
+    await this.offlineStorage.cacheUser(cachedUser);
+    console.log('✅ Profil utilisateur mis en cache');
+  }
+
+  /**
+   * Convertit un utilisateur cache en User
+   */
+  private convertCachedToUser(cachedUser: CachedUser): User {
+    const userData: IUserOdoo = {
+      id: cachedUser.uid,
+      name: cachedUser.name,
+      email: cachedUser.email,
+      login: cachedUser.email,
+      display_name: cachedUser.name,
+      active: true,
+      avatar_1024: false,
+      city: false,
+      company_id: [1, 'Default Company'],
+      partner_id: false,
+      country_id: false,
+      create_date: new Date().toISOString(),
+      write_date: new Date().toISOString(),
+      create_uid: false,
+      write_uid: false,
+      currency_id: false,
+      employee: false,
+      employee_id: false,
+      equipment_count: 0,
+      equipment_ids: [],
+      expense_manager_id: false,
+      gender: false,
+      lang: 'fr_FR',
+      mobile: false,
+      partner_latitude: false,
+      partner_longitude: false,
+      project_ids: [],
+      sale_order_ids: [],
+      street: false,
+      task_ids: [],
+      tz: 'Europe/Paris'
+    };
+    return this.hydrationService.hydrateUser(userData);
+  }
+
   // ===== RÉCUPÉRATION DES DONNÉES UTILISATEUR =====
   
   /**
@@ -75,18 +152,60 @@ export class UserService {
       return of(null);
     }
 
-    return this.getUserFromOdoo().pipe(
-      map(userData => {
-        if (userData && userData.length > 0) {
-          return this.hydrateUserFromOdoo(userData[0]);
+    // Vérifier d'abord la connectivité
+    return from(this.offlineStorage.checkConnectivity()).pipe(
+      switchMap(isOnline => {
+        if (isOnline) {
+          console.log('🌐 Mode en ligne - récupération depuis l\'API');
+          return this.getUserFromOdoo().pipe(
+            map(userData => {
+              if (userData && userData.length > 0) {
+                const user = this.hydrateUserFromOdoo(userData[0]);
+                // Mettre en cache l'utilisateur
+                this.cacheUserProfile(user);
+                return user;
+              }
+              return null;
+            }),
+            catchError(error => {
+              console.error('❌ Erreur API, fallback vers cache:', error);
+              // En cas d'erreur API, essayer le cache
+              return this.getUserProfileFromCache();
+            })
+          );
+        } else {
+          console.log('📱 Mode hors ligne - utilisation du cache');
+          return this.getUserProfileFromCache();
         }
-        return null;
-      }),
-      catchError(error => {
-        console.error('❌ Erreur lors de la récupération du profil utilisateur:', error);
-        return of(null);
       })
     );
+  }
+
+  /**
+   * Vérifie et met à jour l'utilisateur en arrière-plan
+   */
+  private async checkAndUpdateUserInBackground(): Promise<void> {
+    try {
+      const isOnline = await this.offlineStorage.checkConnectivity();
+      if (isOnline) {
+        console.log('🔄 Mise à jour de l\'utilisateur en arrière-plan...');
+        this.getUserFromOdoo().pipe(
+          map(userData => {
+            if (userData && userData.length > 0) {
+              const user = this.hydrateUserFromOdoo(userData[0]);
+              this.cacheUserProfile(user);
+              console.log('✅ Utilisateur mis à jour en arrière-plan');
+            }
+          }),
+          catchError(error => {
+            console.log('⚠️ Échec de la mise à jour de l\'utilisateur en arrière-plan:', error);
+            return of(null);
+          })
+        ).subscribe();
+      }
+    } catch (error) {
+      console.log('⚠️ Erreur lors de la vérification de l\'utilisateur en arrière-plan:', error);
+    }
   }
 
   /**
@@ -104,21 +223,7 @@ export class UserService {
     return this.getUserFromOdoo().pipe(
       map(userData => {
         if (userData && userData.length > 0) {
-          // Conversion de IUserOdoo vers UserOdoo pour la compatibilité legacy
-          const legacyUserData: UserOdoo = {
-            id: userData[0].id,
-            name: userData[0].name,
-            email: userData[0].email,
-            mobile: userData[0].mobile,
-            lang: userData[0].lang,
-            tz: userData[0].tz || 'Europe/Paris',
-            avatar_1024: userData[0].avatar_1024,
-            company_id: userData[0].company_id || [0, ''],
-            city: userData[0].city,
-            street: userData[0].street,
-            country_id: userData[0].country_id
-          };
-          return this.convertOdooToProfile(legacyUserData);
+          return this.convertToUserProfile(userData[0]);
         }
         return null;
       }),
@@ -128,6 +233,8 @@ export class UserService {
       })
     );
   }
+
+  // ===== REQUÊTES API ODOO =====
 
   private getUserFromOdoo(): Observable<IUserOdoo[]> {
     console.log('🔍 getUserFromOdoo() appelé');
@@ -151,46 +258,21 @@ export class UserService {
           "res.users",
           "search_read",
           [[["id", "=", this.uid]]],
-          { 
+          {
             fields: [
-              "id", 
-              "name", 
-              "email", 
-              "mobile", 
-              "lang", 
-              "tz", 
-              "avatar_1024", 
-              "company_id",
-              "city",
-              "street",
-              "country_id",
-              "active",
-              "display_name",
-              "login",
-              "partner_id",
-              "employee",
-              "employee_id",
-              "equipment_count",
-              "equipment_ids",
-              "expense_manager_id",
-              "gender",
-              "currency_id",
-              "create_date",
-              "write_date",
-              "create_uid",
-              "write_uid",
-              "partner_latitude",
-              "partner_longitude",
-              "project_ids",
-              "sale_order_ids",
-              "task_ids"
-            ] 
+              'id', 'name', 'email', 'login', 'display_name', 'active',
+              'avatar_1024', 'city', 'company_id', 'partner_id', 'country_id',
+              'create_date', 'write_date', 'create_uid', 'write_uid',
+              'currency_id', 'employee', 'employee_id', 'equipment_count',
+              'equipment_ids', 'expense_manager_id', 'gender', 'lang',
+              'mobile', 'partner_latitude', 'partner_longitude', 'project_ids',
+              'sale_order_ids', 'street', 'task_ids', 'tz'
+            ],
+            limit: 1
           }
         ]
       }
     };
-
-    console.log('📤 Requête utilisateur envoyée:', JSON.stringify(requestBody, null, 2));
 
     const options: HttpOptions = {
       url: this.odooUrl,
@@ -200,133 +282,69 @@ export class UserService {
         'User-Agent': 'ONA-BTP-Mobile/1.0'
       },
       data: requestBody,
-      connectTimeout: 30000,
-      readTimeout: 30000
+      connectTimeout: 10000,
+      readTimeout: 10000
     };
+
+    console.log('📤 UserService - Requête envoyée:', JSON.stringify(requestBody, null, 2));
 
     return from(CapacitorHttp.post(options)).pipe(
       map(response => {
-        console.log('📥 Réponse utilisateur reçue:', response);
+        console.log('📦 UserService - Réponse reçue:', response);
+        
         if (response.status === 200 && response.data?.result) {
-          console.log('✅ Données utilisateur récupérées:', response.data.result);
-          return response.data.result as IUserOdoo[];
+          console.log('✅ UserService - Utilisateur récupéré:', response.data.result.length);
+          return response.data.result;
+        } else {
+          console.error('❌ UserService - Erreur lors de la récupération de l\'utilisateur');
+          console.error('❌ UserService - Status:', response.status);
+          console.error('❌ UserService - Data:', response.data);
+          return [];
         }
-        console.log('⚠️ Pas de données utilisateur dans la réponse');
-        return [];
       }),
       catchError(error => {
-        console.error('❌ Erreur lors de la récupération des données utilisateur:', error);
-        throw error;
+        console.error('❌ UserService - Erreur lors de la requête:', error);
+        return of([]);
       })
     );
   }
 
-  // ===== HYDATATION ET CONVERSION DE DONNÉES =====
-  
-  /**
-   * Hydrate un utilisateur à partir des données Odoo
-   * @param userData Données brutes Odoo
-   * @returns User hydraté
-   */
+  // ===== HYDATATION =====
+
   private hydrateUserFromOdoo(userData: IUserOdoo): User {
-    console.log('🔄 Hydratation de l\'utilisateur depuis Odoo');
+    console.log('🔄 Hydratation de l\'utilisateur:', userData);
     
     try {
-      // Validation des données
-      if (!this.hydrationService.validateUserData(userData)) {
-        console.error('❌ Données utilisateur invalides');
-        return this.hydrationService.createDefaultUser();
+      const user = this.hydrationService.hydrateUser(userData);
+      
+      if (!user.isValid()) {
+        console.warn('⚠️ Utilisateur invalide après hydratation:', user.errors);
       }
-
-      // Prétraitement des données
-      const cleanedData = this.hydrationService.preprocessUserData(userData);
       
-      // Hydratation avec le service dédié
-      const user = this.hydrationService.hydrateUser(cleanedData);
-      
-      console.log('✅ Utilisateur hydraté avec succès');
       return user;
-      
     } catch (error) {
-      console.error('❌ Erreur lors de l\'hydratation:', error);
-      return this.hydrationService.createDefaultUser();
+      console.error('❌ Erreur lors de l\'hydratation de l\'utilisateur:', error);
+      throw new Error('Échec de l\'hydratation de l\'utilisateur');
     }
   }
 
-  /**
-   * Méthode legacy pour compatibilité (à supprimer progressivement)
-   * @param userData Données brutes Odoo
-   * @returns UserProfile
-   */
-  private convertOdooToProfile(userData: UserOdoo): UserProfile {
+  // ===== CONVERSION LEGACY =====
+
+  private convertToUserProfile(userData: IUserOdoo): UserProfile {
+    console.log('🔄 Conversion vers UserProfile:', userData);
+    
     return {
       id: userData.id,
       name: userData.name,
       email: userData.email,
-      mobile: this.formatPhone(userData.mobile),
-      language: this.formatLanguage(userData.lang),
-      timezone: this.formatTimezone(userData.tz),
-      avatar: this.formatAvatar(userData.avatar_1024),
-      company: this.formatCompany(userData.company_id),
-      city: this.formatText(userData.city),
-      street: this.formatText(userData.street),
-      country: this.formatCountry(userData.country_id)
+      mobile: userData.mobile || '',
+      language: userData.lang,
+      timezone: userData.tz || 'Europe/Paris',
+      avatar: userData.avatar_1024 || '',
+      company: userData.company_id ? userData.company_id[1] : 'Default Company',
+      city: userData.city || '',
+      street: userData.street || '',
+      country: userData.country_id ? userData.country_id[1] : ''
     };
   }
-
-  // ===== MÉTHODES UTILITAIRES =====
-  private formatPhone(phone: string | false): string {
-    if (phone && typeof phone === 'string' && phone.trim() !== '') {
-      return phone;
-    }
-    return 'Non renseigné';
-  }
-
-  private formatText(text: string | false): string {
-    if (text && typeof text === 'string' && text.trim() !== '') {
-      return text;
-    }
-    return 'Non renseigné';
-  }
-
-  private formatLanguage(lang: string): string {
-    const languageMap: { [key: string]: string } = {
-      'fr_FR': 'Français',
-      'en_US': 'English',
-      'es_ES': 'Español',
-      'de_DE': 'Deutsch'
-    };
-    return languageMap[lang] || lang;
-  }
-
-  private formatTimezone(tz: string): string {
-    const timezoneMap: { [key: string]: string } = {
-      'Europe/Paris': 'Paris (UTC+1)',
-      'Europe/London': 'Londres (UTC+0)',
-      'America/New_York': 'New York (UTC-5)',
-      'Africa/Dakar': 'Dakar (UTC+0)'
-    };
-    return timezoneMap[tz] || tz;
-  }
-
-  private formatAvatar(imageData: string | false): string {
-    if (imageData && typeof imageData === 'string' && imageData.trim() !== '') {
-      return `data:image/png;base64,${imageData}`;
-    }
-    return 'person-circle';
-  }
-
-  private formatCompany(companyData: [number, string]): string {
-    if (companyData && Array.isArray(companyData) && companyData.length > 1) {
-      return companyData[1];
-    }
-    return 'Non renseigné';
-  }
-
-  private formatCountry(countryData: [number, string] | false): string {
-    if (countryData && Array.isArray(countryData) && countryData.length > 1) {
-      return countryData[1];
-    }
-    return 'Non renseigné';
-  }
-} 
+}

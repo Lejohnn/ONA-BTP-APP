@@ -28,16 +28,18 @@ export class AuthService {
     if (cachedUser && cachedUser.email === codeclient) {
       console.log('Utilisateur trouvé en cache local');
       
-      // Si hors ligne, permettre la connexion avec le cache
-      if (!this.offlineStorage.isCurrentlyOnline()) {
-        console.log('Mode hors ligne - connexion avec cache local');
-        localStorage.setItem('odoo_uid', cachedUser.uid.toString());
-        return { success: true, uid: cachedUser.uid };
-      }
+      // Connexion immédiate avec le cache
+      localStorage.setItem('odoo_uid', cachedUser.uid.toString());
+      
+      // En arrière-plan, vérifier la connectivité et mettre à jour si possible
+      this.checkAndUpdateAuthInBackground(codeclient, password);
+      
+      return { success: true, uid: cachedUser.uid };
     }
 
-    // Si en ligne, tenter l'authentification API
-    if (this.offlineStorage.isCurrentlyOnline()) {
+    // Si pas de cache, vérifier la connectivité avant de tenter l'API
+    const isOnline = await this.offlineStorage.checkConnectivity();
+    if (isOnline) {
       try {
         const result = await this.authenticateWithAPI(codeclient, password);
         
@@ -58,19 +60,36 @@ export class AuthService {
         return result;
       } catch (error) {
         console.error('Erreur lors de l\'authentification API:', error);
-        
-        // Si l'API échoue mais qu'on a un utilisateur en cache, permettre la connexion
-        if (cachedUser && cachedUser.email === codeclient) {
-          console.log('API échouée mais utilisateur en cache - connexion locale');
-          localStorage.setItem('odoo_uid', cachedUser.uid.toString());
-          return { success: true, uid: cachedUser.uid, message: 'Connexion en mode hors ligne' };
-        }
-        
         return { success: false, message: 'Erreur de connexion' };
       }
     } else {
       // Hors ligne sans cache valide
       return { success: false, message: 'Connexion internet requise pour la première authentification' };
+    }
+  }
+
+  /**
+   * Vérifie et met à jour l'authentification en arrière-plan
+   */
+  private async checkAndUpdateAuthInBackground(codeclient: string, password: string): Promise<void> {
+    try {
+      const isOnline = await this.offlineStorage.checkConnectivity();
+      if (isOnline) {
+        console.log('🔄 Vérification d\'authentification en arrière-plan...');
+        const result = await this.authenticateWithAPI(codeclient, password);
+        if (result.success && result.uid) {
+          const userToCache: CachedUser = {
+            uid: result.uid,
+            email: codeclient,
+            name: codeclient.split('@')[0],
+            lastLogin: new Date()
+          };
+          await this.offlineStorage.cacheUser(userToCache);
+          console.log('✅ Authentification mise à jour en arrière-plan');
+        }
+      }
+    } catch (error) {
+      console.log('⚠️ Échec de la vérification en arrière-plan:', error);
     }
   }
 
@@ -104,8 +123,8 @@ export class AuthService {
           'User-Agent': 'ONA-BTP-Mobile/1.0'
         },
         data: requestBody,
-        connectTimeout: 45000,
-        readTimeout: 45000
+        connectTimeout: 10000,
+        readTimeout: 10000
       };
 
       console.log('CapacitorHttp options:', JSON.stringify(options, null, 2));

@@ -4,7 +4,7 @@ import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { ProjectService } from '../../services/project.service';
 import { Project } from '../../models/project.model';
-import { OfflineStorageService } from '../../services/offline-storage.service';
+// import { OfflineStorageService } from '../../services/offline-storage.service';
 import { ImageService } from '../../services/image.service';
 import { ToastController } from '@ionic/angular/standalone';
 import { HeaderTitleService } from '../../services/header-title.service';
@@ -27,7 +27,7 @@ export class ListeProjetsPage implements OnInit {
   constructor(
     private router: Router,
     private projectService: ProjectService,
-    private offlineStorage: OfflineStorageService,
+    // private offlineStorage: OfflineStorageService,
     private imageService: ImageService,
     private toastController: ToastController,
     private headerTitleService: HeaderTitleService
@@ -41,10 +41,8 @@ export class ListeProjetsPage implements OnInit {
 
   // ===== GESTION STATUT CONNEXION =====
   private checkOnlineStatus(): void {
-    this.offlineStorage.getOnlineStatus().subscribe(isOnline => {
-      this.isOnline = isOnline;
-      console.log('Statut connexion:', isOnline ? 'En ligne' : 'Hors ligne');
-    });
+    this.isOnline = navigator.onLine;
+    console.log('Statut connexion:', this.isOnline ? 'En ligne' : 'Hors ligne');
   }
 
   // ===== CHARGEMENT DES PROJETS =====
@@ -114,7 +112,10 @@ export class ListeProjetsPage implements OnInit {
   getStatusClass(state: string): string {
     const classMap: { [key: string]: string } = {
       'in_progress': 'status-in-progress',
+      'ready_to_possession': 'status-in-progress',
+      'open': 'status-in-progress',
       'done': 'status-done',
+      'closed': 'status-done',
       'cancelled': 'status-cancelled',
       'pending': 'status-pending',
       'default': 'status-default'
@@ -148,7 +149,10 @@ export class ListeProjetsPage implements OnInit {
   getStatusText(state: string): string {
     const textMap: { [key: string]: string } = {
       'in_progress': 'En cours',
+      'ready_to_possession': 'Prêt à livrer',
+      'open': 'Ouvert',
       'done': 'Terminé',
+      'closed': 'Fermé',
       'cancelled': 'Annulé',
       'pending': 'En attente',
       'default': 'Non défini'
@@ -169,11 +173,14 @@ export class ListeProjetsPage implements OnInit {
 
   // ===== STATISTIQUES =====
   getProjetsEnCours(): number {
-    return this.projets.filter(p => p.state === 'En cours').length;
+    // Utiliser les vrais statuts Odoo pour les projets en cours
+    return this.projets.filter(p => ['in_progress', 'open'].includes(p.state)).length;
   }
 
   getProjetsTermines(): number {
-    return this.projets.filter(p => p.state === 'Terminé').length;
+    // Utiliser les vrais statuts Odoo pour les projets terminés
+    // "Prêt à livrer" est considéré comme terminé du point de vue métier
+    return this.projets.filter(p => ['ready_to_possession', 'done', 'closed', 'cancelled'].includes(p.state)).length;
   }
 
   // ===== FORMATAGE DES DATES =====

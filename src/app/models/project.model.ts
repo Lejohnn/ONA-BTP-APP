@@ -105,7 +105,8 @@ export class Project extends BaseModel implements IProject {
       this.deadline = this.parseOdooDate(rawData.date);
 
       // Compteurs
-      this.taskCount = this.cleanNumber(rawData.task_count);
+      // Le nombre de tâches sera calculé dynamiquement via API
+      this.taskCount = 0;
 
       // Relations
       this.projectManagerId = this.extractIdFromTuple(rawData.user_id);
