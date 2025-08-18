@@ -63,6 +63,12 @@
         <ion-icon name="information-circle-outline"></ion-icon>
         <span>Mode hors ligne - Connexion avec cache local</span>
       </div>
+
+      <!-- Bouton pour effacer le cache en cas de problème -->
+      <ion-button expand="block" fill="clear" size="small" (click)="clearCache()" class="clear-cache-btn">
+        <ion-icon name="refresh-outline" slot="start"></ion-icon>
+        Effacer le cache
+      </ion-button>
     </form>
 
   </div>

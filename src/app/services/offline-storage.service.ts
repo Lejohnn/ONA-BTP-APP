@@ -103,19 +103,22 @@ export class OfflineStorageService {
     try {
       // Test rapide de connectivité avec un timeout très court
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 2000); // 2 secondes max
+      const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 secondes max
 
-      const response = await fetch('https://btp.onaerp.com/jsonrpc', {
-        method: 'HEAD',
+      // Utiliser une requête GET simple au lieu de HEAD pour éviter les problèmes CORS
+      const response = await fetch('https://btp.onaerp.com', {
+        method: 'GET',
         signal: controller.signal,
-        cache: 'no-cache'
+        cache: 'no-cache',
+        mode: 'no-cors' // Permet de contourner les problèmes CORS
       });
 
       clearTimeout(timeoutId);
-      return response.ok;
+      return true; // Si on arrive ici, la connexion fonctionne
     } catch (error) {
       console.log('🔍 Test de connectivité échoué:', error);
-      return false;
+      // En cas d'erreur, on considère quand même qu'on est en ligne si navigator.onLine est true
+      return navigator.onLine;
     }
   }
 

@@ -37,34 +37,35 @@ export class AuthService {
       return { success: true, uid: cachedUser.uid };
     }
 
-    // Si pas de cache, vérifier la connectivité avant de tenter l'API
-    const isOnline = await this.offlineStorage.checkConnectivity();
-    if (isOnline) {
-      try {
-        const result = await this.authenticateWithAPI(codeclient, password);
+    // Si pas de cache, tenter directement l'authentification API
+    // La vérification de connectivité sera faite par l'API elle-même
+    try {
+      const result = await this.authenticateWithAPI(codeclient, password);
+      
+      if (result.success && result.uid) {
+        // Mettre en cache l'utilisateur
+        const userToCache: CachedUser = {
+          uid: result.uid,
+          email: codeclient,
+          name: codeclient.split('@')[0], // Nom basé sur l'email
+          lastLogin: new Date()
+        };
+        await this.offlineStorage.cacheUser(userToCache);
         
-        if (result.success && result.uid) {
-          // Mettre en cache l'utilisateur
-          const userToCache: CachedUser = {
-            uid: result.uid,
-            email: codeclient,
-            name: codeclient.split('@')[0], // Nom basé sur l'email
-            lastLogin: new Date()
-          };
-          await this.offlineStorage.cacheUser(userToCache);
-          
-          localStorage.setItem('odoo_uid', result.uid.toString());
-          return result;
-        }
-        
+        localStorage.setItem('odoo_uid', result.uid.toString());
         return result;
-      } catch (error) {
-        console.error('Erreur lors de l\'authentification API:', error);
-        return { success: false, message: 'Erreur de connexion' };
       }
-    } else {
-      // Hors ligne sans cache valide
-      return { success: false, message: 'Connexion internet requise pour la première authentification' };
+      
+      return result;
+    } catch (error) {
+      console.error('Erreur lors de l\'authentification API:', error);
+      
+      // Si l'erreur est liée à la connectivité, donner un message plus spécifique
+      if (error instanceof Error && error.message.includes('Network')) {
+        return { success: false, message: 'Connexion internet requise pour la première authentification' };
+      }
+      
+      return { success: false, message: 'Erreur de connexion au serveur' };
     }
   }
 
@@ -73,20 +74,18 @@ export class AuthService {
    */
   private async checkAndUpdateAuthInBackground(codeclient: string, password: string): Promise<void> {
     try {
-      const isOnline = await this.offlineStorage.checkConnectivity();
-      if (isOnline) {
-        console.log('🔄 Vérification d\'authentification en arrière-plan...');
-        const result = await this.authenticateWithAPI(codeclient, password);
-        if (result.success && result.uid) {
-          const userToCache: CachedUser = {
-            uid: result.uid,
-            email: codeclient,
-            name: codeclient.split('@')[0],
-            lastLogin: new Date()
-          };
-          await this.offlineStorage.cacheUser(userToCache);
-          console.log('✅ Authentification mise à jour en arrière-plan');
-        }
+      // Tenter la mise à jour en arrière-plan sans vérification préalable de connectivité
+      console.log('🔄 Vérification d\'authentification en arrière-plan...');
+      const result = await this.authenticateWithAPI(codeclient, password);
+      if (result.success && result.uid) {
+        const userToCache: CachedUser = {
+          uid: result.uid,
+          email: codeclient,
+          name: codeclient.split('@')[0],
+          lastLogin: new Date()
+        };
+        await this.offlineStorage.cacheUser(userToCache);
+        console.log('✅ Authentification mise à jour en arrière-plan');
       }
     } catch (error) {
       console.log('⚠️ Échec de la vérification en arrière-plan:', error);

@@ -55,18 +55,30 @@ ion-searchbar {
 .filters-section {
   display: flex;
   gap: 8px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
   margin-bottom: 20px;
+  padding-bottom: 4px;
+  
+  /* Masquer la scrollbar mais garder la fonctionnalité */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
 }
 
 ion-chip {
   --background: #f5f2f0;
   --color: #8c755e;
   --border-radius: 12px;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 500;
   transition: all 0.2s ease;
   cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
   
   &.active {
     --background: #ED8205;
