@@ -62,16 +62,27 @@ export interface OfflineAction {
 })
 export class OfflineStorageService {
   private storage: Storage | null = null;
+  private readyPromise: Promise<void> | null = null;
   private isOnline = new BehaviorSubject<boolean>(navigator.onLine);
   private syncQueue = new BehaviorSubject<OfflineAction[]>([]);
 
   constructor(private storageService: Storage) {
-    this.init();
+    this.readyPromise = this.init();
     this.setupOnlineStatusListener();
   }
 
   async init() {
     this.storage = await this.storageService.create();
+  }
+
+  private async ensureReady(): Promise<void> {
+    if (this.storage) return;
+    if (this.readyPromise) {
+      await this.readyPromise;
+      return;
+    }
+    this.readyPromise = this.init();
+    await this.readyPromise;
   }
 
   // ===== GESTION CONNEXION =====
@@ -124,39 +135,107 @@ export class OfflineStorageService {
 
   // ===== CACHE UTILISATEUR =====
   async cacheUser(user: CachedUser): Promise<void> {
-    if (this.storage) {
-      await this.storage.set('cached_user', user);
-      await this.storage.set('last_login', new Date().toISOString());
-    }
+    await this.ensureReady();
+    if (!this.storage) return;
+    await this.storage.set('cached_user', user);
+    await this.storage.set('last_login', new Date().toISOString());
   }
 
   async getCachedUser(): Promise<CachedUser | null> {
-    if (this.storage) {
-      return await this.storage.get('cached_user');
-    }
-    return null;
+    await this.ensureReady();
+    if (!this.storage) return null;
+    return await this.storage.get('cached_user');
+  }
+
+  /**
+   * Stocke le profil utilisateur complet (données brutes Odoo) pour l'usage hors-ligne
+   */
+  async cacheUserProfileRaw(userProfileRaw: any): Promise<void> {
+    await this.ensureReady();
+    if (!this.storage) return;
+    await this.storage.set('cached_user_profile_raw', userProfileRaw);
+    await this.storage.set('cached_user_profile_last_sync', new Date().toISOString());
+    console.log('✅ cacheUserProfileRaw() - Données mises en cache');
+  }
+
+  /**
+   * Récupère le profil utilisateur complet (données brutes Odoo) depuis le cache
+   */
+  async getCachedUserProfileRaw(): Promise<any | null> {
+    await this.ensureReady();
+    if (!this.storage) return null;
+    const data = await this.storage.get('cached_user_profile_raw');
+    console.log('🔍 getCachedUserProfileRaw() - Données trouvées:', !!data);
+    return data || null;
+  }
+
+  // ===== CACHE PROJETS BRUTS =====
+  
+  /**
+   * Stocke les projets bruts (données Odoo) pour l'usage hors-ligne
+   */
+  async cacheProjectsRaw(projectsRaw: any[]): Promise<void> {
+    await this.ensureReady();
+    if (!this.storage) return;
+    await this.storage.set('cached_projects_raw', projectsRaw);
+    await this.storage.set('projects_raw_last_sync', new Date().toISOString());
+    console.log('✅ cacheProjectsRaw() - Données mises en cache:', projectsRaw.length);
+  }
+
+  /**
+   * Récupère les projets bruts depuis le cache
+   */
+  async getCachedProjectsRaw(): Promise<any[] | null> {
+    await this.ensureReady();
+    if (!this.storage) return null;
+    const data = await this.storage.get('cached_projects_raw');
+    console.log('🔍 getCachedProjectsRaw() - Données trouvées:', data ? data.length : 0);
+    return data || null;
+  }
+
+  // ===== CACHE TÂCHES BRUTES =====
+  
+  /**
+   * Stocke les tâches brutes (données Odoo) pour l'usage hors-ligne
+   */
+  async cacheTasksRaw(tasksRaw: any[]): Promise<void> {
+    await this.ensureReady();
+    if (!this.storage) return;
+    await this.storage.set('cached_tasks_raw', tasksRaw);
+    await this.storage.set('tasks_raw_last_sync', new Date().toISOString());
+    console.log('✅ cacheTasksRaw() - Données mises en cache:', tasksRaw.length);
+  }
+
+  /**
+   * Récupère les tâches brutes depuis le cache
+   */
+  async getCachedTasksRaw(): Promise<any[] | null> {
+    await this.ensureReady();
+    if (!this.storage) return null;
+    const data = await this.storage.get('cached_tasks_raw');
+    console.log('🔍 getCachedTasksRaw() - Données trouvées:', data ? data.length : 0);
+    return data || null;
   }
 
   async clearUserCache(): Promise<void> {
-    if (this.storage) {
-      await this.storage.remove('cached_user');
-      await this.storage.remove('last_login');
-    }
+    await this.ensureReady();
+    if (!this.storage) return;
+    await this.storage.remove('cached_user');
+    await this.storage.remove('last_login');
   }
 
   // ===== CACHE PROJETS =====
   async cacheProjects(projects: CachedProject[]): Promise<void> {
-    if (this.storage) {
-      await this.storage.set('cached_projects', projects);
-      await this.storage.set('projects_last_sync', new Date().toISOString());
-    }
+    await this.ensureReady();
+    if (!this.storage) return;
+    await this.storage.set('cached_projects', projects);
+    await this.storage.set('projects_last_sync', new Date().toISOString());
   }
 
   async getCachedProjects(): Promise<CachedProject[]> {
-    if (this.storage) {
-      return await this.storage.get('cached_projects') || [];
-    }
-    return [];
+    await this.ensureReady();
+    if (!this.storage) return [];
+    return await this.storage.get('cached_projects') || [];
   }
 
   async getProjectById(id: number): Promise<CachedProject | null> {
@@ -166,17 +245,16 @@ export class OfflineStorageService {
 
   // ===== CACHE TÂCHES =====
   async cacheTasks(tasks: CachedTask[]): Promise<void> {
-    if (this.storage) {
-      await this.storage.set('cached_tasks', tasks);
-      await this.storage.set('tasks_last_sync', new Date().toISOString());
-    }
+    await this.ensureReady();
+    if (!this.storage) return;
+    await this.storage.set('cached_tasks', tasks);
+    await this.storage.set('tasks_last_sync', new Date().toISOString());
   }
 
   async getCachedTasks(): Promise<CachedTask[]> {
-    if (this.storage) {
-      return await this.storage.get('cached_tasks') || [];
-    }
-    return [];
+    await this.ensureReady();
+    if (!this.storage) return [];
+    return await this.storage.get('cached_tasks') || [];
   }
 
   async getTaskById(id: number): Promise<CachedTask | null> {
@@ -212,10 +290,10 @@ export class OfflineStorageService {
   }
 
   async loadSyncQueue(): Promise<void> {
-    if (this.storage) {
-      const queue = await this.storage.get('sync_queue') || [];
-      this.syncQueue.next(queue);
-    }
+    await this.ensureReady();
+    if (!this.storage) return;
+    const queue = await this.storage.get('sync_queue') || [];
+    this.syncQueue.next(queue);
   }
 
   // ===== SYNCHRONISATION =====
@@ -304,7 +382,7 @@ export class OfflineStorageService {
     const { ProjectService } = await import('./project.service');
     const { HydrationService } = await import('./hydration.service');
     const hydrationService = new HydrationService();
-    const projectService = new ProjectService(hydrationService, this);
+          const projectService = new ProjectService(hydrationService);
     
     switch (action.type) {
       case 'CREATE':
@@ -351,10 +429,10 @@ export class OfflineStorageService {
   }
 
   async clearAllCache(): Promise<void> {
-    if (this.storage) {
-      await this.storage.clear();
-      this.syncQueue.next([]);
-    }
+    await this.ensureReady();
+    if (!this.storage) return;
+    await this.storage.clear();
+    this.syncQueue.next([]);
   }
 
   // ===== STATISTIQUES =====

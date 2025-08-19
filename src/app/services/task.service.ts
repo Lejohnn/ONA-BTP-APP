@@ -122,7 +122,7 @@ export class TaskService {
           {
             fields: [
               'id', 'name', 'description', 'state', 'priority', 'date_deadline',
-              'progress', 'user_id', 'project_id', 'remaining_hours',
+              'progress', 'project_id', 'remaining_hours',
               'effective_hours', 'total_hours_spent', 'create_date', 'write_date',
               'stage_id', 'display_name'
             ],
@@ -178,58 +178,69 @@ export class TaskService {
       return of([]);
     }
 
-    const options = {
-      url: this.odooUrl,
-      data: {
-        jsonrpc: '2.0',
-        method: 'call',
-        params: {
-          service: 'object',
-          method: 'execute_kw',
-          args: [
-            this.dbName,
-            this.uid,
-            'demo',
-            'project.task',
-            'search_read',
-            [[['active', '=', true]]],
-            {
-              fields: [
-                'id', 
-                'name', 
-                'description', 
-                'project_id', 
-                'state', 
-                'progress', 
-                'date_deadline', 
-                'effective_hours', 
-                'remaining_hours', 
-                'total_hours_spent', 
-                'user_id', 
-                'stage_id', 
-                'priority', 
-                'create_date', 
-                'write_date'
-              ]
-            }
-          ]
-        },
-        id: null
+    const requestBody = {
+      jsonrpc: "2.0",
+      method: "call",
+      params: {
+        service: "object",
+        method: "execute_kw",
+        args: [
+          this.dbName,
+          this.uid,
+          "demo",
+          "project.task",
+          "search_read",
+          [[["active", "=", true]]],
+          {
+            fields: [
+              'id', 
+              'name', 
+              'description', 
+              'project_id', 
+              'state', 
+              'progress', 
+              'date_deadline', 
+              'effective_hours', 
+              'remaining_hours', 
+              'total_hours_spent', 
+              'stage_id', 
+              'priority', 
+              'create_date', 
+              'write_date'
+            ],
+            limit: 100
+          }
+        ]
       }
     };
 
+    const options: HttpOptions = {
+      url: this.odooUrl,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'User-Agent': 'ONA-BTP-Mobile/1.0'
+      },
+      data: requestBody,
+      connectTimeout: 30000,
+      readTimeout: 30000
+    };
+
     console.log('📤 Requête API envoyée avec UID:', this.uid);
-    console.log('📤 Options:', JSON.stringify(options.data, null, 2));
+    console.log('📤 Options:', JSON.stringify(requestBody, null, 2));
 
     return from(CapacitorHttp.post(options)).pipe(
       map(response => {
         console.log('📥 Réponse API reçue:', response);
-        if (response.data && response.data.result) {
+        console.log('📥 Status de la réponse:', response.status);
+        console.log('📥 Data de la réponse:', JSON.stringify(response.data, null, 2));
+        
+        if (response.status === 200 && response.data?.result) {
           console.log('✅ Résultat API trouvé:', response.data.result);
           return response.data.result;
         }
         if (response.data && response.data.error) {
-          console.error('❌ Erreur API:', response.data.error);
+          console.error('❌ Erreur API:', JSON.stringify(response.data.error, null, 2));
         }
         console.log('❌ Aucun résultat API');
         return [];
@@ -248,109 +259,6 @@ export class TaskService {
 
     console.log('📤 TaskService - getTasksFromOdooByProject() appelé avec projectId:', projectId);
 
-    const options: HttpOptions = {
-      url: this.odooUrl,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'User-Agent': 'ONA-BTP-Mobile/1.0'
-      },
-      data: {
-        jsonrpc: '2.0',
-        method: 'call',
-        params: {
-          service: 'object',
-          method: 'execute_kw',
-          args: [
-            this.dbName,
-            this.uid,
-            'demo',
-            'project.task',
-            'search_read',
-            [[['active', '=', true], ['project_id', '=', projectId]]],
-            {
-              fields: [
-                'id', 
-                'name', 
-                'description', 
-                'project_id', 
-                'state', 
-                'progress', 
-                'date_deadline', 
-                'effective_hours', 
-                'remaining_hours', 
-                'total_hours_spent', 
-                'user_id', 
-                'stage_id', 
-                'priority', 
-                'create_date', 
-                'write_date'
-              ]
-            }
-          ]
-        }
-      },
-      connectTimeout: 30000,
-      readTimeout: 30000
-    };
-
-    console.log('📤 TaskService - Requête API tâches par projet envoyée:', JSON.stringify(options.data, null, 2));
-
-    return from(CapacitorHttp.post(options)).pipe(
-      map(response => {
-        console.log('📦 TaskService - Réponse API tâches par projet reçue');
-        console.log('📦 TaskService - Status:', response.status);
-        console.log('📦 TaskService - Data:', JSON.stringify(response.data, null, 2));
-        
-        if (response.data && response.data.result) {
-          console.log('✅ TaskService - Tâches trouvées:', response.data.result.length);
-          return response.data.result;
-        }
-        
-        if (response.data && response.data.error) {
-          console.error('❌ TaskService - Erreur API:', response.data.error);
-        }
-        
-        console.log('❌ TaskService - Aucune tâche trouvée pour le projet:', projectId);
-        return [];
-      }),
-      catchError(error => {
-        console.error('❌ TaskService - Erreur HTTP lors de la récupération des tâches par projet:', error);
-        return of([]);
-      })
-    );
-  }
-
-  // ===== CRÉATION ET MODIFICATION DE TÂCHES =====
-
-  /**
-   * Crée une nouvelle tâche
-   * @param taskData Données de la tâche à créer
-   * @returns Observable avec la tâche créée
-   */
-  createTask(taskData: {
-    name: string;
-    description?: string;
-    projectId?: number;
-    userId?: number;
-    dateDeadline?: string;
-    priority?: string;
-    progress?: number;
-  }): Observable<ITask> {
-    console.log('🔍 TaskService - createTask() appelé avec:', taskData);
-
-    if (!this.uid) {
-      console.error('❌ TaskService - UID non disponible pour créer la tâche');
-      return throwError(() => new Error('UID non disponible'));
-    }
-
-    // Convertir le format de date si nécessaire
-    let formattedDateDeadline = taskData.dateDeadline;
-    if (formattedDateDeadline && formattedDateDeadline.includes('T')) {
-      formattedDateDeadline = formattedDateDeadline.replace('T', ' ');
-    }
-
     const requestBody = {
       jsonrpc: "2.0",
       method: "call",
@@ -362,16 +270,27 @@ export class TaskService {
           this.uid,
           "demo",
           "project.task",
-          "create",
-          [{
-            name: taskData.name,
-            description: taskData.description || '',
-            project_id: taskData.projectId || false,
-            user_id: taskData.userId || false,
-            date_deadline: formattedDateDeadline || false,
-            priority: taskData.priority || '0',
-            progress: taskData.progress || 0
-          }]
+          "search_read",
+          [[["active", "=", true], ["project_id", "=", projectId]]],
+          {
+            fields: [
+              'id', 
+              'name', 
+              'description', 
+              'project_id', 
+              'state', 
+              'progress', 
+              'date_deadline', 
+              'effective_hours', 
+              'remaining_hours', 
+              'total_hours_spent', 
+              'stage_id', 
+              'priority', 
+              'create_date', 
+              'write_date'
+            ],
+            limit: 100
+          }
         ]
       }
     };
@@ -388,328 +307,27 @@ export class TaskService {
       readTimeout: 30000
     };
 
-    console.log('📤 TaskService - Requête création tâche envoyée:', JSON.stringify(requestBody, null, 2));
+    console.log('📤 TaskService - Requête API tâches par projet envoyée:', JSON.stringify(requestBody, null, 2));
 
     return from(CapacitorHttp.post(options)).pipe(
-      switchMap(response => {
-        console.log('📦 TaskService - Réponse API création tâche reçue');
+      map(response => {
+        console.log('📦 TaskService - Réponse API tâches par projet reçue:', response);
         console.log('📦 TaskService - Status de la réponse:', response.status);
         console.log('📦 TaskService - Data de la réponse:', JSON.stringify(response.data, null, 2));
         
         if (response.status === 200 && response.data?.result) {
-          const taskId = response.data.result;
-          console.log('✅ TaskService - Tâche créée avec ID:', taskId);
-          
-          // Récupérer les détails de la tâche créée
-          return this.getTaskDetails(taskId);
-        } else {
-          console.error('❌ TaskService - Erreur lors de la création de la tâche');
-          throw new Error('Erreur lors de la création de la tâche');
+          console.log('✅ TaskService - Résultat API tâches par projet trouvé:', response.data.result);
+          return response.data.result;
         }
+        if (response.data && response.data.error) {
+          console.error('❌ TaskService - Erreur API tâches par projet:', JSON.stringify(response.data.error, null, 2));
+        }
+        console.log('❌ TaskService - Aucun résultat API tâches par projet');
+        return [];
       }),
       catchError(error => {
-        console.error('❌ TaskService - Erreur lors de la création de la tâche:', error);
-        return throwError(() => new Error('Impossible de créer la tâche'));
-      })
-    );
-  }
-
-  /**
-   * Récupère les valeurs possibles pour le champ state des tâches
-   * @returns Observable avec la liste des valeurs de statut
-   */
-  getTaskStates(): Observable<any[]> {
-    console.log('🔍 Récupération des valeurs de statut des tâches');
-
-    if (!this.uid) {
-      console.error('❌ UID non disponible pour récupérer les statuts');
-      return of([]);
-    }
-
-    const requestBody = {
-      jsonrpc: "2.0",
-      method: "call",
-      params: {
-        service: "object",
-        method: "execute_kw",
-        args: [
-          this.dbName,
-          this.uid,
-          "demo",
-          "project.task",
-          "fields_get",
-          [["state"]],
-          { attributes: ["selection"] }
-        ]
-      }
-    };
-
-    const options: HttpOptions = {
-      url: this.odooUrl,
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'User-Agent': 'ONA-BTP-Mobile/1.0'
-      },
-      data: requestBody,
-      connectTimeout: 30000,
-      readTimeout: 30000
-    };
-
-    return from(CapacitorHttp.post(options)).pipe(
-      map(response => {
-        console.log('📦 Réponse API statuts:', response);
-        
-        if (response.status === 200 && response.data?.result?.state?.selection) {
-          const states = response.data.result.state.selection;
-          console.log('✅ Statuts récupérés:', states);
-          return states;
-        } else {
-          console.log('❌ Aucun statut trouvé');
-          return [];
-        }
-      }),
-      catchError(error => {
-        console.error('❌ Erreur lors de la récupération des statuts:', error);
+        console.error('❌ TaskService - Erreur HTTP tâches par projet:', error);
         return of([]);
-      })
-    );
-  }
-
-  /**
-   * Récupère les sous-tâches d'une tâche parent
-   * @param parentTaskId ID de la tâche parent
-   * @returns Observable avec la liste des sous-tâches
-   */
-  getSubTasks(parentTaskId: number): Observable<ITask[]> {
-    console.log('🔍 Récupération des sous-tâches pour la tâche:', parentTaskId);
-
-    if (!this.uid) {
-      console.error('❌ UID non disponible pour récupérer les sous-tâches');
-      return of([]);
-    }
-
-    const requestBody = {
-      jsonrpc: "2.0",
-      method: "call",
-      params: {
-        service: "object",
-        method: "execute_kw",
-        args: [
-          this.dbName,
-          this.uid,
-          "demo",
-          "project.task",
-          "search_read",
-          [[["parent_id", "=", parentTaskId]]],
-          {
-            fields: [
-              'id', 'name', 'description', 'state', 'priority', 'date_deadline',
-              'progress', 'user_id', 'project_id', 'remaining_hours',
-              'effective_hours', 'total_hours_spent', 'create_date', 'write_date',
-              'stage_id', 'display_name'
-            ],
-            limit: 50
-          }
-        ]
-      }
-    };
-
-    const options: HttpOptions = {
-      url: this.odooUrl,
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'User-Agent': 'ONA-BTP-Mobile/1.0'
-      },
-      data: requestBody,
-      connectTimeout: 30000,
-      readTimeout: 30000
-    };
-
-    return from(CapacitorHttp.post(options)).pipe(
-      map(response => {
-        console.log('📦 Réponse API sous-tâches:', response);
-        
-        if (response.status === 200 && response.data?.result) {
-          const tasks = response.data.result.map((rawTask: ITaskOdoo) => this.hydrateTaskFromOdoo(rawTask));
-          console.log('✅ Sous-tâches hydratées:', tasks);
-          return tasks;
-        } else {
-          console.log('❌ Aucune sous-tâche trouvée');
-          return [];
-        }
-      }),
-      catchError(error => {
-        console.error('❌ Erreur lors de la récupération des sous-tâches:', error);
-        return of([]);
-      })
-    );
-  }
-
-  /**
-   * Récupère les tâches dépendantes d'une tâche
-   * @param taskId ID de la tâche
-   * @returns Observable avec la liste des tâches dépendantes
-   */
-  getDependentTasks(taskId: number): Observable<ITask[]> {
-    console.log('🔍 Récupération des tâches dépendantes pour la tâche:', taskId);
-
-    if (!this.uid) {
-      console.error('❌ UID non disponible pour récupérer les tâches dépendantes');
-      return of([]);
-    }
-
-    const requestBody = {
-      jsonrpc: "2.0",
-      method: "call",
-      params: {
-        service: "object",
-        method: "execute_kw",
-        args: [
-          this.dbName,
-          this.uid,
-          "demo",
-          "project.task",
-          "search_read",
-          [[["depend_on_ids", "in", [taskId]]]],
-          {
-            fields: [
-              'id', 'name', 'description', 'state', 'priority', 'date_deadline',
-              'progress', 'user_id', 'project_id', 'remaining_hours',
-              'effective_hours', 'total_hours_spent', 'create_date', 'write_date',
-              'stage_id', 'display_name'
-            ],
-            limit: 50
-          }
-        ]
-      }
-    };
-
-    const options: HttpOptions = {
-      url: this.odooUrl,
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'User-Agent': 'ONA-BTP-Mobile/1.0'
-      },
-      data: requestBody,
-      connectTimeout: 30000,
-      readTimeout: 30000
-    };
-
-    return from(CapacitorHttp.post(options)).pipe(
-      map(response => {
-        console.log('📦 Réponse API tâches dépendantes:', response);
-        
-        if (response.status === 200 && response.data?.result) {
-          const tasks = response.data.result.map((rawTask: ITaskOdoo) => this.hydrateTaskFromOdoo(rawTask));
-          console.log('✅ Tâches dépendantes hydratées:', tasks);
-          return tasks;
-        } else {
-          console.log('❌ Aucune tâche dépendante trouvée');
-          return [];
-        }
-      }),
-      catchError(error => {
-        console.error('❌ Erreur lors de la récupération des tâches dépendantes:', error);
-        return of([]);
-      })
-    );
-  }
-
-  /**
-   * Met à jour une tâche existante
-   * @param taskId ID de la tâche
-   * @param taskData Données de mise à jour
-   * @returns Observable avec la tâche mise à jour
-   */
-  updateTask(taskId: number, taskData: {
-    name?: string;
-    description?: string;
-    projectId?: number;
-    userId?: number;
-    dateDeadline?: string;
-    priority?: string;
-    progress?: number;
-    state?: string;
-  }): Observable<ITask> {
-    console.log('🔧 TaskService - updateTask() appelé avec taskId:', taskId, 'et données:', taskData);
-
-    if (!this.uid) {
-      console.error('❌ TaskService - UID non disponible pour mettre à jour la tâche');
-      return throwError(() => new Error('UID non disponible'));
-    }
-
-    // Convertir le format de date si nécessaire
-    let formattedDateDeadline = taskData.dateDeadline;
-    if (formattedDateDeadline && formattedDateDeadline.includes('T')) {
-      formattedDateDeadline = formattedDateDeadline.replace('T', ' ');
-    }
-
-    // Préparer les données de mise à jour
-    const updateFields: any = {};
-    if (taskData.name !== undefined) updateFields.name = taskData.name;
-    if (taskData.description !== undefined) updateFields.description = taskData.description || false;
-    if (taskData.projectId !== undefined) updateFields.project_id = taskData.projectId || false;
-    if (taskData.userId !== undefined) updateFields.user_id = taskData.userId || false;
-    if (formattedDateDeadline !== undefined) updateFields.date_deadline = formattedDateDeadline || false;
-    if (taskData.priority !== undefined) updateFields.priority = taskData.priority || '0';
-    if (taskData.progress !== undefined) updateFields.progress = taskData.progress || 0;
-    if (taskData.state !== undefined) updateFields.state = taskData.state;
-
-    const requestBody = {
-      jsonrpc: '2.0',
-      method: 'call',
-      params: {
-        service: 'object',
-        method: 'execute_kw',
-        args: [
-          this.dbName,
-          this.uid,
-          'demo',
-          'project.task',
-          'write',
-          [
-            [taskId],
-            updateFields
-          ]
-        ]
-      }
-    };
-
-    const options: HttpOptions = {
-      url: this.odooUrl,
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'User-Agent': 'ONA-BTP-Mobile/1.0'
-      },
-      data: requestBody,
-      connectTimeout: 30000,
-      readTimeout: 30000
-    };
-
-    console.log('📤 TaskService - Requête mise à jour tâche envoyée:', JSON.stringify(requestBody, null, 2));
-
-    return from(CapacitorHttp.post(options)).pipe(
-      switchMap(response => {
-        console.log('📦 TaskService - Réponse API mise à jour tâche reçue');
-        console.log('📦 TaskService - Status de la réponse:', response.status);
-        console.log('📦 TaskService - Data de la réponse:', response.data);
-        
-        if (response.status === 200 && response.data?.result === true) {
-          console.log('✅ TaskService - Tâche mise à jour avec succès');
-          // Récupérer la tâche mise à jour
-          return this.getTaskDetails(taskId);
-        } else {
-          console.error('❌ TaskService - Erreur lors de la mise à jour de la tâche');
-          throw new Error('Erreur lors de la mise à jour de la tâche');
-        }
-      }),
-      catchError(error => {
-        console.error('❌ TaskService - Erreur lors de la mise à jour de la tâche:', error);
-        return throwError(() => new Error('Erreur lors de la mise à jour de la tâche'));
       })
     );
   }
@@ -726,9 +344,10 @@ export class TaskService {
     // Nettoyer la description HTML
     let cleanDescription = '';
     if (taskData.description && typeof taskData.description === 'string') {
+      // Supprimer les balises HTML et les attributs
       cleanDescription = taskData.description
-        .replace(/<[^>]*>/g, '')
-        .replace(/&nbsp;/g, ' ')
+        .replace(/<[^>]*>/g, '') // Supprimer les balises HTML
+        .replace(/&nbsp;/g, ' ') // Remplacer les espaces insécables
         .trim();
     }
     console.log('📝 TaskService - Description nettoyée:', cleanDescription);
@@ -742,9 +361,8 @@ export class TaskService {
       ? { id: taskData.stage_id[0], name: taskData.stage_id[1] } 
       : { id: undefined, name: undefined };
 
-    const userInfo = taskData.user_id && Array.isArray(taskData.user_id) 
-      ? { id: taskData.user_id[0], name: taskData.user_id[1] } 
-      : { id: undefined, name: undefined };
+    // user_id n'existe pas dans le modèle project.task, on utilise des valeurs par défaut
+    const userInfo = { id: undefined, name: undefined };
 
     // Traiter les dates
     const deadline = taskData.date_deadline && typeof taskData.date_deadline === 'string'
@@ -896,5 +514,392 @@ export class TaskService {
     
     console.log('✅ TaskService - Tâche hydratée créée avec succès:', hydratedTask);
     return hydratedTask;
+  }
+
+  /**
+   * Récupère les valeurs possibles pour le champ state des tâches
+   * @returns Observable avec la liste des valeurs de statut
+   */
+  getTaskStates(): Observable<any[]> {
+    console.log('🔍 Récupération des valeurs de statut des tâches');
+    if (!this.uid) {
+      console.error('❌ UID non disponible pour récupérer les statuts');
+      return of([]);
+    }
+
+    const requestBody = {
+      jsonrpc: "2.0",
+      method: "call",
+      params: {
+        service: "object",
+        method: "execute_kw",
+        args: [
+          this.dbName,
+          this.uid,
+          "demo",
+          "project.task",
+          "fields_get",
+          [["state"]],
+          { attributes: ["selection"] }
+        ]
+      }
+    };
+
+    const options: HttpOptions = {
+      url: this.odooUrl,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'User-Agent': 'ONA-BTP-Mobile/1.0'
+      },
+      data: requestBody,
+      connectTimeout: 30000,
+      readTimeout: 30000
+    };
+
+    return from(CapacitorHttp.post(options)).pipe(
+      map(response => {
+        console.log('📦 Réponse API statuts:', response);
+        if (response.status === 200 && response.data?.result?.state?.selection) {
+          const states = response.data.result.state.selection;
+          console.log('✅ Statuts récupérés:', states);
+          return states;
+        } else {
+          console.log('❌ Aucun statut trouvé');
+          return [];
+        }
+      }),
+      catchError(error => {
+        console.error('❌ Erreur lors de la récupération des statuts:', error);
+        return of([]);
+      })
+    );
+  }
+
+  /**
+   * Crée une nouvelle tâche
+   * @param taskData Données de la tâche à créer
+   * @returns Observable avec la tâche créée
+   */
+  createTask(taskData: {
+    name: string;
+    description?: string;
+    projectId?: number;
+    userId?: number;
+    dateDeadline?: string;
+    priority?: string;
+    progress?: number;
+  }): Observable<ITask> {
+    // Convertir le format de date si nécessaire
+    let formattedDateDeadline = taskData.dateDeadline;
+    if (formattedDateDeadline && formattedDateDeadline.includes('T')) {
+      formattedDateDeadline = formattedDateDeadline.replace('T', ' ');
+    }
+    console.log('🔍 TaskService - createTask() appelé avec:', taskData);
+
+    if (!this.uid) {
+      console.error('❌ TaskService - UID non disponible pour créer la tâche');
+      return throwError(() => new Error('UID non disponible'));
+    }
+
+    const requestBody = {
+      jsonrpc: "2.0",
+      method: "call",
+      params: {
+        service: "object",
+        method: "execute_kw",
+        args: [
+          this.dbName,
+          this.uid,
+          "demo",
+          "project.task",
+          "create",
+          [{
+            name: taskData.name,
+            description: taskData.description || '',
+            project_id: taskData.projectId || false,
+            user_id: taskData.userId || false,
+            date_deadline: formattedDateDeadline || false,
+            priority: taskData.priority || '0',
+            progress: taskData.progress || 0
+          }]
+        ]
+      }
+    };
+
+    const options: HttpOptions = {
+      url: this.odooUrl,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'User-Agent': 'ONA-BTP-Mobile/1.0'
+      },
+      data: requestBody,
+      connectTimeout: 30000,
+      readTimeout: 30000
+    };
+
+    console.log('📤 TaskService - Requête création tâche envoyée:', JSON.stringify(requestBody, null, 2));
+
+    return from(CapacitorHttp.post(options)).pipe(
+      switchMap(response => {
+        console.log('📦 TaskService - Réponse API création tâche reçue');
+        console.log('📦 TaskService - Status de la réponse:', response.status);
+        console.log('📦 TaskService - Data de la réponse:', JSON.stringify(response.data, null, 2));
+        
+        if (response.status === 200 && response.data?.result) {
+          const taskId = response.data.result;
+          console.log('✅ TaskService - Tâche créée avec ID:', taskId);
+          
+          // Récupérer les détails de la tâche créée
+          return this.getTaskDetails(taskId);
+        } else {
+          console.error('❌ TaskService - Erreur lors de la création de la tâche');
+          throw new Error('Erreur lors de la création de la tâche');
+        }
+      }),
+      catchError(error => {
+        console.error('❌ TaskService - Erreur lors de la création de la tâche:', error);
+        return throwError(() => new Error('Impossible de créer la tâche'));
+      })
+    );
+  }
+
+  /**
+   * Récupère les sous-tâches d'une tâche parent
+   * @param parentTaskId ID de la tâche parent
+   * @returns Observable avec la liste des sous-tâches
+   */
+  getSubTasks(parentTaskId: number): Observable<ITask[]> {
+    console.log('🔍 Récupération des sous-tâches pour la tâche:', parentTaskId);
+
+    if (!this.uid) {
+      console.error('❌ UID non disponible pour récupérer les sous-tâches');
+      return of([]);
+    }
+
+    const requestBody = {
+      jsonrpc: "2.0",
+      method: "call",
+      params: {
+        service: "object",
+        method: "execute_kw",
+        args: [
+          this.dbName,
+          this.uid,
+          "demo",
+          "project.task",
+          "search_read",
+          [[["parent_id", "=", parentTaskId]]],
+          {
+            fields: [
+              'id', 'name', 'description', 'state', 'priority', 'date_deadline',
+              'progress', 'project_id', 'remaining_hours',
+              'effective_hours', 'total_hours_spent', 'create_date', 'write_date',
+              'stage_id', 'display_name'
+            ],
+            limit: 50
+          }
+        ]
+      }
+    };
+
+    const options: HttpOptions = {
+      url: this.odooUrl,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'User-Agent': 'ONA-BTP-Mobile/1.0'
+      },
+      data: requestBody,
+      connectTimeout: 30000,
+      readTimeout: 30000
+    };
+
+    return from(CapacitorHttp.post(options)).pipe(
+      map(response => {
+        console.log('📦 Réponse API sous-tâches:', response);
+        
+        if (response.status === 200 && response.data?.result) {
+          const tasks = response.data.result.map((rawTask: ITaskOdoo) => this.hydrateTaskFromOdoo(rawTask));
+          console.log('✅ Sous-tâches hydratées:', tasks);
+          return tasks;
+        } else {
+          console.log('❌ Aucune sous-tâche trouvée');
+          return [];
+        }
+      }),
+      catchError(error => {
+        console.error('❌ Erreur lors de la récupération des sous-tâches:', error);
+        return of([]);
+      })
+    );
+  }
+
+  /**
+   * Récupère les tâches dépendantes d'une tâche
+   * @param taskId ID de la tâche
+   * @returns Observable avec la liste des tâches dépendantes
+   */
+  getDependentTasks(taskId: number): Observable<ITask[]> {
+    console.log('🔍 Récupération des tâches dépendantes pour la tâche:', taskId);
+
+    if (!this.uid) {
+      console.error('❌ UID non disponible pour récupérer les tâches dépendantes');
+      return of([]);
+    }
+
+    const requestBody = {
+      jsonrpc: "2.0",
+      method: "call",
+      params: {
+        service: "object",
+        method: "execute_kw",
+        args: [
+          this.dbName,
+          this.uid,
+          "demo",
+          "project.task",
+          "search_read",
+          [[["depend_on_ids", "in", [taskId]]]],
+          {
+            fields: [
+              'id', 'name', 'description', 'state', 'priority', 'date_deadline',
+              'progress', 'project_id', 'remaining_hours',
+              'effective_hours', 'total_hours_spent', 'create_date', 'write_date',
+              'stage_id', 'display_name'
+            ],
+            limit: 50
+          }
+        ]
+      }
+    };
+
+    const options: HttpOptions = {
+      url: this.odooUrl,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'User-Agent': 'ONA-BTP-Mobile/1.0'
+      },
+      data: requestBody,
+      connectTimeout: 30000,
+      readTimeout: 30000
+    };
+
+    return from(CapacitorHttp.post(options)).pipe(
+      map(response => {
+        console.log('📦 Réponse API tâches dépendantes:', response);
+        
+        if (response.status === 200 && response.data?.result) {
+          const tasks = response.data.result.map((rawTask: ITaskOdoo) => this.hydrateTaskFromOdoo(rawTask));
+          console.log('✅ Tâches dépendantes hydratées:', tasks);
+          return tasks;
+        } else {
+          console.log('❌ Aucune tâche dépendante trouvée');
+          return [];
+        }
+      }),
+      catchError(error => {
+        console.error('❌ Erreur lors de la récupération des tâches dépendantes:', error);
+        return of([]);
+      })
+    );
+  }
+
+  /**
+   * Met à jour une tâche existante
+   * @param taskId ID de la tâche
+   * @param taskData Données de mise à jour
+   * @returns Observable avec la tâche mise à jour
+   */
+  updateTask(taskId: number, taskData: {
+    name?: string;
+    description?: string;
+    projectId?: number;
+    userId?: number;
+    dateDeadline?: string;
+    priority?: string;
+    progress?: number;
+    state?: string;
+  }): Observable<ITask> {
+    console.log('🔧 TaskService - updateTask() appelé avec taskId:', taskId, 'et données:', taskData);
+
+    if (!this.uid) {
+      console.error('❌ TaskService - UID non disponible pour mettre à jour la tâche');
+      return throwError(() => new Error('UID non disponible'));
+    }
+
+    // Convertir le format de date si nécessaire
+    let formattedDateDeadline = taskData.dateDeadline;
+    if (formattedDateDeadline && formattedDateDeadline.includes('T')) {
+      formattedDateDeadline = formattedDateDeadline.replace('T', ' ');
+    }
+
+    // Préparer les données de mise à jour
+    const updateFields: any = {};
+    if (taskData.name !== undefined) updateFields.name = taskData.name;
+    if (taskData.description !== undefined) updateFields.description = taskData.description || false;
+    if (taskData.projectId !== undefined) updateFields.project_id = taskData.projectId || false;
+    if (taskData.userId !== undefined) updateFields.user_id = taskData.userId || false;
+    if (formattedDateDeadline !== undefined) updateFields.date_deadline = formattedDateDeadline || false;
+    if (taskData.priority !== undefined) updateFields.priority = taskData.priority || '0';
+    if (taskData.progress !== undefined) updateFields.progress = taskData.progress || 0;
+    if (taskData.state !== undefined) updateFields.state = taskData.state;
+
+    const requestBody = {
+      jsonrpc: '2.0',
+      method: 'call',
+      params: {
+        service: 'object',
+        method: 'execute_kw',
+        args: [
+          this.dbName,
+          this.uid,
+          'demo',
+          'project.task',
+          'write',
+          [
+            [taskId],
+            updateFields
+          ]
+        ]
+      }
+    };
+
+    const options: HttpOptions = {
+      url: this.odooUrl,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'User-Agent': 'ONA-BTP-Mobile/1.0'
+      },
+      data: requestBody,
+      connectTimeout: 30000,
+      readTimeout: 30000
+    };
+
+    console.log('📤 TaskService - Requête mise à jour tâche envoyée:', JSON.stringify(requestBody, null, 2));
+
+    return from(CapacitorHttp.post(options)).pipe(
+      switchMap(response => {
+        console.log('📦 TaskService - Réponse API mise à jour tâche reçue');
+        console.log('📦 TaskService - Status de la réponse:', response.status);
+        console.log('📦 TaskService - Data de la réponse:', response.data);
+        
+        if (response.status === 200 && response.data?.result === true) {
+          console.log('✅ TaskService - Tâche mise à jour avec succès');
+          // Récupérer la tâche mise à jour
+          return this.getTaskDetails(taskId);
+        } else {
+          console.error('❌ TaskService - Erreur lors de la mise à jour de la tâche');
+          throw new Error('Erreur lors de la mise à jour de la tâche');
+        }
+      }),
+      catchError(error => {
+        console.error('❌ TaskService - Erreur lors de la mise à jour de la tâche:', error);
+        return throwError(() => new Error('Erreur lors de la mise à jour de la tâche'));
+      })
+    );
   }
 }

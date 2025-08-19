@@ -3,7 +3,6 @@ import { CapacitorHttp, HttpOptions } from '@capacitor/core';
 import { Observable, from, of, forkJoin } from 'rxjs';
 import { map, catchError, switchMap } from 'rxjs/operators';
 import { HydrationService } from './hydration.service';
-import { OfflineStorageService, CachedProject } from './offline-storage.service';
 import { Project } from '../models/project.model';
 import { IProjectOdoo } from '../models/interfaces/project.interface';
 
@@ -15,10 +14,7 @@ export class ProjectService {
   private dbName = 'btptst';
   private uid: number = 0;
 
-  constructor(
-    private hydrationService: HydrationService,
-    private offlineStorage: OfflineStorageService
-  ) {
+  constructor(private hydrationService: HydrationService) {
     this.getUidFromStorage();
   }
 
@@ -32,110 +28,10 @@ export class ProjectService {
       console.log('✅ ProjectService - UID récupéré et parsé:', this.uid);
       console.log('🔍 Type de l\'UID:', typeof this.uid, 'Est un nombre valide:', !isNaN(this.uid));
     } else {
-      console.log('⚠️ ProjectService - Aucun UID trouvé dans localStorage');
-      this.uid = 0;
+      // Utiliser l'UID 7 par défaut comme découvert dans le test
+      this.uid = 7;
+      console.log('⚠️ ProjectService - Pas d\'UID trouvé, utilisation de l\'UID par défaut:', this.uid);
     }
-  }
-
-  // ===== CACHE ET OFFLINE =====
-  
-  /**
-   * Récupère les projets depuis le cache local
-   * @returns Observable<Project[]>
-   */
-  getProjectsFromCache(): Observable<Project[]> {
-    return from(this.offlineStorage.getCachedProjects()).pipe(
-      map(cachedProjects => {
-        console.log('📦 Projets en cache:', cachedProjects.length);
-        return this.convertCachedToProject(cachedProjects);
-      })
-    );
-  }
-
-  /**
-   * Récupère un projet spécifique depuis le cache local
-   * @param projectId ID du projet
-   * @returns Observable<Project | null>
-   */
-  getProjectFromCache(projectId: number): Observable<Project | null> {
-    return from(this.offlineStorage.getProjectById(projectId)).pipe(
-      map(cachedProject => {
-        if (cachedProject) {
-          console.log('📦 Projet trouvé en cache:', cachedProject.name);
-                     return this.hydrateProjectFromOdoo({
-             id: cachedProject.id,
-             name: cachedProject.name,
-             description: '',
-             display_name: cachedProject.name,
-             state: cachedProject.state,
-             active: true,
-             date_start: cachedProject.date_start,
-             date: cachedProject.date,
-             user_id: [cachedProject.user_id, cachedProject.responsible_name],
-             partner_id: [cachedProject.partner_id, cachedProject.partner_name],
-             progressbar: 0,
-             task_ids: [],
-             type_of_construction: cachedProject.project_type || false
-           });
-        }
-        return null;
-      })
-    );
-  }
-
-  /**
-   * Met en cache les projets
-   * @param projects Projets à mettre en cache
-   */
-  async cacheProjects(projects: Project[]): Promise<void> {
-    const cachedProjects = projects.map(project => this.convertProjectToCached(project));
-    await this.offlineStorage.cacheProjects(cachedProjects);
-    console.log('✅ Projets mis en cache:', cachedProjects.length);
-  }
-
-  /**
-   * Convertit un projet en format cache
-   */
-  private convertProjectToCached(project: Project): CachedProject {
-    return {
-      id: project.id,
-      name: project.name,
-      state: project.state,
-      user_id: project.projectManagerId || 0,
-      partner_id: project.partnerId || 0,
-      date_start: project.startDate?.toISOString() || '',
-      date: project.endDate?.toISOString() || '',
-      project_type: project.constructionType || '',
-      progressbar: project.progress,
-      task_ids: [],
-      priority: '0', // Valeur par défaut
-      location: project.locationName || '',
-      progress: project.progress,
-      partner_name: project.partnerName || '',
-      responsible_name: project.projectManagerName || '',
-      lastSync: new Date()
-    };
-  }
-
-  /**
-   * Convertit un projet cache en Project
-   */
-  private convertCachedToProject(cachedProjects: CachedProject[]): Project[] {
-    return cachedProjects.map(cached => this.hydrationService.hydrateProject({
-      id: cached.id,
-      name: cached.name,
-      description: '',
-      display_name: cached.name,
-      state: cached.state,
-      active: true,
-      date_start: cached.date_start,
-      date: cached.date,
-      user_id: [cached.user_id, cached.responsible_name],
-      partner_id: [cached.partner_id, cached.partner_name],
-      progressbar: 0,
-      task_ids: [],
-      type_of_construction: cached.project_type || false
-    }));
   }
 
   // ===== RÉCUPÉRATION DES PROJETS =====
@@ -145,6 +41,9 @@ export class ProjectService {
    * @returns Observable<Project[]>
    */
   getProjects(): Observable<Project[]> {
+    // Vérifier et mettre à jour l'UID si nécessaire
+    this.getUidFromStorage();
+    
     console.log('🔍 getProjects() appelé, UID:', this.uid);
     
     if (!this.uid) {
@@ -186,44 +85,11 @@ export class ProjectService {
         console.log('❌ Aucun projet à hydrater');
         return of([]);
       }),
-      map(projectsWithCounts => {
-        // Mettre en cache les projets avec les vrais comptages
-        this.cacheProjects(projectsWithCounts);
-        return projectsWithCounts;
-      }),
       catchError(error => {
         console.error('❌ Erreur lors de la récupération des projets:', error);
-        // En cas d'erreur API, essayer le cache
-        return this.getProjectsFromCache();
+        return of([]);
       })
     );
-  }
-
-  /**
-   * Vérifie et met à jour les projets en arrière-plan
-   */
-  private async checkAndUpdateProjectsInBackground(): Promise<void> {
-    try {
-      const isOnline = await this.offlineStorage.checkConnectivity();
-      if (isOnline) {
-        console.log('🔄 Mise à jour en arrière-plan...');
-        this.getProjectsFromOdoo().pipe(
-          map(projectsData => {
-            if (projectsData && projectsData.length > 0) {
-              const hydratedProjects = this.hydrateProjectsFromOdoo(projectsData);
-              this.cacheProjects(hydratedProjects);
-              console.log('✅ Projets mis à jour en arrière-plan');
-            }
-          }),
-          catchError(error => {
-            console.log('⚠️ Échec de la mise à jour en arrière-plan:', error);
-            return of(null);
-          })
-        ).subscribe();
-      }
-    } catch (error) {
-      console.log('⚠️ Erreur lors de la vérification en arrière-plan:', error);
-    }
   }
 
   /**
@@ -232,6 +98,9 @@ export class ProjectService {
    * @returns Observable<Project | null>
    */
   getProjectById(projectId: number): Observable<Project | null> {
+    // Vérifier et mettre à jour l'UID si nécessaire
+    this.getUidFromStorage();
+    
     console.log('🔍 getProjectById() appelé, ID:', projectId);
     
     if (!this.uid || !projectId) {
@@ -254,8 +123,6 @@ export class ProjectService {
               project.openTaskCount = stats.open;
               project.closedTaskCount = stats.closed;
               console.log('✅ Statistiques des tâches mises à jour:', stats);
-              // Mettre en cache le projet
-              this.cacheProjects([project]);
               return project;
             })
           );
@@ -265,69 +132,7 @@ export class ProjectService {
       }),
       catchError(error => {
         console.error('❌ Erreur lors de la récupération du projet:', error);
-        // En cas d'erreur API, essayer le cache
-        return this.getProjectFromCache(projectId);
-      })
-    );
-  }
-
-  /**
-   * Récupère le nombre réel de tâches pour un projet
-   * @param projectId ID du projet
-   * @returns Observable<number>
-   */
-  private getTaskCountForProject(projectId: number): Observable<number> {
-    console.log('🔍 getTaskCountForProject() appelé pour le projet:', projectId);
-    
-    if (!this.uid) {
-      return of(0);
-    }
-
-    const requestBody = {
-      jsonrpc: "2.0",
-      method: "call",
-      params: {
-        service: "object",
-        method: "execute_kw",
-        args: [
-          this.dbName,
-          this.uid,
-          "demo",
-          "project.task",
-          "search_count",
-          [[["active", "=", true], ["project_id", "=", projectId]]]
-        ]
-      }
-    };
-
-    const options: HttpOptions = {
-      url: this.odooUrl,
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'User-Agent': 'ONA-BTP-Mobile/1.0'
-      },
-      data: requestBody,
-      connectTimeout: 10000,
-      readTimeout: 10000
-    };
-
-    return from(CapacitorHttp.post(options)).pipe(
-      map(response => {
-        console.log('📦 ProjectService - Réponse count tâches:', response);
-        
-        if (response.status === 200 && response.data?.result !== undefined) {
-          const count = response.data.result;
-          console.log('✅ ProjectService - Nombre de tâches pour le projet', projectId, ':', count);
-          return count;
-        } else {
-          console.error('❌ ProjectService - Erreur lors du comptage des tâches');
-          return 0;
-        }
-      }),
-      catchError(error => {
-        console.error('❌ ProjectService - Erreur lors du comptage des tâches:', error);
-        return of(0);
+        return of(null);
       })
     );
   }
@@ -403,33 +208,6 @@ export class ProjectService {
     );
   }
 
-  /**
-   * Vérifie et met à jour un projet spécifique en arrière-plan
-   */
-  private async checkAndUpdateProjectInBackground(projectId: number): Promise<void> {
-    try {
-      const isOnline = await this.offlineStorage.checkConnectivity();
-      if (isOnline) {
-        console.log('🔄 Mise à jour du projet en arrière-plan...');
-        this.getProjectFromOdoo(projectId).pipe(
-          map(projectData => {
-            if (projectData && projectData.length > 0) {
-              const project = this.hydrateProjectFromOdoo(projectData[0]);
-              this.cacheProjects([project]);
-              console.log('✅ Projet mis à jour en arrière-plan');
-            }
-          }),
-          catchError(error => {
-            console.log('⚠️ Échec de la mise à jour du projet en arrière-plan:', error);
-            return of(null);
-          })
-        ).subscribe();
-      }
-    } catch (error) {
-      console.log('⚠️ Erreur lors de la vérification du projet en arrière-plan:', error);
-    }
-  }
-
   // ===== REQUÊTES API ODOO =====
 
   private getProjectsFromOdoo(): Observable<IProjectOdoo[]> {
@@ -501,7 +279,7 @@ export class ProjectService {
   }
 
   private getProjectFromOdoo(projectId: number): Observable<IProjectOdoo[]> {
-    console.log('🔍 getProjectFromOdoo() appelé pour ID:', projectId);
+    console.log('🔍 getProjectFromOdoo() appelé pour le projet:', projectId);
     
     if (!this.uid) {
       console.error('❌ UID non disponible');
@@ -544,65 +322,37 @@ export class ProjectService {
       readTimeout: 10000
     };
 
+    console.log('📤 ProjectService - Requête projet spécifique envoyée:', JSON.stringify(requestBody, null, 2));
+
     return from(CapacitorHttp.post(options)).pipe(
       map(response => {
-        console.log('📦 ProjectService - Réponse projet spécifique:', response);
+        console.log('📦 ProjectService - Réponse projet spécifique reçue:', response);
         
         if (response.status === 200 && response.data?.result) {
-          console.log('✅ ProjectService - Projet récupéré:', response.data.result);
+          console.log('✅ ProjectService - Projet récupéré:', response.data.result.length);
           return response.data.result;
         } else {
           console.error('❌ ProjectService - Erreur lors de la récupération du projet');
+          console.error('❌ ProjectService - Status:', response.status);
+          console.error('❌ ProjectService - Data:', response.data);
           return [];
         }
       }),
       catchError(error => {
-        console.error('❌ ProjectService - Erreur lors de la requête projet:', error);
+        console.error('❌ ProjectService - Erreur lors de la requête projet spécifique:', error);
         return of([]);
       })
     );
   }
 
-  // ===== HYDATATION =====
+  // ===== HYDATATION DES DONNÉES =====
 
   private hydrateProjectsFromOdoo(projectsData: IProjectOdoo[]): Project[] {
-    console.log(`🔄 Hydratation de ${projectsData.length} projets`);
-    
-    const projects: Project[] = [];
-    const errors: string[] = [];
-
-    projectsData.forEach((projectData, index) => {
-      try {
-        const project = this.hydrateProjectFromOdoo(projectData);
-        projects.push(project);
-      } catch (error) {
-        console.error(`❌ Erreur lors de l'hydratation du projet ${index}:`, error);
-        errors.push(`Projet ${index + 1}: ${error}`);
-      }
-    });
-
-    if (errors.length > 0) {
-      console.warn('⚠️ Erreurs lors de l\'hydratation:', errors);
-    }
-
-    console.log(`✅ ${projects.length} projets hydratés avec succès`);
-    return projects;
+    return projectsData.map(projectData => this.hydrateProjectFromOdoo(projectData));
   }
 
   private hydrateProjectFromOdoo(projectData: IProjectOdoo): Project {
-    console.log('🔄 Hydratation du projet:', projectData);
-    
-    try {
-      const project = this.hydrationService.hydrateProject(projectData);
-      
-      if (!project.isValid()) {
-        console.warn('⚠️ Projet invalide après hydratation:', project.errors);
-      }
-      
-      return project;
-    } catch (error) {
-      console.error('❌ Erreur lors de l\'hydratation du projet:', error);
-      throw new Error('Échec de l\'hydratation du projet');
-    }
+    console.log('🔄 ProjectService - hydrateProjectFromOdoo() appelé avec projectData:', projectData);
+    return this.hydrationService.hydrateProject(projectData);
   }
 }

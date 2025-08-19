@@ -18,9 +18,24 @@ export interface IEmployee {
 export class EmployeeService {
   private odooUrl = 'https://btp.onaerp.com/jsonrpc';
   private dbName = 'btptst';
-  private uid: number = 7; // Utiliser l'UID par défaut comme dans TaskService
+  private uid: number = 7; // UID par défaut
 
-  constructor() {}
+  constructor() {
+    this.getUidFromStorage();
+  }
+
+  // ===== GESTION UID =====
+  private getUidFromStorage(): void {
+    const storedUid = localStorage.getItem('odoo_uid');
+    console.log('🔍 EmployeeService - UID stocké dans localStorage:', storedUid);
+    
+    if (storedUid) {
+      this.uid = parseInt(storedUid);
+      console.log('✅ EmployeeService - UID récupéré et parsé:', this.uid);
+    } else {
+      console.log('⚠️ EmployeeService - Aucun UID trouvé, utilisation de l\'UID par défaut:', this.uid);
+    }
+  }
 
   /**
    * Récupère tous les employés actifs

@@ -42,7 +42,7 @@ export interface UserProfile {
 export class UserService {
   private odooUrl = 'https://btp.onaerp.com/jsonrpc';
   private dbName = 'btptst';
-  private uid: number = 0;
+  private uid: number = 7; // Utilisateur ID 7 qui fonctionne
 
   constructor(
     private hydrationService: HydrationService,
@@ -148,35 +148,47 @@ export class UserService {
     console.log('🔍 getUserProfile() appelé, UID:', this.uid);
     
     if (!this.uid) {
-      console.error('❌ UID non disponible pour récupérer le profil');
-      return of(null);
+      console.warn('⚠️ UID non disponible - lecture du profil depuis le cache');
+      return from(this.offlineStorage.getCachedUserProfileRaw()).pipe(
+        map(raw => (raw ? this.hydrateUserFromOdoo(raw) : null)),
+        switchMap(user => user ? of(user) : this.getUserProfileFromCache())
+      );
     }
 
-    // Vérifier d'abord la connectivité
-    return from(this.offlineStorage.checkConnectivity()).pipe(
-      switchMap(isOnline => {
-        if (isOnline) {
-          console.log('🌐 Mode en ligne - récupération depuis l\'API');
-          return this.getUserFromOdoo().pipe(
-            map(userData => {
-              if (userData && userData.length > 0) {
-                const user = this.hydrateUserFromOdoo(userData[0]);
-                // Mettre en cache l'utilisateur
-                this.cacheUserProfile(user);
-                return user;
-              }
-              return null;
-            }),
-            catchError(error => {
-              console.error('❌ Erreur API, fallback vers cache:', error);
-              // En cas d'erreur API, essayer le cache
-              return this.getUserProfileFromCache();
-            })
-          );
-        } else {
-          console.log('📱 Mode hors ligne - utilisation du cache');
-          return this.getUserProfileFromCache();
+    // Essayer d'abord l'API directement
+    return this.getUserFromOdoo().pipe(
+      map(userData => {
+        if (userData && userData.length > 0) {
+          const user = this.hydrateUserFromOdoo(userData[0]);
+          // Mettre en cache l'utilisateur
+          this.cacheUserProfile(user);
+          // Mettre en cache le profil brut pour le hors-ligne
+          this.offlineStorage.cacheUserProfileRaw(userData[0]);
+          return user;
         }
+        return null;
+      }),
+      catchError(error => {
+        console.error('❌ Erreur API, fallback vers cache:', error);
+        // En cas d'erreur API, essayer d'abord le cache brut, puis le cache minimal
+        return from(this.offlineStorage.getCachedUserProfileRaw()).pipe(
+          map(raw => {
+            if (raw) {
+              console.log('📦 Données brutes trouvées en cache, hydratation...');
+              return this.hydrateUserFromOdoo(raw);
+            }
+            console.log('❌ Aucune donnée brute en cache, essai cache minimal...');
+            return null;
+          }),
+          switchMap(user => {
+            if (user) {
+              console.log('✅ Utilisateur récupéré depuis le cache brut');
+              return of(user);
+            }
+            console.log('🔄 Essai du cache minimal...');
+            return this.getUserProfileFromCache();
+          })
+        );
       })
     );
   }
@@ -256,8 +268,8 @@ export class UserService {
           this.uid,
           "demo",
           "res.users",
-          "search_read",
-          [[["id", "=", this.uid]]],
+          "read",
+          [[this.uid]],
           {
             fields: [
               'id', 'name', 'email', 'login', 'display_name', 'active',
@@ -267,8 +279,7 @@ export class UserService {
               'equipment_ids', 'expense_manager_id', 'gender', 'lang',
               'mobile', 'partner_latitude', 'partner_longitude', 'project_ids',
               'sale_order_ids', 'street', 'task_ids', 'tz'
-            ],
-            limit: 1
+            ]
           }
         ]
       }

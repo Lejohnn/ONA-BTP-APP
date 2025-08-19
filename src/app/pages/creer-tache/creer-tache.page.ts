@@ -9,7 +9,6 @@ import { HeaderTitleService } from '../../services/header-title.service';
 import { TaskService } from '../../services/task.service';
 import { ProjectService } from '../../services/project.service';
 import { EmployeeService, IEmployee } from '../../services/employee.service';
-// import { OfflineStorageService } from '../../services/offline-storage.service';
 import { ToastService } from '../../services/toast.service';
 import { Subscription } from 'rxjs';
 
@@ -50,7 +49,6 @@ export class CreerTachePage implements OnInit, OnDestroy {
     private taskService: TaskService,
     private projectService: ProjectService,
     private employeeService: EmployeeService,
-    // private offlineStorage: OfflineStorageService,
     private toastService: ToastService,
     private router: Router
   ) {

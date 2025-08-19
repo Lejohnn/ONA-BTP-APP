@@ -4,6 +4,9 @@ import { Router } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
+import { UserService } from '../../services/user.service';
+import { ProjectService } from '../../services/project.service';
+import { TaskService } from '../../services/task.service';
 import { OfflineStorageService } from '../../services/offline-storage.service';
 import { ToastService } from '../../services/toast.service';
 import { NetworkDiagnosticService } from '../../services/network-diagnostic.service';
@@ -28,6 +31,9 @@ export class LoginPage implements OnInit {
     private networkService: NetworkDiagnosticService,
     private offlineStorage: OfflineStorageService,
     private toastService: ToastService,
+    private userService: UserService,
+    private projectService: ProjectService,
+    private taskService: TaskService,
     private headerTitleService: HeaderTitleService
   ) {
     this.headerTitleService.setTitle('Connexion');
@@ -136,6 +142,9 @@ export class LoginPage implements OnInit {
         // Afficher le toast de bienvenue personnalisé
         await this.toastService.showWelcomeToast(userName);
         
+        // Précharger et mettre en cache les données (même en mode hors-ligne)
+        this.preloadDataForOffline();
+        
         // Redirection vers le tableau de bord
         this.router.navigate(['/tabs/dashboard']);
       } else {
@@ -172,6 +181,29 @@ export class LoginPage implements OnInit {
     return formattedName || 'Utilisateur';
   }
 
+  // ===== PRÉCHARGEMENT DES DONNÉES =====
+  private preloadDataForOffline(): void {
+    console.log('🔄 Préchargement des données pour usage hors-ligne...');
+    
+    // Précharger et mettre en cache le profil utilisateur
+    this.userService.getUserProfile().subscribe({
+      next: () => console.log('🔒 Profil utilisateur préchargé et mis en cache'),
+      error: (e) => console.log('⚠️ Préchargement du profil échoué (sera récupéré plus tard):', e)
+    });
+    
+    // Précharger et mettre en cache les projets
+    this.projectService.getProjects().subscribe({
+      next: () => console.log('🔒 Projets préchargés et mis en cache'),
+      error: (e) => console.log('⚠️ Préchargement des projets échoué (sera récupéré plus tard):', e)
+    });
+    
+    // Précharger et mettre en cache les tâches
+    this.taskService.getAllTasks().subscribe({
+      next: () => console.log('🔒 Tâches préchargées et mises en cache'),
+      error: (e) => console.log('⚠️ Préchargement des tâches échoué (sera récupéré plus tard):', e)
+    });
+  }
+
   // ===== NOTIFICATIONS =====
   async showToast(message: string, color: string): Promise<void> {
     switch (color) {
@@ -193,7 +225,7 @@ export class LoginPage implements OnInit {
   // ===== GESTION DU CACHE =====
   async clearCache(): Promise<void> {
     try {
-      await this.authService.clearCache();
+      await this.offlineStorage.clearAllCache();
       this.showToast('Cache effacé avec succès', 'success');
     } catch (error) {
       console.error('Erreur lors de l\'effacement du cache:', error);
