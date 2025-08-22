@@ -57,12 +57,53 @@ ion-content::part(scroll) {
 
 /* ===== EN-TÊTE DE LA TÂCHE ===== */
 .detail-tache-header {
+  .task-header-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
   .detail-tache-nom {
     font-size: 1.5rem;
     font-weight: 700;
     color: #222f3e;
-    margin: 0 0 12px;
+    margin: 0;
+    flex: 1;
   }
+
+  .task-type-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+
+    ion-icon {
+      font-size: 16px;
+    }
+
+    &.task-type-parent {
+      background: #e3f2fd;
+      color: #1976d2;
+    }
+
+    &.task-type-child {
+      background: #f3e5f5;
+      color: #7b1fa2;
+    }
+
+    &.task-type-normal {
+      background: #e8f5e8;
+      color: #388e3c;
+    }
+  }
+
   .detail-tache-description {
     font-size: 1rem;
     color: #576574;
@@ -357,6 +398,73 @@ ion-content::part(scroll) {
   }
 }
 
+/* ===== HIÉRARCHIE DES TÂCHES ===== */
+.detail-tache-hierarchy-block {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  
+  .section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #222f3e;
+    margin: 0 0 16px;
+  }
+}
+
+.hierarchy-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.hierarchy-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  
+  &.parent-task {
+    background: #e8f5e8;
+    border-left: 4px solid #27ae60;
+    
+    ion-icon {
+      color: #27ae60;
+    }
+  }
+  
+  &.child-tasks {
+    background: #fff3e0;
+    border-left: 4px solid #fd5200;
+    
+    ion-icon {
+      color: #fd5200;
+    }
+  }
+  
+  ion-icon {
+    font-size: 20px;
+  }
+}
+
+.hierarchy-info-content {
+  flex: 1;
+  
+  .hierarchy-label {
+    font-size: 0.9rem;
+    color: #576574;
+    margin-bottom: 4px;
+  }
+  
+  .hierarchy-value {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #222f3e;
+  }
+}
+
 /* ===== SOUS-TÂCHES ET DÉPENDANCES ===== */
 .detail-tache-subtasks-block,
 .detail-tache-dependencies-block {
@@ -573,6 +681,398 @@ ion-content::part(scroll) {
   
   .subtask-info,
   .dependency-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+/* ===== ONGLETS DE DÉTAIL ===== */
+.detail-tache-tabs {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  
+  .section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #222f3e;
+    margin: 0 0 16px;
+  }
+}
+
+.tabs-navigation {
+  margin-bottom: 20px;
+  
+  .tabs-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    
+    @media (max-width: 768px) {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    
+    @media (max-width: 480px) {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+    
+          .tab-card {
+        background: #fff;
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 16px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        min-height: 100px;
+        
+        @media (max-width: 768px) {
+          padding: 12px;
+          min-height: 80px;
+          border-radius: 10px;
+        }
+        
+        @media (max-width: 480px) {
+          padding: 8px;
+          min-height: 70px;
+          border-radius: 8px;
+        }
+      
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-color: #fd5200;
+      }
+      
+      &.active {
+        background: linear-gradient(135deg, #fd5200, #e64a00);
+        border-color: #fd5200;
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(253, 82, 0, 0.3);
+        
+        .tab-icon ion-icon {
+          color: #fff;
+        }
+        
+        .tab-info {
+          .tab-title {
+            color: #fff;
+          }
+          
+          .tab-count {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+          }
+        }
+      }
+      
+              .tab-icon {
+          margin-bottom: 8px;
+          
+          ion-icon {
+            font-size: 24px;
+            color: #fd5200;
+            transition: color 0.3s ease;
+          }
+          
+          @media (max-width: 768px) {
+            margin-bottom: 6px;
+            
+            ion-icon {
+              font-size: 20px;
+            }
+          }
+          
+          @media (max-width: 480px) {
+            margin-bottom: 4px;
+            
+            ion-icon {
+              font-size: 18px;
+            }
+          }
+        }
+      
+              .tab-info {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          
+          .tab-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #222f3e;
+            margin-bottom: 4px;
+            transition: color 0.3s ease;
+          }
+          
+          .tab-count {
+            background: #f8f9fa;
+            color: #fd5200;
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 12px;
+            display: inline-block;
+            min-width: 24px;
+            transition: all 0.3s ease;
+          }
+          
+          @media (max-width: 768px) {
+            .tab-title {
+              font-size: 0.8rem;
+              margin-bottom: 3px;
+            }
+            
+            .tab-count {
+              font-size: 0.7rem;
+              padding: 3px 6px;
+              border-radius: 10px;
+              min-width: 20px;
+            }
+          }
+          
+          @media (max-width: 480px) {
+            .tab-title {
+              font-size: 0.7rem;
+              margin-bottom: 2px;
+            }
+            
+            .tab-count {
+              font-size: 0.6rem;
+              padding: 2px 4px;
+              border-radius: 8px;
+              min-width: 18px;
+            }
+          }
+        }
+    }
+  }
+}
+
+.tabs-content {
+  .tab-panel {
+    .tab-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      
+      h4 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #222f3e;
+        margin: 0;
+      }
+    }
+    
+    .tab-content {
+      .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+        text-align: center;
+        
+        .empty-icon {
+          font-size: 48px;
+          color: #bdc3c7;
+          margin-bottom: 16px;
+        }
+        
+        p {
+          color: #7f8c8d;
+          font-size: 16px;
+          margin: 0;
+        }
+      }
+    }
+  }
+}
+
+/* ===== ÉLÉMENTS DES ONGLETS ===== */
+
+// Matériaux
+.material-item,
+.consumed-item {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 8px;
+  
+  .material-info,
+  .consumed-info {
+    .material-name,
+    .consumed-name {
+      font-weight: 600;
+      color: #222f3e;
+      margin-bottom: 4px;
+    }
+    
+    .material-details,
+    .consumed-details {
+      display: flex;
+      gap: 12px;
+      font-size: 0.9rem;
+      color: #7f8c8d;
+      margin-bottom: 4px;
+    }
+    
+    .consumed-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: #27ae60;
+      
+      .status-icon.picked {
+        color: #27ae60;
+      }
+    }
+  }
+}
+
+// Véhicules et Équipements
+.vehicle-item,
+.equipment-item {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 8px;
+  
+  .vehicle-info,
+  .equipment-info {
+    .vehicle-name,
+    .equipment-name {
+      font-weight: 600;
+      color: #222f3e;
+      margin-bottom: 4px;
+    }
+    
+    .vehicle-description,
+    .equipment-description {
+      font-size: 0.9rem;
+      color: #7f8c8d;
+      margin-bottom: 8px;
+    }
+    
+    .vehicle-status,
+    .equipment-status {
+      ion-chip {
+        font-size: 0.8rem;
+        height: 24px;
+      }
+    }
+  }
+}
+
+// Dépenses
+.expense-item {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 8px;
+  
+  .expense-info {
+    .expense-name {
+      font-weight: 600;
+      color: #222f3e;
+      margin-bottom: 4px;
+    }
+    
+    .expense-details {
+      display: flex;
+      gap: 12px;
+      font-size: 0.9rem;
+      color: #7f8c8d;
+      margin-bottom: 8px;
+    }
+    
+    .expense-amount {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      
+      .amount {
+        font-weight: 600;
+        color: #e74c3c;
+        font-size: 1rem;
+      }
+      
+      ion-chip {
+        font-size: 0.8rem;
+        height: 24px;
+      }
+    }
+  }
+}
+
+// Feuilles de temps
+.timesheet-item {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 8px;
+  
+  .timesheet-info {
+    .timesheet-name {
+      font-weight: 600;
+      color: #222f3e;
+      margin-bottom: 4px;
+    }
+    
+    .timesheet-details {
+      display: flex;
+      gap: 12px;
+      font-size: 0.9rem;
+      color: #7f8c8d;
+      margin-bottom: 8px;
+    }
+    
+    .timesheet-hours {
+      .hours {
+        font-weight: 600;
+        color: #3498db;
+        font-size: 1rem;
+      }
+    }
+  }
+}
+
+/* ===== RESPONSIVE POUR LES ONGLETS ===== */
+@media (max-width: 600px) {
+  .tabs-navigation {
+    .tabs-segment {
+      ion-segment-button {
+        ion-label {
+          font-size: 0.7rem;
+          
+          ion-icon {
+            font-size: 16px;
+          }
+        }
+      }
+    }
+  }
+  
+  .material-details,
+  .consumed-details,
+  .expense-details,
+  .timesheet-details {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .expense-amount {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;

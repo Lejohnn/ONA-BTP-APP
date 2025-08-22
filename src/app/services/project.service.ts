@@ -235,7 +235,10 @@ export class ProjectService {
           {
             fields: [
               'id', 'name', 'description', 'state', 'user_id', 'partner_id',
-              'date_start', 'date', 'progressbar', 'task_ids'
+              'date_start', 'date', 'progressbar', 'task_ids', 'type_of_construction',
+              'site_name', 'site_area', 'site_width', 'site_length',
+              'latitude', 'longitude', 'create_date', 'write_date',
+              'effective_hours', 'expense_ids'
             ],
             limit: 50
           }
@@ -302,7 +305,10 @@ export class ProjectService {
           {
             fields: [
               'id', 'name', 'description', 'state', 'user_id', 'partner_id',
-              'date_start', 'date', 'progressbar', 'task_ids'
+              'date_start', 'date', 'progressbar', 'task_ids', 'type_of_construction',
+              'site_name', 'site_area', 'site_width', 'site_length',
+              'latitude', 'longitude', 'create_date', 'write_date',
+              'effective_hours', 'expense_ids'
             ],
             limit: 1
           }

@@ -18,6 +18,16 @@ export interface IProjectOdoo {
   progressbar: number;
   task_ids: number[];
   type_of_construction: string | false;
+  site_name: string | false;
+  site_area: number | false;
+  site_width: number | false;
+  site_length: number | false;
+  latitude: number | false;
+  longitude: number | false;
+  create_date: string | false;
+  write_date: string | false;
+  effective_hours: number | false;
+  expense_ids: number[];
 }
 
 /**
@@ -106,5 +116,6 @@ export interface IProject extends IBaseModel {
   getFormattedEndDate(): string;
   getFormattedDeadline(): string;
   getSiteDimensions(): string;
+  getSiteAreaDisplay(): string;
   getTaskStatistics(): any;
 }

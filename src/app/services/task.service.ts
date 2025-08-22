@@ -124,7 +124,8 @@ export class TaskService {
               'id', 'name', 'description', 'state', 'priority', 'date_deadline',
               'progress', 'project_id', 'remaining_hours',
               'effective_hours', 'total_hours_spent', 'create_date', 'write_date',
-              'stage_id', 'display_name'
+              'stage_id', 'display_name',
+              'parent_id', 'child_ids'
             ],
             limit: 1
           }
@@ -206,7 +207,9 @@ export class TaskService {
               'stage_id', 
               'priority', 
               'create_date', 
-              'write_date'
+              'write_date',
+              'parent_id',
+              'child_ids'
             ],
             limit: 100
           }
@@ -287,7 +290,12 @@ export class TaskService {
               'stage_id', 
               'priority', 
               'create_date', 
-              'write_date'
+              'write_date',
+              'material_plan_ids',
+              'expense_ids',
+              'timesheet_ids',
+              'parent_id',
+              'child_ids'
             ],
             limit: 100
           }
@@ -410,6 +418,16 @@ export class TaskService {
       priority: taskData.priority || '0',
       isActive: true,
       
+      // Relations pour les onglets
+      materialPlanIds: taskData.material_plan_ids || [],
+      expenseIds: taskData.expense_ids || [],
+      timesheetIds: taskData.timesheet_ids || [],
+      
+      // Relations de hiérarchie
+      parentId: taskData.parent_id && Array.isArray(taskData.parent_id) ? taskData.parent_id[0] : undefined,
+      parentName: taskData.parent_id && Array.isArray(taskData.parent_id) ? taskData.parent_id[1] : undefined,
+      childIds: taskData.child_ids || [],
+      
       // Méthodes IBaseModel
       hydrate: function(rawData: any): ITask {
         return this as ITask;
@@ -449,7 +467,13 @@ export class TaskService {
           priority: this.priority,
           isActive: this.isActive,
           createDate: this.createDate,
-          writeDate: this.writeDate
+          writeDate: this.writeDate,
+          materialPlanIds: this.materialPlanIds,
+          expenseIds: this.expenseIds,
+          timesheetIds: this.timesheetIds,
+          parentId: this.parentId,
+          parentName: this.parentName,
+          childIds: this.childIds
         };
       },
 

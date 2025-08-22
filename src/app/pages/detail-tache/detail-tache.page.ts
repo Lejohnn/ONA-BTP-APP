@@ -6,7 +6,9 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
 import { TaskService } from '../../services/task.service';
+import { TaskDetailsService } from '../../services/task-details.service';
 import { ITask } from '../../models/interfaces/task.interface';
+import { ITaskTabData } from '../../models/interfaces/task-details.interface';
 
 @Component({
   selector: 'app-detail-tache',
@@ -27,13 +29,18 @@ export class DetailTachePage implements OnInit, OnDestroy {
   subTasks: ITask[] = [];
   dependentTasks: ITask[] = [];
   
+  // Données des onglets
+  tabData: ITaskTabData | null = null;
+  selectedTab: string = 'materials';
+  
   // Souscriptions
   private subscriptions: Subscription = new Subscription();
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private taskService: TaskService
+    private taskService: TaskService,
+    private taskDetailsService: TaskDetailsService
   ) {}
 
   ngOnInit() {
@@ -83,6 +90,9 @@ export class DetailTachePage implements OnInit, OnDestroy {
         
         // Chargement des sous-tâches et tâches dépendantes
         this.loadRelatedTasks(taskIdNumber);
+        
+        // Chargement des données des onglets
+        this.loadTabData(taskIdNumber);
       },
       error: (error: any) => {
         console.error('❌ DetailTachePage - Erreur lors du chargement des détails:', error);
@@ -95,6 +105,25 @@ export class DetailTachePage implements OnInit, OnDestroy {
     });
 
     this.subscriptions.add(taskSubscription);
+  }
+
+  /**
+   * Charge les données des onglets
+   */
+  private loadTabData(taskId: number) {
+    console.log('📋 DetailTachePage - Chargement des données d\'onglets pour la tâche:', taskId);
+    
+    const tabDataSubscription = this.taskDetailsService.getTaskTabData(taskId).subscribe({
+      next: (data: ITaskTabData) => {
+        console.log('✅ DetailTachePage - Données d\'onglets récupérées:', data);
+        this.tabData = data;
+      },
+      error: (error: any) => {
+        console.error('❌ DetailTachePage - Erreur lors du chargement des données d\'onglets:', error);
+      }
+    });
+
+    this.subscriptions.add(tabDataSubscription);
   }
 
   /**
@@ -234,5 +263,161 @@ export class DetailTachePage implements OnInit, OnDestroy {
       '3': 'urgent'
     };
     return priorityMap[priority] || 'normal';
+  }
+
+  /**
+   * Détermine si la tâche est une tâche mère (a des sous-tâches)
+   */
+  isParentTask(): boolean {
+    return this.task ? (this.task.childIds && this.task.childIds.length > 0) : false;
+  }
+
+  /**
+   * Détermine si la tâche est une tâche enfant (a des dépendances)
+   */
+  isChildTask(): boolean {
+    return this.task ? (this.task.parentId !== undefined && this.task.parentId !== null) : false;
+  }
+
+  /**
+   * Obtient le type de tâche (mère, enfant, ou normale)
+   */
+  getTaskType(): 'parent' | 'child' | 'normal' {
+    if (this.isParentTask()) return 'parent';
+    if (this.isChildTask()) return 'child';
+    return 'normal';
+  }
+
+  /**
+   * Obtient l'icône pour le type de tâche
+   */
+  getTaskTypeIcon(): string {
+    switch (this.getTaskType()) {
+      case 'parent':
+        return 'folder-outline';
+      case 'child':
+        return 'document-outline';
+      default:
+        return 'checkmark-circle-outline';
+    }
+  }
+
+  /**
+   * Obtient le label pour le type de tâche
+   */
+  getTaskTypeLabel(): string {
+    switch (this.getTaskType()) {
+      case 'parent':
+        return 'Tâche mère';
+      case 'child':
+        return 'Sous-tâche';
+      default:
+        return 'Tâche simple';
+    }
+  }
+
+  /**
+   * Obtient la classe CSS pour le type de tâche
+   */
+  getTaskTypeClass(): string {
+    switch (this.getTaskType()) {
+      case 'parent':
+        return 'task-type-parent';
+      case 'child':
+        return 'task-type-child';
+      default:
+        return 'task-type-normal';
+    }
+  }
+
+  /**
+   * Change l'onglet sélectionné
+   */
+  selectTab(tabName: string) {
+    this.selectedTab = tabName;
+  }
+
+  /**
+   * Vérifie si un onglet est sélectionné
+   */
+  isTabSelected(tabName: string): boolean {
+    return this.selectedTab === tabName;
+  }
+
+  /**
+   * Obtient le nombre d'éléments dans un onglet
+   */
+  getTabCount(tabName: string): number {
+    if (!this.tabData) return 0;
+    
+    switch (tabName) {
+      case 'materials':
+        return this.tabData.materialPlans?.length || 0;
+      case 'consumed':
+        return this.tabData.consumedMaterials?.length || 0;
+      case 'vehicles':
+        return this.tabData.vehicleRequests?.length || 0;
+      case 'equipment':
+        return this.tabData.equipmentRequests?.length || 0;
+      case 'expenses':
+        return this.tabData.expenses?.length || 0;
+      case 'timesheets':
+        return this.tabData.timesheets?.length || 0;
+      default:
+        return 0;
+    }
+  }
+
+  // Méthodes pour les statuts des véhicules
+  getVehicleStatusColor(state: string): string {
+    const statusMap: { [key: string]: string } = {
+      'draft': 'warning',
+      'confirm': 'primary',
+      'cancel': 'danger',
+      'done': 'success'
+    };
+    return statusMap[state] || 'medium';
+  }
+
+  getVehicleStatusLabel(state: string): string {
+    const statusMap: { [key: string]: string } = {
+      'draft': 'Brouillon',
+      'confirm': 'Confirmé',
+      'cancel': 'Annulé',
+      'done': 'Terminé'
+    };
+    return statusMap[state] || state;
+  }
+
+  // Méthodes pour les statuts des équipements
+  getEquipmentStatusColor(state: string): string {
+    return this.getVehicleStatusColor(state); // Même logique que les véhicules
+  }
+
+  getEquipmentStatusLabel(state: string): string {
+    return this.getVehicleStatusLabel(state); // Même logique que les véhicules
+  }
+
+  // Méthodes pour les statuts des dépenses
+  getExpenseStatusColor(state: string): string {
+    const statusMap: { [key: string]: string } = {
+      'draft': 'warning',
+      'reported': 'primary',
+      'approved': 'success',
+      'refused': 'danger',
+      'done': 'success'
+    };
+    return statusMap[state] || 'medium';
+  }
+
+  getExpenseStatusLabel(state: string): string {
+    const statusMap: { [key: string]: string } = {
+      'draft': 'Brouillon',
+      'reported': 'Rapporté',
+      'approved': 'Approuvé',
+      'refused': 'Refusé',
+      'done': 'Terminé'
+    };
+    return statusMap[state] || state;
   }
 } 

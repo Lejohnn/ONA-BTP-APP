@@ -323,7 +323,17 @@ export class HydrationService {
       partner_id: rawData.partner_id || false,
       progressbar: rawData.progressbar || 0,
       task_ids: rawData.task_ids || [],
-      type_of_construction: rawData.type_of_construction || false
+      type_of_construction: rawData.type_of_construction || false,
+      site_name: rawData.site_name || false,
+      site_area: rawData.site_area || false,
+      site_width: rawData.site_width || false,
+      site_length: rawData.site_length || false,
+      latitude: rawData.latitude || false,
+      longitude: rawData.longitude || false,
+      create_date: rawData.create_date || false,
+      write_date: rawData.write_date || false,
+      effective_hours: rawData.effective_hours || false,
+      expense_ids: rawData.expense_ids || []
     };
 
     console.log('✅ Données projet prétraitées');
@@ -350,7 +360,17 @@ export class HydrationService {
       partner_id: false,
       progressbar: 0,
       task_ids: [],
-      type_of_construction: false
+      type_of_construction: false,
+      site_name: false,
+      site_area: false,
+      site_width: false,
+      site_length: false,
+      latitude: false,
+      longitude: false,
+      create_date: false,
+      write_date: false,
+      effective_hours: false,
+      expense_ids: []
     };
 
     return new Project(defaultData);

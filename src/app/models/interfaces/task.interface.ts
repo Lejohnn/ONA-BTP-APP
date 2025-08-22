@@ -20,6 +20,15 @@ export interface ITaskOdoo {
   priority: string;
   create_date?: string;
   write_date?: string;
+  
+  // Relations pour les onglets
+  material_plan_ids?: number[];
+  expense_ids?: number[];
+  timesheet_ids?: number[];
+  
+  // Relations de hiérarchie
+  parent_id?: [number, string] | false;
+  child_ids?: number[];
 }
 
 /**
@@ -57,6 +66,16 @@ export interface ITask extends IBaseModel {
   state: string;
   priority: string;
   isActive: boolean;
+  
+  // Relations pour les onglets
+  materialPlanIds: number[];
+  expenseIds: number[];
+  timesheetIds: number[];
+  
+  // Relations de hiérarchie
+  parentId?: number;
+  parentName?: string;
+  childIds: number[];
   
   // Méthodes spécifiques à la tâche
   getProgressDisplay(): string;

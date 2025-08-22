@@ -54,7 +54,7 @@
     <div class="project-list">
       <div *ngFor="let projet of projets" class="project-card" (click)="voirDetails(projet.id)">
         <div class="project-image-container">
-          <!-- Image statique comme demandé par l'encadreur -->
+          <!-- Image statique  -->
           <img src="assets/images/projects/default-project.webp" 
                [alt]="'Projet ' + projet.name"
                class="project-img-full"
@@ -65,32 +65,34 @@
               {{ projet.getStateDisplay() }}
             </div>
             <div class="project-type" [ngClass]="getTypeClass(projet.constructionType)">
-              {{ projet.getConstructionTypeDisplay() }}
+              {{ projet.getConstructionTypeDisplay() }} 
             </div>
           </div>
         </div>
 
         <div class="project-info">
-          <h3 class="project-name">{{ projet.name }}</h3>
+          <div class="project-header-row">
+            <h3 class="project-name">{{ projet.name }}</h3>
+            <div class="task-badge">
+              <span class="task-count">{{ projet.closedTaskCount }}/{{ projet.taskCount }}</span>
+              <span class="task-label">tâches</span>
+            </div>
+          </div>
+          
           <p class="project-client" *ngIf="projet.partnerName">
             <ion-icon name="business-outline"></ion-icon>
             {{ projet.partnerName }}
           </p>
           
           <div class="project-details">
-            <div class="project-location" *ngIf="projet.hasLocation()">
+            <div class="project-site">
               <ion-icon name="location-outline"></ion-icon>
-              <span>{{ projet.siteName || 'Localisation disponible' }}</span>
+              <span>{{ projet.getSiteAreaDisplay() }}</span>
             </div>
             <div class="project-type" [ngClass]="getTypeClass(projet.constructionType)">
               <ion-icon name="construct-outline"></ion-icon>
               {{ projet.getConstructionTypeDisplay() }}
             </div>
-          </div>
-
-          <div class="project-responsible" *ngIf="projet.projectManagerName">
-            <ion-icon name="person-outline"></ion-icon>
-            <span>{{ projet.projectManagerName }}</span>
           </div>
 
           <div class="project-progress-section">
@@ -111,10 +113,6 @@
             <div class="meta-item" *ngIf="projet.endDate">
               <ion-icon name="calendar-outline"></ion-icon>
               <span>Fin: {{ projet.getFormattedEndDate() }}</span>
-            </div>
-            <div class="meta-item">
-              <ion-icon name="list-outline"></ion-icon>
-              <span>{{ projet.taskCount }} tâches</span>
             </div>
           </div>
         </div>

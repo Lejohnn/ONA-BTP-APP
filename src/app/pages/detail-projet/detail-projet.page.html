@@ -65,7 +65,7 @@
           <ion-icon name="wallet-outline" class="info-icon"></ion-icon>
           <div class="info-content">
             <div class="info-label">Budget total</div>
-            <div class="info-value">{{ getProjectBudget() }}</div>
+            <div class="info-value">0 XAF</div>
           </div>
         </div>
       </div>
@@ -151,6 +151,59 @@
           <div class="card-content">
             <div class="card-label">Client</div>
             <div class="card-value">{{ projet.partnerName || 'Non renseigné' }}</div>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="info-card" *ngIf="projet.description">
+          <ion-icon name="document-text-outline" class="card-icon"></ion-icon>
+          <div class="card-content">
+            <div class="card-label">Description</div>
+            <div class="card-value description-text" [innerHTML]="projet.description"></div>
+          </div>
+        </div>
+
+        <!-- Nouvelles informations -->
+        <div class="info-card">
+          <ion-icon name="calendar-outline" class="card-icon"></ion-icon>
+          <div class="card-content">
+            <div class="card-label">Date de création</div>
+            <div class="card-value">{{ projet.createDate ? (projet.createDate | date:'dd/MM/yyyy') : 'Non renseigné' }}</div>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <ion-icon name="create-outline" class="card-icon"></ion-icon>
+          <div class="card-content">
+            <div class="card-label">Dernière modification</div>
+            <div class="card-value">{{ projet.writeDate ? (projet.writeDate | date:'dd/MM/yyyy') : 'Non renseigné' }}</div>
+          </div>
+        </div>
+
+        <!-- Informations sur les heures -->
+        <div class="info-card">
+          <ion-icon name="time-outline" class="card-icon"></ion-icon>
+          <div class="card-content">
+            <div class="card-label">Heures réalisées</div>
+            <div class="card-value">{{ projet.effectiveHours || 0 }}h</div>
+          </div>
+        </div>
+
+        <!-- Informations sur le site -->
+        <div class="info-card" *ngIf="projet.siteArea || projet.siteWidth || projet.siteLength">
+          <ion-icon name="location-outline" class="card-icon"></ion-icon>
+          <div class="card-content">
+            <div class="card-label">Superficie du site</div>
+            <div class="card-value">{{ getSiteInfo() }}</div>
+          </div>
+        </div>
+
+        <!-- Carte -->
+        <div class="info-card map-card" *ngIf="projet.latitude && projet.longitude">
+          <ion-icon name="map-outline" class="card-icon"></ion-icon>
+          <div class="card-content">
+            <div class="card-label">Localisation</div>
+            <div id="map" class="map-container"></div>
           </div>
         </div>
       </div>

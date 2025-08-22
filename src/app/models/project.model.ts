@@ -45,6 +45,7 @@ export class Project extends BaseModel implements IProject {
   closedTaskCount: number = 0;
   collaboratorCount: number = 0;
   expenseCount: number = 0;
+  expenseIds: number[] = [];
   purchaseOrderCount: number = 0;
   vendorBillCount: number = 0;
   maintenanceRequestCount: number = 0;
@@ -116,6 +117,27 @@ export class Project extends BaseModel implements IProject {
 
       // Types et catégories
       this.constructionType = this.formatConstructionType(rawData.type_of_construction || false);
+
+      // Informations de site
+      this.siteName = this.cleanString(rawData.site_name || false);
+      this.siteArea = this.cleanNumber(rawData.site_area);
+      this.siteLength = this.cleanNumber(rawData.site_length);
+      this.siteWidth = this.cleanNumber(rawData.site_width);
+
+      // Coordonnées géographiques
+      this.latitude = this.cleanNumber(rawData.latitude);
+      this.longitude = this.cleanNumber(rawData.longitude);
+
+      // Dates
+      this.createDate = this.parseOdooDate(rawData.create_date);
+      this.writeDate = this.parseOdooDate(rawData.write_date);
+
+      // Heures effectives
+      this.effectiveHours = this.cleanNumber(rawData.effective_hours);
+
+      // Dépenses
+      this.expenseIds = rawData.expense_ids || [];
+      this.expenseCount = this.expenseIds.length;
 
       // État et statut
       this.state = this.formatState(rawData.state);
@@ -353,13 +375,33 @@ export class Project extends BaseModel implements IProject {
    * Retourne les dimensions du site
    */
   getSiteDimensions(): string {
-    if (this.siteLength && this.siteWidth) {
-      return `${this.siteLength}m × ${this.siteWidth}m`;
+    const parts = [];
+    
+    if (this.siteName && this.siteName !== '') {
+      parts.push(this.siteName);
     }
-    if (this.siteArea) {
+    
+    if (this.siteLength && this.siteWidth) {
+      parts.push(`${this.siteLength}m × ${this.siteWidth}m`);
+    } else if (this.siteArea) {
+      parts.push(`${this.siteArea}m²`);
+    }
+    
+    if (parts.length > 0) {
+      return parts.join(' - ');
+    }
+    
+    return 'Site non renseigné';
+  }
+
+  /**
+   * Retourne uniquement la superficie du site pour la vue liste
+   */
+  getSiteAreaDisplay(): string {
+    if (this.siteArea && this.siteArea > 0) {
       return `${this.siteArea}m²`;
     }
-    return 'Non renseignées';
+    return 'Superficie non renseignée';
   }
 
   /**

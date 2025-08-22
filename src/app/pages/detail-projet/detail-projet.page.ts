@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
@@ -7,6 +7,7 @@ import { Project } from '../../models/project.model';
 import { ToastController } from '@ionic/angular/standalone';
 import { HeaderTitleService } from '../../services/header-title.service';
 import { addIcons } from 'ionicons';
+import * as L from 'leaflet';
 import { 
   playCircleOutline,
   listOutline,
@@ -19,7 +20,11 @@ import {
   personOutline,
   businessOutline,
   alertCircleOutline,
-  refreshOutline
+  refreshOutline,
+  createOutline,
+  mapOutline,
+  checkmarkCircleOutline,
+  documentTextOutline
 } from 'ionicons/icons';
 
 @Component({
@@ -29,12 +34,13 @@ import {
   templateUrl: './detail-projet.page.html',
   styleUrls: ['./detail-projet.page.scss']
 })
-export class DetailProjetPage implements OnInit {
+export class DetailProjetPage implements OnInit, AfterViewInit {
   projet: Project | null = null;
   isLoading: boolean = true;
   errorMessage: string = '';
   keyIndicators: any[] = [];
   private projetId: number = 0;
+  private mapInitialized: boolean = false;
 
   constructor(
     private route: ActivatedRoute, 
@@ -56,7 +62,11 @@ export class DetailProjetPage implements OnInit {
       personOutline,
       businessOutline,
       alertCircleOutline,
-      refreshOutline
+      refreshOutline,
+      createOutline,
+      mapOutline,
+      checkmarkCircleOutline,
+      documentTextOutline
     });
   }
 
@@ -68,6 +78,15 @@ export class DetailProjetPage implements OnInit {
         this.loadProjet(this.projetId);
       }
     });
+  }
+
+  ngAfterViewInit() {
+    console.log('🗺️ DetailProjetPage - ngAfterViewInit() appelé');
+    // Initialiser la carte après que la vue soit chargée
+    setTimeout(() => {
+      console.log('🗺️ DetailProjetPage - Tentative d\'initialisation de la carte');
+      this.initMap();
+    }, 1000);
   }
 
   loadProjet(id: number) {
@@ -86,6 +105,12 @@ export class DetailProjetPage implements OnInit {
         } else {
           this.headerTitleService.setTitle('Détail Projet');
         }
+        
+        // Initialiser la carte après le chargement des données
+        setTimeout(() => {
+          console.log('🗺️ Tentative d\'initialisation de la carte après chargement des données');
+          this.initMap();
+        }, 1000);
       },
       error: (error) => {
         console.error('Erreur lors du chargement du projet:', error);
@@ -128,31 +153,30 @@ export class DetailProjetPage implements OnInit {
       { 
         label: 'Tâches non lancées', 
         icon: 'time-outline', 
-        value: Math.max(0, (this.projet.taskCount || 0) - (this.projet.openTaskCount || 0) - (this.projet.closedTaskCount || 0)),
+        value: Math.max(0, (this.projet.taskCount || 0) - (this.projet.openTaskCount || 0)),
         color: '#8c755e',
         action: 'tasks'
       },
-      // Ligne 2 : Ressources
+      // Ligne 2 : Ressources et Finances
       { 
-        label: 'Ressources disponibles', 
-        icon: 'people-outline', 
-        value: this.projet.collaboratorCount || 0,
-        color: '#FCC15D',
-        action: 'resources'
-      },
-      { 
-        label: 'Hommes utilisés', 
-        icon: 'construct-outline', 
-        value: Math.floor((this.projet.collaboratorCount || 0) * 0.7), // Simulation
-        color: '#FD5200',
-        action: 'resources'
-      },
-      // Finances
-      { 
-        label: 'Solde caisse/0 XAF', 
+        label: 'Dépenses', 
         icon: 'wallet-outline', 
-        value: '2 000 000 XAF',
+        value: this.projet.expenseCount || 0,
         color: '#FCC15D',
+        action: 'expenses'
+      },
+      { 
+        label: 'Heures réalisées', 
+        icon: 'time-outline', 
+        value: this.projet.effectiveHours || 0,
+        color: '#FD5200',
+        action: 'hours'
+      },
+      { 
+        label: 'Solde caisse', 
+        icon: 'wallet-outline', 
+        value: '0 XAF',
+        color: '#8c755e',
         action: 'caisse'
       }
     ];
@@ -191,8 +215,11 @@ export class DetailProjetPage implements OnInit {
       case 'tasks':
         this.goToTaches();
         break;
-      case 'resources':
-        this.goToRessources();
+      case 'expenses':
+        this.showToast(`Dépenses: ${indicator.value}`, 'primary');
+        break;
+      case 'hours':
+        this.showToast(`Heures réalisées: ${indicator.value}h`, 'primary');
         break;
       case 'caisse':
         this.goToCaisse();
@@ -214,36 +241,7 @@ export class DetailProjetPage implements OnInit {
     return 'Douala, Cameroun'; // Valeur par défaut
   }
 
-  getProjectBudget(): string {
-    if (!this.projet) return 'Non renseigné';
-    
-    // Utiliser les données réelles du projet si disponibles
-    if (this.projet.effectiveHours && this.projet.effectiveHours > 0) {
-      // Simulation de budget basée sur les heures effectives
-      const budgetPerHour = 50000; // 50 000 XAF par heure
-      const totalBudget = this.projet.effectiveHours * budgetPerHour;
-      return this.formatCurrency(totalBudget);
-    }
-    
-    // Fallback basé sur le type de construction
-    const budgets: { [key: string]: string } = {
-      'Résidentiel': '15 000 000 XAF',
-      'Commercial': '25 000 000 XAF',
-      'Industriel': '50 000 000 XAF',
-      'Institutionnel': '35 000 000 XAF'
-    };
-    
-    return budgets[this.projet.constructionType] || '20 000 000 XAF';
-  }
 
-  private formatCurrency(amount: number): string {
-    return new Intl.NumberFormat('fr-FR', {
-      style: 'currency',
-      currency: 'XAF',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(amount);
-  }
 
   getProjectProgress(): number {
     if (!this.projet) return 0;
@@ -262,4 +260,82 @@ export class DetailProjetPage implements OnInit {
     
     return stateColors[this.projet.state] || '#8c755e';
   }
+
+  // Nouvelle méthode pour afficher les informations du site
+  getSiteInfo(): string {
+    if (!this.projet) return 'Non renseigné';
+    
+    const parts = [];
+    
+    if (this.projet.siteArea && this.projet.siteArea > 0) {
+      parts.push(`${this.projet.siteArea}m²`);
+    }
+    
+    if (this.projet.siteLength && this.projet.siteWidth) {
+      parts.push(`${this.projet.siteLength}m × ${this.projet.siteWidth}m`);
+    }
+    
+    if (parts.length > 0) {
+      return parts.join(' - ');
+    }
+    
+    return 'Non renseigné';
+  }
+
+  // Méthode pour initialiser la carte
+  initMap() {
+    // Éviter les initialisations multiples
+    if (this.mapInitialized) {
+      console.log('🗺️ Carte déjà initialisée, ignoré');
+      return;
+    }
+    
+    console.log('🗺️ initMap() - Début de l\'initialisation');
+    console.log('🗺️ Projet:', this.projet);
+    console.log('🗺️ Latitude:', this.projet?.latitude, 'Longitude:', this.projet?.longitude);
+    
+    if (!this.projet?.latitude || !this.projet?.longitude) {
+      console.warn('🗺️ Pas de coordonnées disponibles pour la carte');
+      return;
+    }
+    
+    try {
+      const mapElement = document.getElementById('map');
+      console.log('🗺️ Élément map trouvé:', !!mapElement);
+      if (!mapElement) {
+        console.warn('🗺️ Élément map non trouvé');
+        return;
+      }
+      
+      // Nettoyer le contenu existant
+      mapElement.innerHTML = '';
+      console.log('🗺️ Création de la carte...');
+      
+      // Configuration des icônes Leaflet pour éviter les erreurs 404
+      delete (L.Icon.Default.prototype as any)._getIconUrl;
+      L.Icon.Default.mergeOptions({
+        iconRetinaUrl: 'assets/marker-icon-2x.png',
+        iconUrl: 'assets/marker-icon.png',
+        shadowUrl: 'assets/marker-shadow.png',
+      });
+      
+      const map = L.map('map').setView([this.projet.latitude, this.projet.longitude], 16);
+      console.log('🗺️ Carte créée, ajout des tuiles...');
+      
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
+      
+      console.log('🗺️ Ajout du marqueur...');
+      L.marker([this.projet.latitude, this.projet.longitude]).addTo(map)
+        .bindPopup(this.projet.siteName || 'Site du projet').openPopup();
+      
+      console.log('🗺️ Carte initialisée avec succès');
+      this.mapInitialized = true;
+    } catch (error) {
+      console.error('🗺️ Erreur lors de l\'initialisation de la carte:', error);
+    }
+  }
+
+
 } 

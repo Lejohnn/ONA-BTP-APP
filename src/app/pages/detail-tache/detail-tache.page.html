@@ -33,7 +33,13 @@
   <div *ngIf="!isLoading && !errorMessage && task" class="detail-tache-container">
     <!-- En-tête de la tâche -->
     <div class="detail-tache-header">
-      <h1 class="detail-tache-nom">{{ task.name }}</h1>
+      <div class="task-header-row">
+        <h1 class="detail-tache-nom">{{ task.name }}</h1>
+        <div class="task-type-badge" [ngClass]="getTaskTypeClass()">
+          <ion-icon [name]="getTaskTypeIcon()"></ion-icon>
+          <span>{{ getTaskTypeLabel() }}</span>
+        </div>
+      </div>
       <p class="detail-tache-description" *ngIf="task.description">{{ task.description }}</p>
     </div>
 
@@ -151,6 +157,291 @@
           <div class="relation-info">
             <div class="relation-label">Étape</div>
             <div class="relation-value">{{ task.stageName }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hiérarchie des tâches -->
+    <div class="detail-tache-hierarchy-block" *ngIf="isParentTask() || isChildTask()">
+      <h3 class="section-title">Hiérarchie des tâches</h3>
+      <div class="hierarchy-info">
+        <!-- Tâche parent -->
+        <div class="hierarchy-item parent-task" *ngIf="isChildTask()">
+          <ion-icon name="arrow-up-outline"></ion-icon>
+          <div class="hierarchy-info-content">
+            <div class="hierarchy-label">Sous-tâche de</div>
+            <div class="hierarchy-value">{{ task.parentName || 'Tâche parent' }}</div>
+          </div>
+        </div>
+        
+        <!-- Sous-tâches -->
+        <div class="hierarchy-item child-tasks" *ngIf="isParentTask()">
+          <ion-icon name="arrow-down-outline"></ion-icon>
+          <div class="hierarchy-info-content">
+            <div class="hierarchy-label">Sous-tâches</div>
+            <div class="hierarchy-value">
+              <span *ngIf="task.childIds.length === 0">Aucune sous-tâche</span>
+              <span *ngIf="task.childIds.length > 0">{{ task.childIds.length }} sous-tâche(s)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Onglets de détail -->
+    <div class="detail-tache-tabs">
+      <h3 class="section-title">Détails de la tâche</h3>
+      
+      <!-- Navigation des onglets -->
+      <div class="tabs-navigation">
+        <div class="tabs-grid">
+          <div class="tab-card" 
+               [class.active]="isTabSelected('materials')" 
+               (click)="selectTab('materials')">
+            <div class="tab-icon">
+              <ion-icon name="construct-outline"></ion-icon>
+            </div>
+            <div class="tab-info">
+              <div class="tab-title">Matériaux</div>
+              <div class="tab-count">{{ getTabCount('materials') }}</div>
+            </div>
+          </div>
+          
+          <div class="tab-card" 
+               [class.active]="isTabSelected('consumed')" 
+               (click)="selectTab('consumed')">
+            <div class="tab-icon">
+              <ion-icon name="checkmark-circle-outline"></ion-icon>
+            </div>
+            <div class="tab-info">
+              <div class="tab-title">Consommés</div>
+              <div class="tab-count">{{ getTabCount('consumed') }}</div>
+            </div>
+          </div>
+          
+          <div class="tab-card" 
+               [class.active]="isTabSelected('vehicles')" 
+               (click)="selectTab('vehicles')">
+            <div class="tab-icon">
+              <ion-icon name="car-outline"></ion-icon>
+            </div>
+            <div class="tab-info">
+              <div class="tab-title">Véhicules</div>
+              <div class="tab-count">{{ getTabCount('vehicles') }}</div>
+            </div>
+          </div>
+          
+          <div class="tab-card" 
+               [class.active]="isTabSelected('equipment')" 
+               (click)="selectTab('equipment')">
+            <div class="tab-icon">
+              <ion-icon name="hardware-chip-outline"></ion-icon>
+            </div>
+            <div class="tab-info">
+              <div class="tab-title">Équipements</div>
+              <div class="tab-count">{{ getTabCount('equipment') }}</div>
+            </div>
+          </div>
+          
+          <div class="tab-card" 
+               [class.active]="isTabSelected('expenses')" 
+               (click)="selectTab('expenses')">
+            <div class="tab-icon">
+              <ion-icon name="card-outline"></ion-icon>
+            </div>
+            <div class="tab-info">
+              <div class="tab-title">Dépenses</div>
+              <div class="tab-count">{{ getTabCount('expenses') }}</div>
+            </div>
+          </div>
+          
+          <div class="tab-card" 
+               [class.active]="isTabSelected('timesheets')" 
+               (click)="selectTab('timesheets')">
+            <div class="tab-icon">
+              <ion-icon name="time-outline"></ion-icon>
+            </div>
+            <div class="tab-info">
+              <div class="tab-title">Feuilles de temps</div>
+              <div class="tab-count">{{ getTabCount('timesheets') }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contenu des onglets -->
+      <div class="tabs-content">
+        <!-- Onglet Planification des matériaux -->
+        <div *ngIf="isTabSelected('materials')" class="tab-panel">
+          <div class="tab-header">
+            <h4>Planification des matériaux</h4>
+            <ion-button fill="clear" size="small">
+              <ion-icon name="add-outline" slot="start"></ion-icon>
+              Ajouter
+            </ion-button>
+          </div>
+          <div class="tab-content">
+            <div *ngIf="(tabData?.materialPlans?.length || 0) === 0" class="empty-state">
+              <ion-icon name="construct-outline" class="empty-icon"></ion-icon>
+              <p>Aucun matériau planifié</p>
+            </div>
+            <div *ngFor="let material of tabData?.materialPlans || []" class="material-item">
+              <div class="material-info">
+                <div class="material-name">{{ material.description || 'Matériau' }}</div>
+                <div class="material-details">
+                  <span *ngIf="material.product_id">{{ material.product_id[1] }}</span>
+                  <span *ngIf="material.product_uom_qty">{{ material.product_uom_qty }} {{ material.product_uom?.[1] || 'unités' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Onglet Matériaux consommés -->
+        <div *ngIf="isTabSelected('consumed')" class="tab-panel">
+          <div class="tab-header">
+            <h4>Matériaux consommés</h4>
+            <ion-button fill="clear" size="small">
+              <ion-icon name="add-outline" slot="start"></ion-icon>
+              Ajouter
+            </ion-button>
+          </div>
+          <div class="tab-content">
+            <div *ngIf="(tabData?.consumedMaterials?.length || 0) === 0" class="empty-state">
+              <ion-icon name="checkmark-circle-outline" class="empty-icon"></ion-icon>
+              <p>Aucun matériau consommé</p>
+            </div>
+            <div *ngFor="let consumed of tabData?.consumedMaterials || []" class="consumed-item">
+              <div class="consumed-info">
+                <div class="consumed-name">{{ consumed.description || 'Matériau consommé' }}</div>
+                <div class="consumed-details">
+                  <span *ngIf="consumed.product_id">{{ consumed.product_id[1] }}</span>
+                  <span *ngIf="consumed.consumed_qty">{{ consumed.consumed_qty }} / {{ consumed.product_uom_qty || 0 }} {{ consumed.product_uom?.[1] || 'unités' }}</span>
+                </div>
+                <div class="consumed-status" *ngIf="consumed.is_picked">
+                  <ion-icon name="checkmark-circle" class="status-icon picked"></ion-icon>
+                  <span>Retiré</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Onglet Véhicules -->
+        <div *ngIf="isTabSelected('vehicles')" class="tab-panel">
+          <div class="tab-header">
+            <h4>Véhicules</h4>
+            <ion-button fill="clear" size="small">
+              <ion-icon name="add-outline" slot="start"></ion-icon>
+              Demander
+            </ion-button>
+          </div>
+          <div class="tab-content">
+            <div *ngIf="(tabData?.vehicleRequests?.length || 0) === 0" class="empty-state">
+              <ion-icon name="car-outline" class="empty-icon"></ion-icon>
+              <p>Aucune demande de véhicule</p>
+            </div>
+            <div *ngFor="let vehicle of tabData?.vehicleRequests || []" class="vehicle-item">
+              <div class="vehicle-info">
+                <div class="vehicle-name">{{ vehicle.name || 'Demande de véhicule' }}</div>
+                <div class="vehicle-description" *ngIf="vehicle.description">{{ vehicle.description }}</div>
+                <div class="vehicle-status" *ngIf="vehicle.state">
+                  <ion-chip [color]="getVehicleStatusColor(vehicle.state)">
+                    {{ getVehicleStatusLabel(vehicle.state) }}
+                  </ion-chip>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Onglet Équipements -->
+        <div *ngIf="isTabSelected('equipment')" class="tab-panel">
+          <div class="tab-header">
+            <h4>Équipements</h4>
+            <ion-button fill="clear" size="small">
+              <ion-icon name="add-outline" slot="start"></ion-icon>
+              Demander
+            </ion-button>
+          </div>
+          <div class="tab-content">
+            <div *ngIf="(tabData?.equipmentRequests?.length || 0) === 0" class="empty-state">
+              <ion-icon name="hardware-chip-outline" class="empty-icon"></ion-icon>
+              <p>Aucune demande d'équipement</p>
+            </div>
+            <div *ngFor="let equipment of tabData?.equipmentRequests || []" class="equipment-item">
+              <div class="equipment-info">
+                <div class="equipment-name">{{ equipment.name || 'Demande d\'équipement' }}</div>
+                <div class="equipment-description" *ngIf="equipment.description">{{ equipment.description }}</div>
+                <div class="equipment-status" *ngIf="equipment.state">
+                  <ion-chip [color]="getEquipmentStatusColor(equipment.state)">
+                    {{ getEquipmentStatusLabel(equipment.state) }}
+                  </ion-chip>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Onglet Dépenses -->
+        <div *ngIf="isTabSelected('expenses')" class="tab-panel">
+          <div class="tab-header">
+            <h4>Dépenses</h4>
+            <ion-button fill="clear" size="small">
+              <ion-icon name="add-outline" slot="start"></ion-icon>
+              Ajouter
+            </ion-button>
+          </div>
+          <div class="tab-content">
+            <div *ngIf="(tabData?.expenses?.length || 0) === 0" class="empty-state">
+              <ion-icon name="card-outline" class="empty-icon"></ion-icon>
+              <p>Aucune dépense enregistrée</p>
+            </div>
+            <div *ngFor="let expense of tabData?.expenses || []" class="expense-item">
+              <div class="expense-info">
+                <div class="expense-name">{{ expense.name }}</div>
+                <div class="expense-details">
+                  <span *ngIf="expense.product_id">{{ expense.product_id[1] }}</span>
+                  <span *ngIf="expense.date">{{ expense.date | date:'dd/MM/yyyy' }}</span>
+                </div>
+                <div class="expense-amount">
+                  <span class="amount">{{ expense.total_amount | number:'1.0-0' }} XAF</span>
+                  <ion-chip [color]="getExpenseStatusColor(expense.state)">
+                    {{ getExpenseStatusLabel(expense.state) }}
+                  </ion-chip>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Onglet Feuilles de temps -->
+        <div *ngIf="isTabSelected('timesheets')" class="tab-panel">
+          <div class="tab-header">
+            <h4>Feuilles de temps</h4>
+            <ion-button fill="clear" size="small">
+              <ion-icon name="add-outline" slot="start"></ion-icon>
+              Ajouter
+            </ion-button>
+          </div>
+          <div class="tab-content">
+            <div *ngIf="(tabData?.timesheets?.length || 0) === 0" class="empty-state">
+              <ion-icon name="time-outline" class="empty-icon"></ion-icon>
+              <p>Aucune feuille de temps</p>
+            </div>
+            <div *ngFor="let timesheet of tabData?.timesheets || []" class="timesheet-item">
+              <div class="timesheet-info">
+                <div class="timesheet-name">{{ timesheet.name }}</div>
+                <div class="timesheet-details">
+                  <span *ngIf="timesheet.employee_id">{{ timesheet.employee_id[1] }}</span>
+                  <span *ngIf="timesheet.date">{{ timesheet.date | date:'dd/MM/yyyy' }}</span>
+                </div>
+                <div class="timesheet-hours">
+                  <span class="hours">{{ timesheet.unit_amount }}h</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
